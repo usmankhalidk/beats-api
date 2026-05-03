@@ -1,0 +1,241 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  user
+  producer
+  admin
+}
+
+enum LicenseType {
+  basic
+  premium
+  exclusive
+}
+
+enum OrderStatus {
+  pending
+  paid
+  failed
+  cancelled
+}
+
+model User {
+  id                     String    @id @default(uuid()) @db.Char(36)
+  name                   String    @db.VarChar(255)
+  email                  String    @unique @db.VarChar(255)
+  password               String    @db.VarChar(255)
+  role                   UserRole  @default(user)
+  bio                    String?   @db.Text
+  avatarUrl              String?   @map("avatar_url") @db.VarChar(500)
+  emailVerified          Boolean   @default(false) @map("email_verified")
+  emailVerificationToken String?   @map("email_verification_token") @db.VarChar(255)
+  passwordResetToken     String?   @map("password_reset_token") @db.VarChar(255)
+  passwordResetExpiresAt DateTime? @map("password_reset_expires_at")
+  createdAt              DateTime  @default(now()) @map("created_at")
+  updatedAt              DateTime  @updatedAt @map("updated_at")
+
+  refreshTokens RefreshToken[]
+  beats         Beat[]         @relation("ProducerBeats")
+  cartItems     CartItem[]
+  orders        Order[]
+  downloads     Download[]
+  playlists     Playlist[]
+  earnings      Earning[]      @relation("ProducerEarnings")
+
+  @@index([email])
+  @@map("users")
+}
+
+model RefreshToken {
+  id        String   @id @default(uuid()) @db.Char(36)
+  userId    String   @map("user_id") @db.Char(36)
+  tokenHash String   @map("token_hash") @db.VarChar(255)
+  expiresAt DateTime @map("expires_at")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([tokenHash])
+  @@map("refresh_tokens")
+}
+
+model Beat {
+  id              String    @id @default(uuid()) @db.Char(36)
+  title           String    @db.VarChar(255)
+  description     String?   @db.Text
+  bpm             Int
+  priceBasic      Decimal   @map("price_basic") @db.Decimal(10, 2)
+  pricePremium    Decimal   @map("price_premium") @db.Decimal(10, 2)
+  priceExclusive  Decimal   @map("price_exclusive") @db.Decimal(10, 2)
+  isFree          Boolean   @default(false) @map("is_free")
+  isExclusiveSold Boolean   @default(false) @map("is_exclusive_sold")
+  audioUrl        String?   @map("audio_url") @db.VarChar(500)
+  coverImageUrl   String?   @map("cover_image_url") @db.VarChar(500)
+  producerId      String    @map("producer_id") @db.Char(36)
+  createdAt       DateTime  @default(now()) @map("created_at")
+  updatedAt       DateTime  @updatedAt @map("updated_at")
+  deletedAt       DateTime? @map("deleted_at")
+
+  producer       User           @relation("ProducerBeats", fields: [producerId], references: [id], onDelete: Cascade)
+  beatTags       BeatTag[]
+  beatCategories BeatCategory[]
+  cartItems      CartItem[]
+  orderItems     OrderItem[]
+  downloads      Download[]
+  playlistBeats  PlaylistBeat[]
+
+  @@index([producerId])
+  @@index([title])
+  @@index([bpm])
+  @@index([deletedAt])
+  @@map("beats")
+}
+
+model Tag {
+  id   String @id @default(uuid()) @db.Char(36)
+  name String @unique @db.VarChar(100)
+
+  beatTags BeatTag[]
+
+  @@map("tags")
+}
+
+model BeatTag {
+  beatId String @map("beat_id") @db.Char(36)
+  tagId  String @map("tag_id") @db.Char(36)
+
+  beat Beat @relation(fields: [beatId], references: [id], onDelete: Cascade)
+  tag  Tag  @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([beatId, tagId])
+  @@index([tagId])
+  @@map("beat_tags")
+}
+
+model Category {
+  id   String @id @default(uuid()) @db.Char(36)
+  name String @db.VarChar(100)
+  slug String @unique @db.VarChar(100)
+
+  beatCategories BeatCategory[]
+
+  @@map("categories")
+}
+
+model BeatCategory {
+  beatId     String @map("beat_id") @db.Char(36)
+  categoryId String @map("category_id") @db.Char(36)
+
+  beat     Beat     @relation(fields: [beatId], references: [id], onDelete: Cascade)
+  category Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  @@id([beatId, categoryId])
+  @@index([categoryId])
+  @@map("beat_categories")
+}
+
+model CartItem {
+  id          String      @id @default(uuid()) @db.Char(36)
+  userId      String      @map("user_id") @db.Char(36)
+  beatId      String      @map("beat_id") @db.Char(36)
+  licenseType LicenseType @map("license_type")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  beat Beat @relation(fields: [beatId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, beatId, licenseType])
+  @@index([userId])
+  @@map("cart_items")
+}
+
+model Order {
+  id          String      @id @default(uuid()) @db.Char(36)
+  userId      String      @map("user_id") @db.Char(36)
+  totalAmount Decimal     @map("total_amount") @db.Decimal(10, 2)
+  status      OrderStatus @default(pending)
+  createdAt   DateTime    @default(now()) @map("created_at")
+
+  user       User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  orderItems OrderItem[]
+  downloads  Download[]
+  earnings   Earning[]
+
+  @@index([userId])
+  @@map("orders")
+}
+
+model OrderItem {
+  id          String      @id @default(uuid()) @db.Char(36)
+  orderId     String      @map("order_id") @db.Char(36)
+  beatId      String      @map("beat_id") @db.Char(36)
+  licenseType LicenseType @map("license_type")
+  price       Decimal     @db.Decimal(10, 2)
+
+  order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  beat  Beat  @relation(fields: [beatId], references: [id])
+
+  @@index([orderId])
+  @@index([beatId])
+  @@map("order_items")
+}
+
+model Download {
+  id        String   @id @default(uuid()) @db.Char(36)
+  userId    String   @map("user_id") @db.Char(36)
+  beatId    String   @map("beat_id") @db.Char(36)
+  orderId   String   @map("order_id") @db.Char(36)
+  expiresAt DateTime @map("expires_at")
+
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  beat  Beat  @relation(fields: [beatId], references: [id])
+  order Order @relation(fields: [orderId], references: [id])
+
+  @@index([userId])
+  @@map("downloads")
+}
+
+model Playlist {
+  id     String @id @default(uuid()) @db.Char(36)
+  userId String @map("user_id") @db.Char(36)
+  name   String @db.VarChar(255)
+
+  user          User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  playlistBeats PlaylistBeat[]
+
+  @@index([userId])
+  @@map("playlists")
+}
+
+model PlaylistBeat {
+  playlistId String @map("playlist_id") @db.Char(36)
+  beatId     String @map("beat_id") @db.Char(36)
+
+  playlist Playlist @relation(fields: [playlistId], references: [id], onDelete: Cascade)
+  beat     Beat     @relation(fields: [beatId], references: [id], onDelete: Cascade)
+
+  @@id([playlistId, beatId])
+  @@index([beatId])
+  @@map("playlist_beats")
+}
+
+model Earning {
+  id            String   @id @default(uuid()) @db.Char(36)
+  producerId    String   @map("producer_id") @db.Char(36)
+  amount        Decimal  @db.Decimal(10, 2)
+  sourceOrderId String   @map("source_order_id") @db.Char(36)
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  producer    User  @relation("ProducerEarnings", fields: [producerId], references: [id], onDelete: Cascade)
+  sourceOrder Order @relation(fields: [sourceOrderId], references: [id])
+
+  @@index([producerId])
+  @@map("earnings")
+}
