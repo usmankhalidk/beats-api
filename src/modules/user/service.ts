@@ -1,5 +1,5 @@
 import { Errors } from '@utils/api-error';
-import type { UpdateProfileInput, ChangePasswordInput } from './validation';
+import type { UpdateAvatarInput, UpdateProfileInput } from './validation';
 
 export interface PublicUser {
   id: string;
@@ -20,6 +20,6 @@ export async function updateProfile(_userId: string, _input: UpdateProfileInput)
   throw Errors.notImplemented({ feature: 'user.updateProfile' });
 }
 
-export async function changePassword(_userId: string, _input: ChangePasswordInput): Promise<void> {
-  throw Errors.notImplemented({ feature: 'user.changePassword' });
+export async function updateAvatar(_userId: string, _input: UpdateAvatarInput): Promise<PublicUser> {
+  throw Errors.notImplemented({ feature: 'user.updateAvatar' });
 }

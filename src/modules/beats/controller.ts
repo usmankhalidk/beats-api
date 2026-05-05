@@ -3,7 +3,13 @@ import { successResponse } from '@utils/response';
 import { Errors } from '@utils/api-error';
 import { HTTP_STATUS } from '@constants/http-status';
 import * as beatsService from './service';
-import type { ListBeatsQuery } from './validation';
+import type {
+  FeaturedBeatsQuery,
+  FilterBeatsQuery,
+  FreeBeatsQuery,
+  ListBeatsQuery,
+  SearchBeatsQuery,
+} from './validation';
 
 function requireUserId(req: Request): string {
   if (!req.user) throw Errors.unauthorized();
@@ -12,6 +18,26 @@ function requireUserId(req: Request): string {
 
 export async function list(req: Request, res: Response): Promise<Response> {
   const { items, meta } = await beatsService.listBeats(req.query as unknown as ListBeatsQuery);
+  return successResponse(res, { data: items, meta });
+}
+
+export async function search(req: Request, res: Response): Promise<Response> {
+  const { items, meta } = await beatsService.searchBeats(req.query as unknown as SearchBeatsQuery);
+  return successResponse(res, { data: items, meta });
+}
+
+export async function filter(req: Request, res: Response): Promise<Response> {
+  const { items, meta } = await beatsService.filterBeats(req.query as unknown as FilterBeatsQuery);
+  return successResponse(res, { data: items, meta });
+}
+
+export async function featured(req: Request, res: Response): Promise<Response> {
+  const { items, meta } = await beatsService.featuredBeats(req.query as unknown as FeaturedBeatsQuery);
+  return successResponse(res, { data: items, meta });
+}
+
+export async function free(req: Request, res: Response): Promise<Response> {
+  const { items, meta } = await beatsService.freeBeats(req.query as unknown as FreeBeatsQuery);
   return successResponse(res, { data: items, meta });
 }
 
@@ -25,8 +51,8 @@ export async function create(req: Request, res: Response): Promise<Response> {
   return successResponse(res, { data, message: 'BEAT_CREATED', code: HTTP_STATUS.CREATED });
 }
 
-export async function update(req: Request, res: Response): Promise<Response> {
-  const data = await beatsService.updateBeat(requireUserId(req), req.params.id, req.body);
+export async function replace(req: Request, res: Response): Promise<Response> {
+  const data = await beatsService.replaceBeat(requireUserId(req), req.params.id, req.body);
   return successResponse(res, { data, message: 'BEAT_UPDATED' });
 }
 

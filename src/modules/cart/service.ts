@@ -18,7 +18,3 @@ export async function addItem(_userId: string, _input: AddCartItemInput): Promis
 export async function removeItem(_userId: string, _cartItemId: string): Promise<void> {
   throw Errors.notImplemented({ feature: 'cart.remove' });
 }
-
-export async function clearCart(_userId: string): Promise<void> {
-  throw Errors.notImplemented({ feature: 'cart.clear' });
-}

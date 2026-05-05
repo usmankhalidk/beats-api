@@ -12,20 +12,37 @@ export const idParamSchema = z.object({
 export type IdParam = z.infer<typeof idParamSchema>;
 
 export const listBeatsQuerySchema = paginationQuerySchema.extend({
+  sort: z.enum(['newest', 'oldest', 'priceAsc', 'priceDesc', 'bpmAsc', 'bpmDesc']).default('newest'),
+});
+export type ListBeatsQuery = z.infer<typeof listBeatsQuerySchema>;
+
+/** GET /beats/search — SQL search over title, bpm, tag name. */
+export const searchBeatsQuerySchema = paginationQuerySchema.extend({
   q: z.string().trim().min(1).max(100).optional(),
-  bpmMin: z.coerce.number().int().positive().optional(),
-  bpmMax: z.coerce.number().int().positive().optional(),
-  category: z.string().trim().optional(),
-  tag: z.string().trim().optional(),
+  bpm: z.coerce.number().int().positive().max(400).optional(),
+  tag: z.string().trim().min(1).max(100).optional(),
+}).refine((v) => v.q !== undefined || v.bpm !== undefined || v.tag !== undefined, {
+  message: 'at least one of q, bpm, or tag is required',
+});
+export type SearchBeatsQuery = z.infer<typeof searchBeatsQuerySchema>;
+
+/** GET /beats/filter — facet filters (genre/category, price range, free flag). */
+export const filterBeatsQuerySchema = paginationQuerySchema.extend({
+  category: z.string().trim().min(1).max(100).optional(),
+  priceMin: z.coerce.number().nonnegative().optional(),
+  priceMax: z.coerce.number().nonnegative().optional(),
   isFree: z
     .enum(['true', 'false'])
     .transform((v) => v === 'true')
     .optional(),
-  priceMin: z.coerce.number().nonnegative().optional(),
-  priceMax: z.coerce.number().nonnegative().optional(),
-  sort: z.enum(['newest', 'oldest', 'priceAsc', 'priceDesc', 'bpmAsc', 'bpmDesc']).default('newest'),
 });
-export type ListBeatsQuery = z.infer<typeof listBeatsQuerySchema>;
+export type FilterBeatsQuery = z.infer<typeof filterBeatsQuerySchema>;
+
+export const featuredBeatsQuerySchema = paginationQuerySchema;
+export type FeaturedBeatsQuery = z.infer<typeof featuredBeatsQuerySchema>;
+
+export const freeBeatsQuerySchema = paginationQuerySchema;
+export type FreeBeatsQuery = z.infer<typeof freeBeatsQuerySchema>;
 
 export const createBeatBodySchema = z.object({
   title: z.string().trim().min(1).max(255),
@@ -42,5 +59,6 @@ export const createBeatBodySchema = z.object({
 });
 export type CreateBeatInput = z.infer<typeof createBeatBodySchema>;
 
-export const updateBeatBodySchema = createBeatBodySchema.partial();
-export type UpdateBeatInput = z.infer<typeof updateBeatBodySchema>;
+/** PUT semantics — full replacement; all fields required (except optional ones). */
+export const replaceBeatBodySchema = createBeatBodySchema;
+export type ReplaceBeatInput = z.infer<typeof replaceBeatBodySchema>;

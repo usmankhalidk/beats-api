@@ -10,13 +10,21 @@ function requireUserId(req: Request): string {
 }
 
 export async function list(req: Request, res: Response): Promise<Response> {
-  const { items, meta } = await ordersService.listOrders(requireUserId(req), req.query as unknown as ListOrdersQuery);
+  const { items, meta } = await ordersService.listOrders(
+    requireUserId(req),
+    req.query as unknown as ListOrdersQuery,
+  );
   return successResponse(res, { data: items, meta });
 }
 
 export async function get(req: Request, res: Response): Promise<Response> {
   const data = await ordersService.getOrder(requireUserId(req), req.params.id);
   return successResponse(res, { data });
+}
+
+export async function validate(req: Request, res: Response): Promise<Response> {
+  const data = await ordersService.validateOrder(requireUserId(req), req.body);
+  return successResponse(res, { data, message: 'ORDER_VALIDATED' });
 }
 
 export async function checkout(req: Request, res: Response): Promise<Response> {

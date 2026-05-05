@@ -9,15 +9,16 @@ export const playlistBeatParamSchema = z.object({
 });
 export type PlaylistBeatParam = z.infer<typeof playlistBeatParamSchema>;
 
-export const createPlaylistBodySchema = z.object({
-  name: z.string().trim().min(1).max(255),
-});
+export const createPlaylistBodySchema = z
+  .object({
+    name: z.string().trim().min(1).max(255),
+  })
+  .strict();
 export type CreatePlaylistInput = z.infer<typeof createPlaylistBodySchema>;
 
-export const updatePlaylistBodySchema = createPlaylistBodySchema.partial();
-export type UpdatePlaylistInput = z.infer<typeof updatePlaylistBodySchema>;
-
-export const addBeatToPlaylistBodySchema = z.object({
-  beatId: z.string().uuid(),
-});
+export const addBeatToPlaylistBodySchema = z
+  .object({
+    beatId: z.string().uuid(),
+  })
+  .strict();
 export type AddBeatToPlaylistInput = z.infer<typeof addBeatToPlaylistBodySchema>;

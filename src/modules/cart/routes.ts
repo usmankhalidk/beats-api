@@ -10,8 +10,11 @@ const router = Router();
 router.use(authenticate);
 
 router.get('/', asyncHandler(cartController.list));
-router.post('/items', validate({ body: addCartItemBodySchema }), asyncHandler(cartController.add));
-router.delete('/items/:id', validate({ params: cartItemIdParamSchema }), asyncHandler(cartController.remove));
-router.delete('/', asyncHandler(cartController.clear));
+router.post('/add', validate({ body: addCartItemBodySchema }), asyncHandler(cartController.add));
+router.delete(
+  '/remove/:id',
+  validate({ params: cartItemIdParamSchema }),
+  asyncHandler(cartController.remove),
+);
 
 export default router;

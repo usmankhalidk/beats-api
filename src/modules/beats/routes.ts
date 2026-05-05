@@ -7,14 +7,46 @@ import { ROLES } from '@constants/roles';
 import * as beatsController from './controller';
 import {
   createBeatBodySchema,
+  featuredBeatsQuerySchema,
+  filterBeatsQuerySchema,
+  freeBeatsQuerySchema,
   idParamSchema,
   listBeatsQuerySchema,
-  updateBeatBodySchema,
+  replaceBeatBodySchema,
+  searchBeatsQuerySchema,
 } from './validation';
 
 const router = Router();
 
-// Public reads (auth optional — used to mark "owned" flags later).
+/**
+ * IMPORTANT: literal sub-routes (/search, /filter, /featured, /free) must be
+ * declared BEFORE /:id, otherwise Express matches them as ids.
+ */
+router.get(
+  '/search',
+  optionalAuthenticate,
+  validate({ query: searchBeatsQuerySchema }),
+  asyncHandler(beatsController.search),
+);
+router.get(
+  '/filter',
+  optionalAuthenticate,
+  validate({ query: filterBeatsQuerySchema }),
+  asyncHandler(beatsController.filter),
+);
+router.get(
+  '/featured',
+  optionalAuthenticate,
+  validate({ query: featuredBeatsQuerySchema }),
+  asyncHandler(beatsController.featured),
+);
+router.get(
+  '/free',
+  optionalAuthenticate,
+  validate({ query: freeBeatsQuerySchema }),
+  asyncHandler(beatsController.free),
+);
+
 router.get(
   '/',
   optionalAuthenticate,
@@ -28,7 +60,7 @@ router.get(
   asyncHandler(beatsController.get),
 );
 
-// Producer-only writes.
+// Producer-only writes
 router.post(
   '/',
   authenticate,
@@ -36,12 +68,12 @@ router.post(
   validate({ body: createBeatBodySchema }),
   asyncHandler(beatsController.create),
 );
-router.patch(
+router.put(
   '/:id',
   authenticate,
   requireRoles(ROLES.PRODUCER, ROLES.ADMIN),
-  validate({ params: idParamSchema, body: updateBeatBodySchema }),
-  asyncHandler(beatsController.update),
+  validate({ params: idParamSchema, body: replaceBeatBodySchema }),
+  asyncHandler(beatsController.replace),
 );
 router.delete(
   '/:id',
