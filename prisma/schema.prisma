@@ -7,235 +7,1400 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-enum UserRole {
-  user
-  producer
-  admin
-}
-
-enum LicenseType {
-  basic
-  premium
-  exclusive
-}
-
-enum OrderStatus {
-  pending
-  paid
-  failed
-  cancelled
-}
-
 model User {
-  id                     String    @id @default(uuid()) @db.Char(36)
-  name                   String    @db.VarChar(255)
-  email                  String    @unique @db.VarChar(255)
-  password               String    @db.VarChar(255)
-  role                   UserRole  @default(user)
-  bio                    String?   @db.Text
-  avatarUrl              String?   @map("avatar_url") @db.VarChar(500)
-  emailVerified          Boolean   @default(false) @map("email_verified")
-  emailVerificationToken String?   @map("email_verification_token") @db.VarChar(255)
-  passwordResetToken     String?   @map("password_reset_token") @db.VarChar(255)
-  passwordResetExpiresAt DateTime? @map("password_reset_expires_at")
-  createdAt              DateTime  @default(now()) @map("created_at")
-  updatedAt              DateTime  @updatedAt @map("updated_at")
+  id                                           BigInt                 @id @default(autoincrement()) @db.UnsignedBigInt
+  firstname                                    String?                @db.VarChar(50)
+  lastname                                     String?                @db.VarChar(50)
+  username                                     String?                @unique(map: "users_username_unique") @db.VarChar(50)
+  email                                        String?                @unique(map: "users_email_unique") @db.VarChar(100)
+  address                                      String?                @db.Text
+  password                                     String?                @db.VarChar(255)
+  api_key                                      String?                @db.VarChar(255)
+  is_author                                    Boolean                @default(false)
+  is_featured_author                           Boolean                @default(false)
+  balance                                      Float                  @default(0)
+  level_id                                     BigInt?                @db.UnsignedBigInt
+  exclusivity                                  users_exclusivity?
+  total_sales                                  BigInt                 @default(0) @db.UnsignedBigInt
+  total_sales_amount                           Float?                 @default(0)
+  total_referrals_earnings                     Float?                 @default(0)
+  total_reviews                                BigInt                 @default(0) @db.UnsignedBigInt
+  avg_reviews                                  BigInt                 @default(0) @db.UnsignedBigInt
+  total_followers                              BigInt                 @default(0) @db.UnsignedBigInt
+  total_following                              BigInt                 @default(0) @db.UnsignedBigInt
+  avatar                                       String?                @db.VarChar(255)
+  profile_cover                                String?                @db.VarChar(255)
+  profile_heading                              String?                @db.VarChar(255)
+  profile_description                          String?                @db.LongText
+  profile_contact_email                        String?                @db.VarChar(255)
+  profile_social_links                         String?                @db.Text
+  facebook_id                                  String?                @unique(map: "users_facebook_id_unique") @db.VarChar(255)
+  google_id                                    String?                @unique(map: "users_google_id_unique") @db.VarChar(255)
+  microsoft_id                                 String?                @unique(map: "microsoft_id") @db.VarChar(255)
+  vkontakte_id                                 String?                @unique(map: "vkontakte_id") @db.VarChar(255)
+  envato_id                                    String?                @unique(map: "envato_id") @db.VarChar(255)
+  github_id                                    String?                @unique(map: "github_id") @db.VarChar(255)
+  withdrawal_method_id                         BigInt?                @db.UnsignedBigInt
+  withdrawal_account                           String?                @db.Text
+  was_subscribed                               Boolean                @default(false)
+  email_verified_at                            DateTime?              @db.Timestamp(0)
+  kyc_status                                   Boolean                @default(false)
+  google2fa_status                             Boolean                @default(false)
+  google2fa_secret                             String?                @db.Text
+  status                                       Boolean                @default(true)
+  remember_token                               String?                @db.VarChar(100)
+  createdAt                                    DateTime?              @map("created_at") @db.Timestamp(0)
+  updatedAt                                    DateTime?              @updatedAt @map("updated_at") @db.Timestamp(0)
+  blog_comments                                blog_comments[]
+  cartItems                                    CartItem[]
+  favorites                                    favorites[]
+  followers_followers_follower_idTousers       followers[]            @relation("followers_follower_idTousers")
+  followers_followers_following_idTousers      followers[]            @relation("followers_following_idTousers")
+  item_comment_replies                         item_comment_replies[]
+  item_comment_reports                         item_comment_reports[]
+  item_comments_item_comments_author_idTousers item_comments[]        @relation("item_comments_author_idTousers")
+  item_comments_item_comments_user_idTousers   item_comments[]        @relation("item_comments_user_idTousers")
+  item_histories                               item_histories[]
+  item_review_replies                          item_review_replies[]
+  item_reviews_item_reviews_author_idTousers   item_reviews[]         @relation("item_reviews_author_idTousers")
+  item_reviews_item_reviews_user_idTousers     item_reviews[]         @relation("item_reviews_user_idTousers")
+  item_updates                                 item_updates[]
+  items                                        items[]
+  kyc_verifications                            kyc_verifications[]
+  premium_earnings                             premium_earnings[]
+  purchases_purchases_author_idTousers         purchases[]            @relation("purchases_author_idTousers")
+  purchases_purchases_user_idTousers           purchases[]            @relation("purchases_user_idTousers")
+  referral_earnings                            referral_earnings[]
+  referrals_referrals_author_idTousers         referrals[]            @relation("referrals_author_idTousers")
+  referrals_referrals_user_idTousers           referrals[]            @relation("referrals_user_idTousers")
+  refund_replies                               refund_replies[]
+  refunds_refunds_author_idTousers             refunds[]              @relation("refunds_author_idTousers")
+  refunds_refunds_user_idTousers               refunds[]              @relation("refunds_user_idTousers")
+  sales_sales_author_idTousers                 sales[]                @relation("sales_author_idTousers")
+  sales_sales_user_idTousers                   sales[]                @relation("sales_user_idTousers")
+  statements                                   statements[]
+  subscriptions                                subscriptions[]
+  support_earnings                             support_earnings[]
+  ticket_replies                               ticket_replies[]
+  tickets                                      tickets[]
+  transactions                                 transactions[]
+  uploaded_files                               uploaded_files[]
+  user_badges                                  user_badges[]
+  user_login_logs                              user_login_logs[]
+  levels                                       levels?                @relation(fields: [level_id], references: [id], onUpdate: Restrict, map: "users_level_id_foreign")
+  withdrawal_methods                           withdrawal_methods?    @relation(fields: [withdrawal_method_id], references: [id], onUpdate: Restrict, map: "users_withdrawal_method_id_foreign")
+  withdrawals                                  withdrawals[]
 
-  refreshTokens RefreshToken[]
-  beats         Beat[]         @relation("ProducerBeats")
-  cartItems     CartItem[]
-  orders        Order[]
-  downloads     Download[]
-  playlists     Playlist[]
-  earnings      Earning[]      @relation("ProducerEarnings")
-
-  @@index([email])
+  @@index([level_id], map: "users_level_id_foreign")
+  @@index([withdrawal_method_id], map: "users_withdrawal_method_id_foreign")
   @@map("users")
 }
 
-model RefreshToken {
-  id        String   @id @default(uuid()) @db.Char(36)
-  userId    String   @map("user_id") @db.Char(36)
-  tokenHash String   @map("token_hash") @db.VarChar(255)
-  expiresAt DateTime @map("expires_at")
-  createdAt DateTime @default(now()) @map("created_at")
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@index([userId])
-  @@index([tokenHash])
-  @@map("refresh_tokens")
-}
-
-model Beat {
-  id              String    @id @default(uuid()) @db.Char(36)
-  title           String    @db.VarChar(255)
-  description     String?   @db.Text
-  bpm             Int
-  priceBasic      Decimal   @map("price_basic") @db.Decimal(10, 2)
-  pricePremium    Decimal   @map("price_premium") @db.Decimal(10, 2)
-  priceExclusive  Decimal   @map("price_exclusive") @db.Decimal(10, 2)
-  isFree          Boolean   @default(false) @map("is_free")
-  isExclusiveSold Boolean   @default(false) @map("is_exclusive_sold")
-  audioUrl        String?   @map("audio_url") @db.VarChar(500)
-  coverImageUrl   String?   @map("cover_image_url") @db.VarChar(500)
-  producerId      String    @map("producer_id") @db.Char(36)
-  createdAt       DateTime  @default(now()) @map("created_at")
-  updatedAt       DateTime  @updatedAt @map("updated_at")
-  deletedAt       DateTime? @map("deleted_at")
-
-  producer       User           @relation("ProducerBeats", fields: [producerId], references: [id], onDelete: Cascade)
-  beatTags       BeatTag[]
-  beatCategories BeatCategory[]
-  cartItems      CartItem[]
-  orderItems     OrderItem[]
-  downloads      Download[]
-  playlistBeats  PlaylistBeat[]
-
-  @@index([producerId])
-  @@index([title])
-  @@index([bpm])
-  @@index([deletedAt])
-  @@map("beats")
-}
-
-model Tag {
-  id   String @id @default(uuid()) @db.Char(36)
-  name String @unique @db.VarChar(100)
-
-  beatTags BeatTag[]
-
-  @@map("tags")
-}
-
-model BeatTag {
-  beatId String @map("beat_id") @db.Char(36)
-  tagId  String @map("tag_id") @db.Char(36)
-
-  beat Beat @relation(fields: [beatId], references: [id], onDelete: Cascade)
-  tag  Tag  @relation(fields: [tagId], references: [id], onDelete: Cascade)
-
-  @@id([beatId, tagId])
-  @@index([tagId])
-  @@map("beat_tags")
-}
-
 model Category {
-  id   String @id @default(uuid()) @db.Char(36)
-  name String @db.VarChar(100)
-  slug String @unique @db.VarChar(100)
-
-  beatCategories BeatCategory[]
+  id                    BigInt              @id @default(autoincrement()) @db.UnsignedBigInt
+  name                  String              @db.VarChar(255)
+  slug                  String              @unique(map: "categories_slug_unique") @db.VarChar(255)
+  title                 String?             @db.VarChar(255)
+  description           String?             @db.VarChar(255)
+  regular_buyer_fee     Float?              @default(0)
+  extended_buyer_fee    Float?              @default(0)
+  file_type             Boolean?
+  thumbnail_width       BigInt              @default(120) @db.UnsignedBigInt
+  thumbnail_height      BigInt              @default(120) @db.UnsignedBigInt
+  preview_image_width   BigInt?             @db.UnsignedBigInt
+  preview_image_height  BigInt?             @db.UnsignedBigInt
+  maximum_screenshots   BigInt?             @db.UnsignedBigInt
+  main_file_types       String              @default("zip,rar,pdf") @db.VarChar(255)
+  max_preview_file_size BigInt              @default(10485760) @db.UnsignedBigInt
+  views                 BigInt              @default(0)
+  sort_id               BigInt              @default(0)
+  created_at            DateTime?           @db.Timestamp(0)
+  updated_at            DateTime?           @db.Timestamp(0)
+  category_options      category_options[]
+  category_reviewer     category_reviewer[]
+  item_updates          item_updates[]
+  items                 items[]
+  sub_categories        sub_categories[]
+  uploaded_files        uploaded_files[]
 
   @@map("categories")
 }
 
-model BeatCategory {
-  beatId     String @map("beat_id") @db.Char(36)
-  categoryId String @map("category_id") @db.Char(36)
-
-  beat     Beat     @relation(fields: [beatId], references: [id], onDelete: Cascade)
-  category Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
-
-  @@id([beatId, categoryId])
-  @@index([categoryId])
-  @@map("beat_categories")
-}
-
 model CartItem {
-  id          String      @id @default(uuid()) @db.Char(36)
-  userId      String      @map("user_id") @db.Char(36)
-  beatId      String      @map("beat_id") @db.Char(36)
-  licenseType LicenseType @map("license_type")
+  id                BigInt           @id @default(autoincrement()) @db.UnsignedBigInt
+  session_id        String?          @db.VarChar(255)
+  userId            BigInt?          @map("user_id") @db.UnsignedBigInt
+  item_id           BigInt           @db.UnsignedBigInt
+  licenseType       Int              @default(1) @map("license_type") @db.TinyInt
+  quantity          Int              @default(1) @db.UnsignedInt
+  support_period_id BigInt?          @db.UnsignedBigInt
+  created_at        DateTime?        @db.Timestamp(0)
+  updated_at        DateTime?        @db.Timestamp(0)
+  items             items            @relation(fields: [item_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "cart_items_item_id_foreign")
+  support_periods   support_periods? @relation(fields: [support_period_id], references: [id], onUpdate: Restrict, map: "cart_items_support_period_id_foreign")
+  user              User?            @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "cart_items_user_id_foreign")
 
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-  beat Beat @relation(fields: [beatId], references: [id], onDelete: Cascade)
-
-  @@unique([userId, beatId, licenseType])
-  @@index([userId])
+  @@index([item_id], map: "cart_items_item_id_foreign")
+  @@index([support_period_id], map: "cart_items_support_period_id_foreign")
+  @@index([userId], map: "cart_items_user_id_foreign")
   @@map("cart_items")
 }
 
-model Order {
-  id          String      @id @default(uuid()) @db.Char(36)
-  userId      String      @map("user_id") @db.Char(36)
-  totalAmount Decimal     @map("total_amount") @db.Decimal(10, 2)
-  status      OrderStatus @default(pending)
-  createdAt   DateTime    @default(now()) @map("created_at")
-
-  user       User        @relation(fields: [userId], references: [id], onDelete: Cascade)
-  orderItems OrderItem[]
-  downloads  Download[]
-  earnings   Earning[]
-
-  @@index([userId])
-  @@map("orders")
+model addons {
+  id         BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  name       String    @db.VarChar(255)
+  alias      String    @unique(map: "addons_alias_unique") @db.VarChar(255)
+  version    String    @db.VarChar(255)
+  thumbnail  String    @db.VarChar(255)
+  path       String    @db.VarChar(255)
+  action     String?   @db.VarChar(255)
+  status     Boolean?
+  created_at DateTime? @db.Timestamp(0)
+  updated_at DateTime? @db.Timestamp(0)
 }
 
-model OrderItem {
-  id          String      @id @default(uuid()) @db.Char(36)
-  orderId     String      @map("order_id") @db.Char(36)
-  beatId      String      @map("beat_id") @db.Char(36)
-  licenseType LicenseType @map("license_type")
-  price       Decimal     @db.Decimal(10, 2)
-
-  order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
-  beat  Beat  @relation(fields: [beatId], references: [id])
-
-  @@index([orderId])
-  @@index([beatId])
-  @@map("order_items")
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model admin_notifications {
+  id         BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  title      String    @db.VarChar(255)
+  link       String?   @db.VarChar(255)
+  image      String    @db.VarChar(255)
+  status     Boolean   @default(false)
+  created_at DateTime? @db.Timestamp(0)
+  updated_at DateTime? @db.Timestamp(0)
 }
 
-model Download {
-  id        String   @id @default(uuid()) @db.Char(36)
-  userId    String   @map("user_id") @db.Char(36)
-  beatId    String   @map("beat_id") @db.Char(36)
-  orderId   String   @map("order_id") @db.Char(36)
-  expiresAt DateTime @map("expires_at")
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model admin_password_resets {
+  email      String    @db.VarChar(255)
+  token      String    @db.VarChar(255)
+  created_at DateTime? @db.Timestamp(0)
 
-  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
-  beat  Beat  @relation(fields: [beatId], references: [id])
-  order Order @relation(fields: [orderId], references: [id])
-
-  @@index([userId])
-  @@map("downloads")
+  @@index([email], map: "admin_password_resets_email_index")
+  @@ignore
 }
 
-model Playlist {
-  id     String @id @default(uuid()) @db.Char(36)
-  userId String @map("user_id") @db.Char(36)
-  name   String @db.VarChar(255)
-
-  user          User           @relation(fields: [userId], references: [id], onDelete: Cascade)
-  playlistBeats PlaylistBeat[]
-
-  @@index([userId])
-  @@map("playlists")
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model admins {
+  id               BigInt           @id @default(autoincrement()) @db.UnsignedBigInt
+  firstname        String?          @db.VarChar(255)
+  lastname         String?          @db.VarChar(255)
+  username         String           @unique(map: "admins_username_unique") @db.VarChar(50)
+  email            String           @unique(map: "admins_email_unique") @db.VarChar(255)
+  avatar           String?          @db.VarChar(255)
+  password         String           @db.VarChar(255)
+  google2fa_status Boolean          @default(false)
+  google2fa_secret String?          @db.Text
+  remember_token   String?          @db.VarChar(100)
+  created_at       DateTime?        @db.Timestamp(0)
+  updated_at       DateTime?        @db.Timestamp(0)
+  item_histories   item_histories[]
+  ticket_replies   ticket_replies[]
 }
 
-model PlaylistBeat {
-  playlistId String @map("playlist_id") @db.Char(36)
-  beatId     String @map("beat_id") @db.Char(36)
-
-  playlist Playlist @relation(fields: [playlistId], references: [id], onDelete: Cascade)
-  beat     Beat     @relation(fields: [beatId], references: [id], onDelete: Cascade)
-
-  @@id([playlistId, beatId])
-  @@index([beatId])
-  @@map("playlist_beats")
+model ads {
+  id         BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  alias      String    @db.VarChar(255)
+  position   String    @db.VarChar(255)
+  size       String?   @db.VarChar(255)
+  code       String?   @db.LongText
+  status     Boolean   @default(false)
+  created_at DateTime? @db.Timestamp(0)
+  updated_at DateTime? @db.Timestamp(0)
 }
 
-model Earning {
-  id            String   @id @default(uuid()) @db.Char(36)
-  producerId    String   @map("producer_id") @db.Char(36)
-  amount        Decimal  @db.Decimal(10, 2)
-  sourceOrderId String   @map("source_order_id") @db.Char(36)
-  createdAt     DateTime @default(now()) @map("created_at")
+model author_taxes {
+  id         BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  name       String    @db.VarChar(255)
+  rate       Int       @db.UnsignedInt
+  countries  String    @db.LongText
+  created_at DateTime? @db.Timestamp(0)
+  updated_at DateTime? @db.Timestamp(0)
+}
 
-  producer    User  @relation("ProducerEarnings", fields: [producerId], references: [id], onDelete: Cascade)
-  sourceOrder Order @relation(fields: [sourceOrderId], references: [id])
+model badges {
+  id               BigInt        @id @default(autoincrement()) @db.UnsignedBigInt
+  name             String        @unique(map: "badges_name_unique") @db.VarChar(255)
+  alias            String        @db.VarChar(255)
+  title            String?       @db.VarChar(255)
+  image            String        @db.VarChar(255)
+  country          String?       @unique(map: "badges_country_unique") @db.VarChar(10)
+  level_id         BigInt?       @unique(map: "badges_level_id_unique") @db.UnsignedBigInt
+  membership_years BigInt?       @unique(map: "badges_membership_years_unique")
+  is_permanent     Boolean       @default(false)
+  created_at       DateTime?     @db.Timestamp(0)
+  updated_at       DateTime?     @db.Timestamp(0)
+  levels           levels?       @relation(fields: [level_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "badges_level_id_foreign")
+  user_badges      user_badges[]
+}
 
-  @@index([producerId])
-  @@map("earnings")
+model blog_articles {
+  id                BigInt          @id @default(autoincrement()) @db.UnsignedBigInt
+  title             String          @db.VarChar(255)
+  slug              String          @unique(map: "blog_articles_slug_unique") @db.VarChar(255)
+  image             String          @db.VarChar(255)
+  body              String          @db.Text
+  short_description String          @db.VarChar(200)
+  blog_category_id  BigInt          @db.UnsignedBigInt
+  views             BigInt          @default(0)
+  created_at        DateTime?       @db.Timestamp(0)
+  updated_at        DateTime?       @db.Timestamp(0)
+  blog_categories   blog_categories @relation(fields: [blog_category_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "blog_articles_blog_category_id_foreign")
+  blog_comments     blog_comments[]
+
+  @@index([blog_category_id], map: "blog_articles_blog_category_id_foreign")
+}
+
+model blog_categories {
+  id            BigInt          @id @default(autoincrement()) @db.UnsignedBigInt
+  name          String          @db.VarChar(255)
+  slug          String          @unique(map: "blog_categories_slug_unique") @db.VarChar(255)
+  views         BigInt          @default(0)
+  created_at    DateTime?       @db.Timestamp(0)
+  updated_at    DateTime?       @db.Timestamp(0)
+  blog_articles blog_articles[]
+}
+
+model blog_comments {
+  id              BigInt        @id @default(autoincrement()) @db.UnsignedBigInt
+  user_id         BigInt?       @db.UnsignedBigInt
+  blog_article_id BigInt        @db.UnsignedBigInt
+  body            String        @db.Text
+  status          Boolean       @default(false)
+  created_at      DateTime?     @db.Timestamp(0)
+  updated_at      DateTime?     @db.Timestamp(0)
+  blog_articles   blog_articles @relation(fields: [blog_article_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "blog_comments_blog_article_id_foreign")
+  users           User?         @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "blog_comments_user_id_foreign")
+
+  @@index([blog_article_id], map: "blog_comments_blog_article_id_foreign")
+  @@index([user_id], map: "blog_comments_user_id_foreign")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model bottom_nav_links {
+  id                     BigInt             @id @default(autoincrement()) @db.UnsignedBigInt
+  name                   String             @db.VarChar(255)
+  link                   String             @db.VarChar(255)
+  link_type              Boolean            @default(true)
+  parent_id              BigInt?            @db.UnsignedBigInt
+  order                  BigInt             @default(0)
+  created_at             DateTime?          @db.Timestamp(0)
+  updated_at             DateTime?          @db.Timestamp(0)
+  bottom_nav_links       bottom_nav_links?  @relation("bottom_nav_linksTobottom_nav_links", fields: [parent_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "bottom_nav_links_parent_id_foreign")
+  other_bottom_nav_links bottom_nav_links[] @relation("bottom_nav_linksTobottom_nav_links")
+
+  @@index([parent_id], map: "bottom_nav_links_parent_id_foreign")
+}
+
+model buyer_taxes {
+  id         BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  name       String    @db.VarChar(255)
+  rate       Int       @db.UnsignedInt
+  countries  String    @db.LongText
+  created_at DateTime? @db.Timestamp(0)
+  updated_at DateTime? @db.Timestamp(0)
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model captcha_providers {
+  id           BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  name         String    @db.VarChar(255)
+  alias        String    @db.VarChar(255)
+  logo         String    @db.VarChar(255)
+  settings     String    @db.LongText
+  instructions String?   @db.Text
+  status       Boolean   @default(false)
+  is_default   Boolean   @default(false)
+  created_at   DateTime? @db.Timestamp(0)
+  updated_at   DateTime? @db.Timestamp(0)
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model category_options {
+  id          BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  category_id BigInt    @db.UnsignedBigInt
+  type        Int       @db.TinyInt
+  name        String    @db.VarChar(255)
+  options     String    @db.LongText
+  is_required Boolean   @default(true)
+  sort_id     BigInt    @default(0)
+  created_at  DateTime? @db.Timestamp(0)
+  updated_at  DateTime? @db.Timestamp(0)
+  categories  Category  @relation(fields: [category_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "category_options_category_id_foreign")
+
+  @@index([category_id], map: "category_options_category_id_foreign")
+}
+
+model category_reviewer {
+  id          BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  category_id BigInt    @db.UnsignedBigInt
+  reviewer_id BigInt    @db.UnsignedBigInt
+  categories  Category  @relation(fields: [category_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "category_reviewer_category_id_foreign")
+  reviewers   reviewers @relation(fields: [reviewer_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "category_reviewer_reviewer_id_foreign")
+
+  @@index([category_id], map: "category_reviewer_category_id_foreign")
+  @@index([reviewer_id], map: "category_reviewer_reviewer_id_foreign")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model currencies {
+  id         BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  code       String    @unique(map: "currencies_code_unique") @db.VarChar(255)
+  symbol     String    @db.VarChar(255)
+  position   Int       @default(1) @db.TinyInt
+  rate       Decimal   @db.Decimal(28, 9)
+  icon       String    @db.VarChar(255)
+  sort_id    BigInt    @default(0)
+  created_at DateTime? @db.Timestamp(0)
+  updated_at DateTime? @db.Timestamp(0)
+}
+
+model editor_images {
+  id         BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  name       String    @db.VarChar(255)
+  filename   String    @db.VarChar(255)
+  path       String    @db.VarChar(255)
+  created_at DateTime? @db.Timestamp(0)
+  updated_at DateTime? @db.Timestamp(0)
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model extensions {
+  id           BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  name         String    @db.VarChar(255)
+  alias        String    @db.VarChar(255)
+  logo         String    @db.VarChar(255)
+  settings     String    @db.LongText
+  instructions String?   @db.Text
+  status       Boolean   @default(false)
+  created_at   DateTime? @db.Timestamp(0)
+  updated_at   DateTime? @db.Timestamp(0)
+}
+
+model failed_jobs {
+  id         BigInt   @id @default(autoincrement()) @db.UnsignedBigInt
+  uuid       String   @unique(map: "failed_jobs_uuid_unique") @db.VarChar(255)
+  connection String   @db.Text
+  queue      String   @db.Text
+  payload    String   @db.LongText
+  exception  String   @db.LongText
+  failed_at  DateTime @default(now()) @db.Timestamp(0)
+}
+
+model faqs {
+  id         BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  title      String    @db.VarChar(255)
+  body       String    @db.Text
+  sort_id    BigInt    @default(0)
+  created_at DateTime? @db.Timestamp(0)
+  updated_at DateTime? @db.Timestamp(0)
+}
+
+model favorites {
+  id         BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  user_id    BigInt    @db.UnsignedBigInt
+  item_id    BigInt    @db.UnsignedBigInt
+  created_at DateTime? @db.Timestamp(0)
+  updated_at DateTime? @db.Timestamp(0)
+  items      items     @relation(fields: [item_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "favorites_item_id_foreign")
+  users      User      @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "favorites_user_id_foreign")
+
+  @@index([item_id], map: "favorites_item_id_foreign")
+  @@index([user_id], map: "favorites_user_id_foreign")
+}
+
+model followers {
+  id                                  BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  follower_id                         BigInt    @db.UnsignedBigInt
+  following_id                        BigInt    @db.UnsignedBigInt
+  created_at                          DateTime? @db.Timestamp(0)
+  updated_at                          DateTime? @db.Timestamp(0)
+  users_followers_follower_idTousers  User      @relation("followers_follower_idTousers", fields: [follower_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "followers_follower_id_foreign")
+  users_followers_following_idTousers User      @relation("followers_following_idTousers", fields: [following_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "followers_following_id_foreign")
+
+  @@index([follower_id], map: "followers_follower_id_foreign")
+  @@index([following_id], map: "followers_following_id_foreign")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model footer_links {
+  id                 BigInt         @id @default(autoincrement()) @db.UnsignedBigInt
+  name               String         @db.VarChar(255)
+  link               String         @db.VarChar(255)
+  link_type          Boolean        @default(true)
+  parent_id          BigInt?        @db.UnsignedBigInt
+  order              BigInt         @default(0)
+  created_at         DateTime?      @db.Timestamp(0)
+  updated_at         DateTime?      @db.Timestamp(0)
+  footer_links       footer_links?  @relation("footer_linksTofooter_links", fields: [parent_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "footer_links_parent_id_foreign")
+  other_footer_links footer_links[] @relation("footer_linksTofooter_links")
+
+  @@index([parent_id], map: "footer_links_parent_id_foreign")
+}
+
+model help_articles {
+  id                BigInt          @id @default(autoincrement()) @db.UnsignedBigInt
+  title             String          @db.VarChar(255)
+  slug              String          @unique(map: "help_articles_slug_unique") @db.VarChar(255)
+  body              String          @db.LongText
+  short_description String          @db.VarChar(200)
+  views             BigInt          @default(0)
+  likes             BigInt          @default(0)
+  dislikes          BigInt          @default(0)
+  help_category_id  BigInt          @db.UnsignedBigInt
+  created_at        DateTime?       @db.Timestamp(0)
+  updated_at        DateTime?       @db.Timestamp(0)
+  help_categories   help_categories @relation(fields: [help_category_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "help_articles_help_category_id_foreign")
+
+  @@index([help_category_id], map: "help_articles_help_category_id_foreign")
+}
+
+model help_categories {
+  id            BigInt          @id @default(autoincrement()) @db.UnsignedBigInt
+  name          String          @db.VarChar(255)
+  slug          String          @unique(map: "help_categories_slug_unique") @db.VarChar(255)
+  views         BigInt          @default(0) @db.UnsignedBigInt
+  sort_id       BigInt          @default(0)
+  created_at    DateTime?       @db.Timestamp(0)
+  updated_at    DateTime?       @db.Timestamp(0)
+  help_articles help_articles[]
+}
+
+model home_categories {
+  id         BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  name       String    @db.VarChar(255)
+  icon       String    @db.VarChar(255)
+  link       String    @db.VarChar(255)
+  sort_id    BigInt    @default(0)
+  created_at DateTime? @db.Timestamp(0)
+  updated_at DateTime? @db.Timestamp(0)
+}
+
+model home_sections {
+  id                BigInt  @id @default(autoincrement()) @db.UnsignedBigInt
+  name              String  @db.VarChar(255)
+  alias             String  @db.VarChar(255)
+  description       String? @db.Text
+  items_number      Int?
+  cache_expiry_time Int?    @db.UnsignedInt
+  status            Boolean @default(true)
+  sort_id           BigInt  @default(0)
+}
+
+model item_change_logs {
+  id         BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  item_id    BigInt    @db.UnsignedBigInt
+  version    String    @db.VarChar(255)
+  body       String    @db.LongText
+  created_at DateTime? @db.Timestamp(0)
+  updated_at DateTime? @db.Timestamp(0)
+  items      items     @relation(fields: [item_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "item_change_logs_item_id_foreign")
+
+  @@index([item_id], map: "item_change_logs_item_id_foreign")
+}
+
+model item_comment_replies {
+  id                   BigInt                 @id @default(autoincrement()) @db.UnsignedBigInt
+  item_comment_id      BigInt                 @db.UnsignedBigInt
+  user_id              BigInt                 @db.UnsignedBigInt
+  body                 String                 @db.LongText
+  created_at           DateTime?              @db.Timestamp(0)
+  updated_at           DateTime?              @db.Timestamp(0)
+  item_comments        item_comments          @relation(fields: [item_comment_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "item_comment_replies_item_comment_id_foreign")
+  users                User                   @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "item_comment_replies_user_id_foreign")
+  item_comment_reports item_comment_reports[]
+
+  @@index([item_comment_id], map: "item_comment_replies_item_comment_id_foreign")
+  @@index([user_id], map: "item_comment_replies_user_id_foreign")
+}
+
+model item_comment_reports {
+  id                    BigInt               @id @default(autoincrement()) @db.UnsignedBigInt
+  user_id               BigInt               @db.UnsignedBigInt
+  item_comment_reply_id BigInt               @db.UnsignedBigInt
+  reason                String               @db.LongText
+  created_at            DateTime?            @db.Timestamp(0)
+  updated_at            DateTime?            @db.Timestamp(0)
+  item_comment_replies  item_comment_replies @relation(fields: [item_comment_reply_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "item_comment_reports_item_comment_reply_id_foreign")
+  users                 User                 @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "item_comment_reports_user_id_foreign")
+
+  @@index([item_comment_reply_id], map: "item_comment_reports_item_comment_reply_id_foreign")
+  @@index([user_id], map: "item_comment_reports_user_id_foreign")
+}
+
+model item_comments {
+  id                                   BigInt                 @id @default(autoincrement()) @db.UnsignedBigInt
+  user_id                              BigInt                 @db.UnsignedBigInt
+  author_id                            BigInt                 @db.UnsignedBigInt
+  item_id                              BigInt                 @db.UnsignedBigInt
+  created_at                           DateTime?              @db.Timestamp(0)
+  updated_at                           DateTime?              @db.Timestamp(0)
+  item_comment_replies                 item_comment_replies[]
+  users_item_comments_author_idTousers User                   @relation("item_comments_author_idTousers", fields: [author_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "item_comments_author_id_foreign")
+  items                                items                  @relation(fields: [item_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "item_comments_item_id_foreign")
+  users_item_comments_user_idTousers   User                   @relation("item_comments_user_idTousers", fields: [user_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "item_comments_user_id_foreign")
+
+  @@index([author_id], map: "item_comments_author_id_foreign")
+  @@index([item_id], map: "item_comments_item_id_foreign")
+  @@index([user_id], map: "item_comments_user_id_foreign")
+}
+
+model item_discounts {
+  id                  BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  item_id             BigInt    @db.UnsignedBigInt
+  regular_percentage  Int       @db.UnsignedInt
+  regular_price       Float
+  extended_percentage Int?      @db.UnsignedInt
+  extended_price      Float?
+  starting_at         DateTime  @db.Date
+  ending_at           DateTime  @db.Date
+  status              Boolean   @default(false)
+  created_at          DateTime? @db.Timestamp(0)
+  updated_at          DateTime? @db.Timestamp(0)
+  items               items     @relation(fields: [item_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "item_discounts_item_id_foreign")
+
+  @@index([item_id], map: "item_discounts_item_id_foreign")
+}
+
+model item_histories {
+  id          BigInt     @id @default(autoincrement()) @db.UnsignedBigInt
+  author_id   BigInt?    @db.UnsignedBigInt
+  reviewer_id BigInt?    @db.UnsignedBigInt
+  admin_id    BigInt?    @db.UnsignedBigInt
+  item_id     BigInt     @db.UnsignedBigInt
+  title       String     @db.VarChar(255)
+  body        String?    @db.LongText
+  created_at  DateTime?  @db.Timestamp(0)
+  updated_at  DateTime?  @db.Timestamp(0)
+  admins      admins?    @relation(fields: [admin_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "item_histories_admin_id_foreign")
+  items       items      @relation(fields: [item_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "item_histories_item_id_foreign")
+  reviewers   reviewers? @relation(fields: [reviewer_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "item_histories_reviewer_id_foreign")
+  users       User?      @relation(fields: [author_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "item_histories_user_id_foreign")
+
+  @@index([author_id], map: "item_histories_ author_id_foreign")
+  @@index([admin_id], map: "item_histories_admin_id_foreign")
+  @@index([item_id], map: "item_histories_item_id_foreign")
+  @@index([reviewer_id], map: "item_histories_reviewer_id_foreign")
+}
+
+model item_review_replies {
+  id             BigInt       @id @default(autoincrement()) @db.UnsignedBigInt
+  item_review_id BigInt       @db.UnsignedBigInt
+  user_id        BigInt       @db.UnsignedBigInt
+  body           String       @db.LongText
+  created_at     DateTime?    @db.Timestamp(0)
+  updated_at     DateTime?    @db.Timestamp(0)
+  item_reviews   item_reviews @relation(fields: [item_review_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "item_review_replies_item_review_id_foreign")
+  users          User         @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "item_review_replies_user_id_foreign")
+
+  @@index([item_review_id], map: "item_review_replies_item_review_id_foreign")
+  @@index([user_id], map: "item_review_replies_user_id_foreign")
+}
+
+model item_reviews {
+  id                                  BigInt                @id @default(autoincrement()) @db.UnsignedBigInt
+  user_id                             BigInt                @db.UnsignedBigInt
+  author_id                           BigInt                @db.UnsignedBigInt
+  item_id                             BigInt                @db.UnsignedBigInt
+  stars                               Int
+  subject                             String                @db.VarChar(100)
+  body                                String?               @db.LongText
+  created_at                          DateTime?             @db.Timestamp(0)
+  updated_at                          DateTime?             @db.Timestamp(0)
+  item_review_replies                 item_review_replies[]
+  users_item_reviews_author_idTousers User                  @relation("item_reviews_author_idTousers", fields: [author_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "item_reviews_author_id_foreign")
+  items                               items                 @relation(fields: [item_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "item_reviews_item_id_foreign")
+  users_item_reviews_user_idTousers   User                  @relation("item_reviews_user_idTousers", fields: [user_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "item_reviews_user_id_foreign")
+
+  @@index([author_id], map: "item_reviews_author_id_foreign")
+  @@index([item_id], map: "item_reviews_item_id_foreign")
+  @@index([user_id], map: "item_reviews_user_id_foreign")
+}
+
+model item_updates {
+  id                    BigInt          @id @default(autoincrement()) @db.UnsignedBigInt
+  author_id             BigInt          @db.UnsignedBigInt
+  item_id               BigInt          @db.UnsignedBigInt
+  name                  String          @unique(map: "item_updates_name_unique") @db.VarChar(100)
+  description           String          @db.LongText
+  category_id           BigInt          @db.UnsignedBigInt
+  sub_category_id       BigInt?         @db.UnsignedBigInt
+  options               String?         @db.LongText
+  version               String?         @db.VarChar(255)
+  demo_link             String?         @db.Text
+  tags                  String          @db.LongText
+  thumbnail             String?         @db.VarChar(255)
+  preview_type          String          @default("image") @db.VarChar(255)
+  preview_image         String?         @db.VarChar(255)
+  preview_video         String?         @db.VarChar(255)
+  preview_audio         String?         @db.VarChar(255)
+  main_file             String?         @db.VarChar(255)
+  is_main_file_external Boolean         @default(false)
+  screenshots           String?         @db.LongText
+  regular_price         Float?
+  extended_price        Float?
+  is_supported          Boolean?        @default(false)
+  support_instructions  String?         @db.Text
+  purchasing_status     Boolean         @default(true)
+  is_free               Boolean?        @default(false)
+  created_at            DateTime?       @db.Timestamp(0)
+  updated_at            DateTime?       @db.Timestamp(0)
+  categories            Category        @relation(fields: [category_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "item_updates_category_id_foreign")
+  items                 items           @relation(fields: [item_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "item_updates_item_id_foreign")
+  sub_categories        sub_categories? @relation(fields: [sub_category_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "item_updates_sub_category_id_foreign")
+  users                 User            @relation(fields: [author_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "item_updates_user_id_foreign")
+
+  @@index([author_id], map: "item_updates_ author_id_foreign")
+  @@index([category_id], map: "item_updates_category_id_foreign")
+  @@index([item_id], map: "item_updates_item_id_foreign")
+  @@index([sub_category_id], map: "item_updates_sub_category_id_foreign")
+}
+
+model item_views {
+  id         BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  item_id    BigInt    @db.UnsignedBigInt
+  ip         String    @db.VarChar(255)
+  referrer   String?   @db.VarChar(255)
+  created_at DateTime? @db.Timestamp(0)
+  updated_at DateTime? @db.Timestamp(0)
+  items      items     @relation(fields: [item_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "item_views_item_id_foreign")
+
+  @@index([item_id], map: "item_views_item_id_foreign")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model items {
+  id                    BigInt              @id @default(autoincrement()) @db.UnsignedBigInt
+  author_id             BigInt              @db.UnsignedBigInt
+  name                  String              @unique(map: "items_name_unique") @db.VarChar(100)
+  slug                  String              @unique(map: "items_slug_unique") @db.VarChar(255)
+  description           String              @db.LongText
+  category_id           BigInt              @db.UnsignedBigInt
+  sub_category_id       BigInt?             @db.UnsignedBigInt
+  options               String?             @db.LongText
+  version               String?             @db.VarChar(255)
+  demo_link             String?             @db.Text
+  tags                  String              @db.LongText
+  thumbnail             String?             @db.VarChar(255)
+  preview_type          String              @default("image") @db.VarChar(255)
+  preview_image         String?             @db.VarChar(255)
+  preview_video         String?             @db.VarChar(255)
+  preview_audio         String?             @db.VarChar(255)
+  main_file             String              @db.VarChar(255)
+  is_main_file_external Boolean             @default(false)
+  screenshots           String?             @db.LongText
+  regular_price         Float
+  extended_price        Float
+  is_supported          Boolean?            @default(false)
+  support_instructions  String?             @db.Text
+  status                Int                 @default(1) @db.TinyInt
+  total_sales           BigInt              @default(0) @db.UnsignedBigInt
+  total_sales_amount    Float?              @default(0)
+  total_earnings        Float?              @default(0)
+  total_reviews         BigInt              @default(0) @db.UnsignedBigInt
+  avg_reviews           BigInt              @default(0) @db.UnsignedBigInt
+  total_comments        BigInt              @default(0)
+  total_views           BigInt              @default(0) @db.UnsignedBigInt
+  current_month_views   BigInt              @default(0) @db.UnsignedBigInt
+  free_downloads        BigInt              @default(0) @db.UnsignedBigInt
+  purchasing_status     Boolean             @default(true)
+  is_premium            Boolean             @default(false)
+  is_free               Boolean?            @default(false)
+  is_trending           Boolean             @default(false)
+  is_best_selling       Boolean             @default(false)
+  is_on_discount        Boolean             @default(false)
+  is_featured           Boolean             @default(false)
+  was_featured          Boolean             @default(false)
+  last_update_at        DateTime?           @db.DateTime(0)
+  last_discount_at      DateTime?           @db.DateTime(0)
+  price_updated_at      DateTime?           @db.DateTime(0)
+  created_at            DateTime?           @db.Timestamp(0)
+  updated_at            DateTime?           @db.Timestamp(0)
+  cart_items            CartItem[]
+  favorites             favorites[]
+  item_change_logs      item_change_logs[]
+  item_comments         item_comments[]
+  item_discounts        item_discounts[]
+  item_histories        item_histories[]
+  item_reviews          item_reviews[]
+  item_updates          item_updates[]
+  item_views            item_views[]
+  categories            Category            @relation(fields: [category_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "items_category_id_foreign")
+  sub_categories        sub_categories?     @relation(fields: [sub_category_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "items_sub_category_id_foreign")
+  users                 User                @relation(fields: [author_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "items_user_id_foreign")
+  premium_earnings      premium_earnings[]
+  purchases             purchases[]
+  sales                 sales[]
+  transaction_items     transaction_items[]
+
+  @@index([author_id], map: "items_ author_id_foreign")
+  @@index([category_id], map: "items_category_id_foreign")
+  @@index([sub_category_id], map: "items_sub_category_id_foreign")
+}
+
+model jobs {
+  id           BigInt @id @default(autoincrement()) @db.UnsignedBigInt
+  queue        String @db.VarChar(255)
+  payload      String @db.LongText
+  attempts     Int    @db.UnsignedTinyInt
+  reserved_at  Int?   @db.UnsignedInt
+  available_at Int    @db.UnsignedInt
+  created_at   Int    @db.UnsignedInt
+
+  @@index([queue], map: "jobs_queue_index")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model kyc_verifications {
+  id               BigInt                          @id @default(autoincrement()) @db.UnsignedBigInt
+  user_id          BigInt                          @db.UnsignedBigInt
+  document_type    kyc_verifications_document_type
+  document_number  String                          @db.VarChar(30)
+  documents        String                          @db.VarChar(255)
+  status           Int                             @default(1) @db.TinyInt
+  rejection_reason String?                         @db.Text
+  created_at       DateTime?                       @db.Timestamp(0)
+  updated_at       DateTime?                       @db.Timestamp(0)
+  users            User                            @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "kyc_verifications_user_id_foreign")
+
+  @@index([user_id], map: "kyc_verifications_user_id_foreign")
+}
+
+model levels {
+  id           BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  name         String    @unique(map: "levels_name_unique") @db.VarChar(255)
+  min_earnings BigInt    @unique(map: "levels_min_earnings_unique") @db.UnsignedBigInt
+  fees         Int
+  is_default   Boolean   @default(false)
+  created_at   DateTime? @db.Timestamp(0)
+  updated_at   DateTime? @db.Timestamp(0)
+  badges       badges?
+  users        User[]
+}
+
+model mail_templates {
+  id         BigInt  @id @default(autoincrement()) @db.UnsignedBigInt
+  alias      String  @db.VarChar(255)
+  name       String  @db.VarChar(255)
+  subject    String  @db.VarChar(255)
+  body       String  @db.LongText
+  shortcodes String? @db.LongText
+  status     Boolean @default(true)
+}
+
+model migrations {
+  id        Int    @id @default(autoincrement()) @db.UnsignedInt
+  migration String @db.VarChar(255)
+  batch     Int
+}
+
+model oauth_providers {
+  id           BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  name         String    @db.VarChar(255)
+  alias        String    @db.VarChar(255)
+  logo         String    @db.VarChar(255)
+  credentials  String    @db.LongText
+  instructions String?   @db.Text
+  status       Boolean   @default(false)
+  created_at   DateTime? @db.Timestamp(0)
+  updated_at   DateTime? @db.Timestamp(0)
+}
+
+model pages {
+  id                BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  title             String    @db.VarChar(255)
+  slug              String    @unique(map: "pages_slug_unique") @db.VarChar(255)
+  body              String    @db.LongText
+  short_description String    @db.VarChar(200)
+  views             BigInt    @default(0)
+  created_at        DateTime? @db.Timestamp(0)
+  updated_at        DateTime? @db.Timestamp(0)
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model password_resets {
+  email      String    @db.VarChar(255)
+  token      String    @db.VarChar(255)
+  created_at DateTime? @db.Timestamp(0)
+
+  @@index([email], map: "password_resets_email_index")
+  @@ignore
+}
+
+model payment_gateways {
+  id              BigInt                 @id @default(autoincrement()) @db.UnsignedBigInt
+  sort_id         BigInt                 @default(0)
+  name            String                 @db.VarChar(255)
+  alias           String                 @db.VarChar(255)
+  logo            String                 @db.VarChar(255)
+  fees            Int                    @default(0)
+  charge_currency String?                @db.VarChar(255)
+  charge_rate     Decimal?               @db.Decimal(28, 9)
+  credentials     String?                @db.LongText
+  parameters      String?                @db.LongText
+  is_manual       Boolean                @default(false)
+  instructions    String?                @db.LongText
+  mode            payment_gateways_mode?
+  status          Boolean                @default(false)
+  transactions    transactions[]
+}
+
+model plans {
+  id                        BigInt          @id @default(autoincrement()) @db.UnsignedBigInt
+  name                      String          @db.VarChar(255)
+  description               String?         @db.VarChar(255)
+  interval                  plans_interval
+  price                     Float?
+  author_earning_percentage String          @default("0") @db.VarChar(10)
+  downloads                 BigInt?         @db.UnsignedBigInt
+  custom_features           String?         @db.LongText
+  status                    Boolean         @default(true)
+  featured                  Boolean         @default(false)
+  sort_id                   Int             @default(0)
+  created_at                DateTime?       @db.Timestamp(0)
+  updated_at                DateTime?       @db.Timestamp(0)
+  subscriptions             subscriptions[]
+  transactions              transactions[]
+}
+
+model premium_earnings {
+  id              BigInt         @id @default(autoincrement()) @db.UnsignedBigInt
+  author_id       BigInt         @db.UnsignedBigInt
+  subscription_id BigInt?        @db.UnsignedBigInt
+  item_id         BigInt?        @db.UnsignedBigInt
+  name            String         @db.VarChar(255)
+  percentage      String         @db.VarChar(255)
+  price           Float
+  author_earning  Float
+  created_at      DateTime?      @db.Timestamp(0)
+  updated_at      DateTime?      @db.Timestamp(0)
+  users           User           @relation(fields: [author_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "premium_earnings_author_id_foreign")
+  items           items?         @relation(fields: [item_id], references: [id], onUpdate: Restrict, map: "premium_earnings_item_id_foreign")
+  subscriptions   subscriptions? @relation(fields: [subscription_id], references: [id], onUpdate: Restrict, map: "premium_earnings_subscription_id_foreign")
+
+  @@index([author_id], map: "premium_earnings_author_id_foreign")
+  @@index([item_id], map: "premium_earnings_item_id_foreign")
+  @@index([subscription_id], map: "premium_earnings_subscription_id_foreign")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model purchases {
+  id                               BigInt             @id @default(autoincrement()) @db.UnsignedBigInt
+  user_id                          BigInt             @db.UnsignedBigInt
+  author_id                        BigInt             @db.UnsignedBigInt
+  sale_id                          BigInt             @db.UnsignedBigInt
+  item_id                          BigInt             @db.UnsignedBigInt
+  license_type                     Boolean
+  code                             String             @unique(map: "purchases_code_unique") @db.VarChar(255)
+  support_expiry_at                DateTime?          @db.DateTime(0)
+  is_downloaded                    Boolean            @default(false)
+  status                           Boolean            @default(true)
+  created_at                       DateTime?          @db.Timestamp(0)
+  updated_at                       DateTime?          @db.Timestamp(0)
+  users_purchases_author_idTousers User               @relation("purchases_author_idTousers", fields: [author_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "purchases_author_id_foreign")
+  items                            items              @relation(fields: [item_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "purchases_item_id_foreign")
+  sales                            sales              @relation(fields: [sale_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "purchases_sale_id_foreign")
+  users_purchases_user_idTousers   User               @relation("purchases_user_idTousers", fields: [user_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "purchases_user_id_foreign")
+  refunds                          refunds[]
+  support_earnings                 support_earnings[]
+  transactions                     transactions[]
+
+  @@index([author_id], map: "purchases_author_id_foreign")
+  @@index([item_id], map: "purchases_item_id_foreign")
+  @@index([sale_id], map: "purchases_sale_id_foreign")
+  @@index([user_id], map: "purchases_user_id_foreign")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model referral_earnings {
+  id             BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  referral_id    BigInt    @db.UnsignedBigInt
+  author_id      BigInt    @db.UnsignedBigInt
+  sale_id        BigInt    @db.UnsignedBigInt
+  author_earning Float
+  status         Boolean   @default(true)
+  created_at     DateTime? @db.Timestamp(0)
+  updated_at     DateTime? @db.Timestamp(0)
+  users          User      @relation(fields: [author_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "referral_earnings_author_id_foreign")
+  referrals      referrals @relation(fields: [referral_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "referral_earnings_referral_id_foreign")
+  sales          sales     @relation(fields: [sale_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "referral_earnings_sale_id_foreign")
+
+  @@index([author_id], map: "referral_earnings_author_id_foreign")
+  @@index([referral_id], map: "referral_earnings_referral_id_foreign")
+  @@index([sale_id], map: "referral_earnings_sale_id_foreign")
+}
+
+model referrals {
+  id                               BigInt              @id @default(autoincrement()) @db.UnsignedBigInt
+  author_id                        BigInt              @db.UnsignedBigInt
+  user_id                          BigInt              @db.UnsignedBigInt
+  earnings                         Float?              @default(0)
+  created_at                       DateTime?           @db.Timestamp(0)
+  updated_at                       DateTime?           @db.Timestamp(0)
+  referral_earnings                referral_earnings[]
+  users_referrals_author_idTousers User                @relation("referrals_author_idTousers", fields: [author_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "referrals_author_id_foreign")
+  users_referrals_user_idTousers   User                @relation("referrals_user_idTousers", fields: [user_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "referrals_user_id_foreign")
+
+  @@index([author_id], map: "referrals_author_id_foreign")
+  @@index([user_id], map: "referrals_user_id_foreign")
+}
+
+model refund_replies {
+  id         BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  refund_id  BigInt    @db.UnsignedBigInt
+  user_id    BigInt    @db.UnsignedBigInt
+  body       String    @db.LongText
+  created_at DateTime? @db.Timestamp(0)
+  updated_at DateTime? @db.Timestamp(0)
+  refunds    refunds   @relation(fields: [refund_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "refund_replies_refund_id_foreign")
+  users      User      @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "refund_replies_user_id_foreign")
+
+  @@index([refund_id], map: "refund_replies_refund_id_foreign")
+  @@index([user_id], map: "refund_replies_user_id_foreign")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model refunds {
+  id                             BigInt           @id @default(autoincrement()) @db.UnsignedBigInt
+  user_id                        BigInt           @db.UnsignedBigInt
+  author_id                      BigInt           @db.UnsignedBigInt
+  purchase_id                    BigInt           @db.UnsignedBigInt
+  status                         Boolean          @default(true)
+  created_at                     DateTime?        @db.Timestamp(0)
+  updated_at                     DateTime?        @db.Timestamp(0)
+  refund_replies                 refund_replies[]
+  users_refunds_author_idTousers User             @relation("refunds_author_idTousers", fields: [author_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "refunds_author_id_foreign")
+  purchases                      purchases        @relation(fields: [purchase_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "refunds_purchase_id_foreign")
+  users_refunds_user_idTousers   User             @relation("refunds_user_idTousers", fields: [user_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "refunds_user_id_foreign")
+
+  @@index([author_id], map: "refunds_author_id_foreign")
+  @@index([purchase_id], map: "refunds_purchase_id_foreign")
+  @@index([user_id], map: "refunds_user_id_foreign")
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model reviewer_password_resets {
+  email      String    @db.VarChar(255)
+  token      String    @db.VarChar(255)
+  created_at DateTime? @db.Timestamp(0)
+
+  @@index([email], map: "reviewer_password_resets_email_index")
+  @@ignore
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model reviewers {
+  id                BigInt              @id @default(autoincrement()) @db.UnsignedBigInt
+  firstname         String              @db.VarChar(255)
+  lastname          String              @db.VarChar(255)
+  username          String              @unique(map: "reviewers_username_unique") @db.VarChar(50)
+  email             String              @unique(map: "reviewers_email_unique") @db.VarChar(255)
+  avatar            String?             @db.VarChar(255)
+  password          String              @db.VarChar(255)
+  google2fa_status  Boolean             @default(false)
+  google2fa_secret  String?             @db.Text
+  remember_token    String?             @db.VarChar(100)
+  created_at        DateTime?           @db.Timestamp(0)
+  updated_at        DateTime?           @db.Timestamp(0)
+  category_reviewer category_reviewer[]
+  item_histories    item_histories[]
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model sales {
+  id                           BigInt              @id @default(autoincrement()) @db.UnsignedBigInt
+  author_id                    BigInt              @db.UnsignedBigInt
+  user_id                      BigInt              @db.UnsignedBigInt
+  item_id                      BigInt              @db.UnsignedBigInt
+  license_type                 Boolean
+  price                        Float
+  buyer_fee                    Float?              @default(0)
+  buyer_tax                    String?             @db.Text
+  author_fee                   Float?              @default(0)
+  author_tax                   String?             @db.Text
+  author_earning               Float?              @default(0)
+  country                      String?             @db.VarChar(10)
+  status                       Boolean             @default(true)
+  created_at                   DateTime?           @db.Timestamp(0)
+  updated_at                   DateTime?           @db.Timestamp(0)
+  purchases                    purchases[]
+  referral_earnings            referral_earnings[]
+  users_sales_author_idTousers User                @relation("sales_author_idTousers", fields: [author_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "sales_author_id_foreign")
+  items                        items               @relation(fields: [item_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "sales_item_id_foreign")
+  users_sales_user_idTousers   User                @relation("sales_user_idTousers", fields: [user_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "sales_user_id_foreign")
+
+  @@index([author_id], map: "sales_author_id_foreign")
+  @@index([item_id], map: "sales_item_id_foreign")
+  @@index([user_id], map: "sales_user_id_foreign")
+}
+
+model settings {
+  id    BigInt  @id @default(autoincrement()) @db.UnsignedBigInt
+  key   String  @db.VarChar(255)
+  value String? @db.Text
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model statements {
+  id         BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  user_id    BigInt    @db.UnsignedBigInt
+  title      String    @db.VarChar(255)
+  amount     Float
+  buyer_fee  Float?    @default(0)
+  author_fee Float?    @default(0)
+  tax        String?   @db.Text
+  total      Float?
+  type       Int       @db.TinyInt
+  created_at DateTime? @db.Timestamp(0)
+  updated_at DateTime? @db.Timestamp(0)
+  users      User      @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "statements_user_id_foreign")
+
+  @@index([user_id], map: "statements_user_id_foreign")
+}
+
+model storage_providers {
+  id          BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  name        String    @db.VarChar(255)
+  alias       String    @db.VarChar(255)
+  processor   String    @db.VarChar(255)
+  credentials String?   @db.LongText
+  created_at  DateTime? @db.Timestamp(0)
+  updated_at  DateTime? @db.Timestamp(0)
+}
+
+model sub_categories {
+  id           BigInt         @id @default(autoincrement()) @db.UnsignedBigInt
+  name         String         @db.VarChar(255)
+  slug         String         @unique(map: "sub_categories_slug_unique") @db.VarChar(255)
+  title        String?        @db.VarChar(70)
+  description  String?        @db.VarChar(150)
+  category_id  BigInt         @db.UnsignedBigInt
+  views        BigInt         @default(0)
+  sort_id      BigInt         @default(0)
+  created_at   DateTime?      @db.Timestamp(0)
+  updated_at   DateTime?      @db.Timestamp(0)
+  item_updates item_updates[]
+  items        items[]
+  categories   Category       @relation(fields: [category_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "sub_categories_category_id_foreign")
+
+  @@index([category_id], map: "sub_categories_category_id_foreign")
+}
+
+model subscriptions {
+  id                   BigInt             @id @default(autoincrement()) @db.UnsignedBigInt
+  user_id              BigInt             @db.UnsignedBigInt
+  plan_id              BigInt             @db.UnsignedBigInt
+  total_downloads      BigInt             @default(0) @db.UnsignedBigInt
+  expiry_at            DateTime?          @db.DateTime(0)
+  last_notification_at DateTime?          @db.DateTime(0)
+  created_at           DateTime?          @db.Timestamp(0)
+  updated_at           DateTime?          @db.Timestamp(0)
+  premium_earnings     premium_earnings[]
+  plans                plans              @relation(fields: [plan_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "subscriptions_plan_id_foreign")
+  users                User               @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "subscriptions_user_id_foreign")
+
+  @@index([plan_id], map: "subscriptions_plan_id_foreign")
+  @@index([user_id], map: "subscriptions_user_id_foreign")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model support_earnings {
+  id                BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  author_id         BigInt    @db.UnsignedBigInt
+  purchase_id       BigInt    @db.UnsignedBigInt
+  name              String    @db.VarChar(255)
+  title             String    @db.VarChar(255)
+  days              BigInt    @db.UnsignedBigInt
+  price             Float
+  buyer_tax         String?   @db.Text
+  author_fee        Float?    @default(0)
+  author_tax        String?   @db.Text
+  author_earning    Float
+  status            Int       @default(1) @db.TinyInt
+  support_expiry_at DateTime  @db.DateTime(0)
+  created_at        DateTime? @db.Timestamp(0)
+  updated_at        DateTime? @db.Timestamp(0)
+  users             User      @relation(fields: [author_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "support_earnings_author_id_foreign")
+  purchases         purchases @relation(fields: [purchase_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "support_earnings_purchase_id_foreign")
+
+  @@index([author_id], map: "support_earnings_author_id_foreign")
+  @@index([purchase_id], map: "support_earnings_purchase_id_foreign")
+}
+
+model support_periods {
+  id         BigInt     @id @default(autoincrement()) @db.UnsignedBigInt
+  name       String     @unique(map: "support_periods_name_unique") @db.VarChar(255)
+  title      String     @db.VarChar(255)
+  days       BigInt     @db.UnsignedBigInt
+  percentage Int        @default(0) @db.UnsignedInt
+  is_default Boolean    @default(false)
+  sort_id    BigInt     @default(0)
+  created_at DateTime?  @db.Timestamp(0)
+  updated_at DateTime?  @db.Timestamp(0)
+  cart_items CartItem[]
+}
+
+model testimonials {
+  id         BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  name       String    @db.VarChar(255)
+  avatar     String    @db.VarChar(255)
+  title      String    @db.VarChar(255)
+  body       String    @db.Text
+  sort_id    BigInt    @default(0)
+  created_at DateTime? @db.Timestamp(0)
+  updated_at DateTime? @db.Timestamp(0)
+}
+
+model themes {
+  id            BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  name          String    @db.VarChar(255)
+  alias         String    @unique(map: "themes_alias_unique") @db.VarChar(255)
+  version       String    @db.VarChar(255)
+  preview_image String    @db.VarChar(255)
+  description   String    @db.VarChar(255)
+  created_at    DateTime? @db.Timestamp(0)
+  updated_at    DateTime? @db.Timestamp(0)
+}
+
+model ticket_categories {
+  id         BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  name       String    @unique(map: "ticket_categories_name_unique") @db.VarChar(255)
+  status     Boolean   @default(true)
+  sort_id    BigInt    @default(0)
+  created_at DateTime? @db.Timestamp(0)
+  updated_at DateTime? @db.Timestamp(0)
+  tickets    tickets[]
+}
+
+model ticket_replies {
+  id                       BigInt                     @id @default(autoincrement()) @db.UnsignedBigInt
+  body                     String                     @db.LongText
+  user_id                  BigInt?                    @db.UnsignedBigInt
+  admin_id                 BigInt?                    @db.UnsignedBigInt
+  ticket_id                BigInt                     @db.UnsignedBigInt
+  created_at               DateTime?                  @db.Timestamp(0)
+  updated_at               DateTime?                  @db.Timestamp(0)
+  admins                   admins?                    @relation(fields: [admin_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "ticket_replies_admin_id_foreign")
+  tickets                  tickets                    @relation(fields: [ticket_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "ticket_replies_ticket_id_foreign")
+  users                    User?                      @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "ticket_replies_user_id_foreign")
+  ticket_reply_attachments ticket_reply_attachments[]
+
+  @@index([admin_id], map: "ticket_replies_admin_id_foreign")
+  @@index([ticket_id], map: "ticket_replies_ticket_id_foreign")
+  @@index([user_id], map: "ticket_replies_user_id_foreign")
+}
+
+model ticket_reply_attachments {
+  id              BigInt         @id @default(autoincrement()) @db.UnsignedBigInt
+  name            String         @db.VarChar(255)
+  path            String         @db.VarChar(255)
+  ticket_reply_id BigInt         @db.UnsignedBigInt
+  created_at      DateTime?      @db.Timestamp(0)
+  updated_at      DateTime?      @db.Timestamp(0)
+  ticket_replies  ticket_replies @relation(fields: [ticket_reply_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "ticket_reply_attachments_ticket_reply_id_foreign")
+
+  @@index([ticket_reply_id], map: "ticket_reply_attachments_ticket_reply_id_foreign")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model tickets {
+  id                 BigInt            @id @default(autoincrement()) @db.UnsignedBigInt
+  user_id            BigInt            @db.UnsignedBigInt
+  ticket_category_id BigInt            @db.UnsignedBigInt
+  subject            String            @db.VarChar(255)
+  status             Int               @default(1) @db.TinyInt
+  created_at         DateTime?         @db.Timestamp(0)
+  updated_at         DateTime?         @db.Timestamp(0)
+  ticket_replies     ticket_replies[]
+  ticket_categories  ticket_categories @relation(fields: [ticket_category_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "tickets_ticket_category_id_foreign")
+  users              User              @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "tickets_user_id_foreign")
+
+  @@index([ticket_category_id], map: "tickets_ticket_category_id_foreign")
+  @@index([user_id], map: "tickets_user_id_foreign")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model top_nav_links {
+  id                  BigInt          @id @default(autoincrement()) @db.UnsignedBigInt
+  name                String          @db.VarChar(255)
+  link                String          @db.VarChar(255)
+  link_type           Boolean         @default(true)
+  parent_id           BigInt?         @db.UnsignedBigInt
+  order               BigInt          @default(0)
+  created_at          DateTime?       @db.Timestamp(0)
+  updated_at          DateTime?       @db.Timestamp(0)
+  top_nav_links       top_nav_links?  @relation("top_nav_linksTotop_nav_links", fields: [parent_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "top_nav_links_parent_id_foreign")
+  other_top_nav_links top_nav_links[] @relation("top_nav_linksTotop_nav_links")
+
+  @@index([parent_id], map: "top_nav_links_parent_id_foreign")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model transaction_items {
+  id             BigInt       @id @default(autoincrement()) @db.UnsignedBigInt
+  transaction_id BigInt       @db.UnsignedBigInt
+  item_id        BigInt?      @db.UnsignedBigInt
+  license_type   Int          @default(1) @db.TinyInt
+  price          Float
+  quantity       Int          @default(1) @db.UnsignedInt
+  total          Float
+  support        String?      @db.LongText
+  created_at     DateTime?    @db.Timestamp(0)
+  updated_at     DateTime?    @db.Timestamp(0)
+  items          items?       @relation(fields: [item_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "transaction_items_item_id_foreign")
+  transactions   transactions @relation(fields: [transaction_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "transaction_items_transaction_id_foreign")
+
+  @@index([item_id], map: "transaction_items_item_id_foreign")
+  @@index([transaction_id], map: "transaction_items_transaction_id_foreign")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model transactions {
+  id                  BigInt              @id @default(autoincrement()) @db.UnsignedBigInt
+  user_id             BigInt              @db.UnsignedBigInt
+  amount              Float
+  fees                Float?              @default(0)
+  tax                 String?             @db.Text
+  total               Float
+  payment_gateway_id  BigInt?             @db.UnsignedBigInt
+  payment_id          String?             @db.VarChar(255)
+  payer_id            String?             @db.VarChar(255)
+  payer_email         String?             @db.VarChar(255)
+  payment_proof       String?             @db.VarChar(255)
+  type                transactions_type
+  support             String?             @db.LongText
+  purchase_id         BigInt?             @db.UnsignedBigInt
+  plan_id             BigInt?             @db.UnsignedBigInt
+  status              Int                 @default(0) @db.TinyInt
+  cancellation_reason String?             @db.VarChar(255)
+  created_at          DateTime?           @db.Timestamp(0)
+  updated_at          DateTime?           @db.Timestamp(0)
+  transaction_items   transaction_items[]
+  payment_gateways    payment_gateways?   @relation(fields: [payment_gateway_id], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "transactions_payment_gateway_id_foreign")
+  plans               plans?              @relation(fields: [plan_id], references: [id], onUpdate: Restrict, map: "transactions_plan_id_foreign")
+  purchases           purchases?          @relation(fields: [purchase_id], references: [id], onUpdate: Restrict, map: "transactions_purchase_id_foreign")
+  users               User                @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "transactions_user_id_foreign")
+
+  @@index([payment_gateway_id], map: "transactions_payment_gateway_id_foreign")
+  @@index([plan_id], map: "transactions_plan_id_foreign")
+  @@index([purchase_id], map: "transactions_purchase_id_foreign")
+  @@index([user_id], map: "transactions_user_id_foreign")
+}
+
+model translates {
+  id         BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  key        String    @db.Text
+  value      String?   @db.Text
+  created_at DateTime? @db.Timestamp(0)
+  updated_at DateTime? @db.Timestamp(0)
+}
+
+model uploaded_files {
+  id          BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  author_id   BigInt    @db.UnsignedBigInt
+  category_id BigInt    @db.UnsignedBigInt
+  name        String    @db.VarChar(255)
+  mime_type   String    @db.VarChar(255)
+  extension   String    @db.VarChar(255)
+  size        BigInt    @db.UnsignedBigInt
+  path        String    @db.VarChar(255)
+  expiry_at   DateTime  @db.DateTime(0)
+  created_at  DateTime? @db.Timestamp(0)
+  updated_at  DateTime? @db.Timestamp(0)
+  categories  Category  @relation(fields: [category_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "uploaded_files_category_id_foreign")
+  users       User      @relation(fields: [author_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "uploaded_files_user_id_foreign")
+
+  @@index([author_id], map: "uploaded_files_author_id_foreign")
+  @@index([category_id], map: "uploaded_files_category_id_foreign")
+}
+
+model user_badges {
+  id          BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  user_id     BigInt    @db.UnsignedBigInt
+  badge_id    BigInt    @db.UnsignedBigInt
+  badge_alias String    @db.VarChar(255)
+  sort_id     BigInt    @default(0)
+  created_at  DateTime? @db.Timestamp(0)
+  updated_at  DateTime? @db.Timestamp(0)
+  badges      badges    @relation(fields: [badge_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "user_badges_badge_id_foreign")
+  users       User      @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "user_badges_user_id_foreign")
+
+  @@index([badge_id], map: "user_badges_badge_id_foreign")
+  @@index([user_id], map: "user_badges_user_id_foreign")
+}
+
+model user_login_logs {
+  id           BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  user_id      BigInt    @db.UnsignedBigInt
+  ip           String?   @db.VarChar(100)
+  country      String?   @db.VarChar(100)
+  country_code String?   @db.VarChar(100)
+  timezone     String?   @db.VarChar(150)
+  location     String?   @db.VarChar(60)
+  latitude     String?   @db.VarChar(60)
+  longitude    String?   @db.VarChar(60)
+  browser      String?   @db.VarChar(60)
+  os           String?   @db.VarChar(60)
+  created_at   DateTime? @db.Timestamp(0)
+  updated_at   DateTime? @db.Timestamp(0)
+  users        User      @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "user_login_logs_user_id_foreign")
+
+  @@index([user_id], map: "user_login_logs_user_id_foreign")
+}
+
+model withdrawal_methods {
+  id          BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  name        String    @unique(map: "withdrawal_methods_name_unique") @db.VarChar(255)
+  minimum     BigInt    @default(0)
+  description String?   @db.Text
+  sort_id     Int       @default(0)
+  status      Boolean   @default(true)
+  created_at  DateTime? @db.Timestamp(0)
+  updated_at  DateTime? @db.Timestamp(0)
+  users       User[]
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model withdrawals {
+  id         BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  author_id  BigInt    @db.UnsignedBigInt
+  amount     Float
+  method     String    @db.VarChar(255)
+  account    String    @db.Text
+  status     Boolean   @default(true)
+  created_at DateTime? @db.Timestamp(0)
+  updated_at DateTime? @db.Timestamp(0)
+  users      User      @relation(fields: [author_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "withdrawals_user_id_foreign")
+
+  @@index([author_id], map: "withdrawals_author_id_foreign")
+}
+
+enum kyc_verifications_document_type {
+  national_id
+  passport
+}
+
+enum plans_interval {
+  week
+  month
+  year
+  lifetime
+}
+
+enum transactions_type {
+  purchase
+  support_purchase
+  support_extend
+  deposit
+  subscription
+}
+
+enum users_exclusivity {
+  exclusive
+  non_exclusive
+}
+
+enum payment_gateways_mode {
+  sandbox
+  live
 }
