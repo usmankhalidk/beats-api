@@ -24,6 +24,12 @@ const envSchema = z.object({
   RATE_LIMIT_MAX: z.coerce.number().int().positive().default(100),
 
   LOG_LEVEL: z.enum(['debug', 'info', 'warn', 'error']).default('info'),
+
+  CONTABO_ENDPOINT: z.string().url(),
+  CONTABO_CLIENT_ID: z.string().min(1, 'CONTABO_CLIENT_ID is required'),
+  CONTABO_CLIENT_SECRET: z.string().min(1, 'CONTABO_CLIENT_SECRET is required'),
+  CONTABO_BUCKET_NAME: z.string().min(1).default('profile.avatars'),
+  CONTABO_BUCKET_URL: z.string().url(),
 });
 
 const parsed = envSchema.safeParse(process.env);
@@ -73,6 +79,14 @@ export const config = {
 
   log: {
     level: env.LOG_LEVEL,
+  },
+
+  storage: {
+    endpoint: env.CONTABO_ENDPOINT,
+    clientId: env.CONTABO_CLIENT_ID,
+    clientSecret: env.CONTABO_CLIENT_SECRET,
+    profilesBucket: env.CONTABO_BUCKET_NAME,
+    profilesBucketUrl: env.CONTABO_BUCKET_URL,
   },
 } as const;
 

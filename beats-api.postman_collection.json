@@ -243,6 +243,77 @@
           "response": []
         }
       ]
+    },
+    {
+      "name": "User Profile",
+      "item": [
+        {
+          "name": "Get Profile",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/user/profile",
+              "host": ["{{baseUrl}}"],
+              "path": ["user", "profile"]
+            },
+            "description": "Get the authenticated user's profile."
+          },
+          "response": []
+        },
+        {
+          "name": "Update Profile",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstname\": \"John\",\n  \"lastname\": \"Doe\",\n  \"username\": \"johndoe\",\n  \"profile_heading\": \"Producer & Beatmaker\",\n  \"profile_description\": \"Creating beats since 2010. Specializing in trap and hip-hop.\",\n  \"profile_contact_email\": \"contact@johndoe.com\",\n  \"profile_social_links\": {\n    \"twitter\": \"https://twitter.com/johndoe\",\n    \"instagram\": \"https://instagram.com/johndoe\",\n    \"soundcloud\": \"https://soundcloud.com/johndoe\",\n    \"website\": \"https://johndoe.com\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/user/profile",
+              "host": ["{{baseUrl}}"],
+              "path": ["user", "profile"]
+            },
+            "description": "Update the authenticated user's profile. All fields are optional — send only what you want to change. Set a field to null to clear it."
+          },
+          "response": []
+        },
+        {
+          "name": "Update Avatar",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "avatar",
+                  "type": "file",
+                  "description": "Image file (JPEG, PNG, WebP, or GIF — max 5 MB)"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/user/profile/avatar",
+              "host": ["{{baseUrl}}"],
+              "path": ["user", "profile", "avatar"]
+            },
+            "description": "Upload a new avatar image. Accepts JPEG, PNG, WebP, or GIF up to 5 MB. The file is stored in Contabo S3 and the returned avatar URL is saved to the user's profile."
+          },
+          "response": []
+        }
+      ]
     }
   ]
 }
