@@ -1,91 +1,390 @@
 /**
- * Generate a Postman v2.1 collection from the OpenAPI spec.
- * Run: `npm run postman:generate` — outputs to ./docs/postman-collection.json
+ * Generates a full Postman v2.1 collection directly from route/schema knowledge.
+ * Does NOT depend on swagger-jsdoc or JSDoc annotations.
+ * Run: `npm run postman:generate` — outputs to ./beats-api.postman_collection.json
  */
 import fs from 'node:fs';
 import path from 'node:path';
-import { openapiSpec } from '../src/shared/swagger/openapi';
 
-interface PostmanItem {
-  name: string;
-  request: {
-    method: string;
-    header: Array<{ key: string; value: string; type: string }>;
-    url: { raw: string; host: string[]; path: string[] };
-    body?: { mode: string; raw: string; options: { raw: { language: string } } };
-  };
+// ── helpers ────────────────────────────────────────────────────────────────────
+
+function json(body: object) {
+  return { mode: 'raw' as const, raw: JSON.stringify(body, null, 2), options: { raw: { language: 'json' } } };
 }
 
-interface PostmanFolder {
-  name: string;
-  item: PostmanItem[];
+function formdata(fields: Array<{ key: string; type: 'text' | 'file'; value?: string; description?: string }>) {
+  return { mode: 'formdata' as const, formdata: fields };
 }
 
-interface PostmanCollection {
-  info: { name: string; schema: string; _postman_id: string };
-  auth: { type: 'bearer'; bearer: Array<{ key: string; value: string; type: string }> };
-  variable: Array<{ key: string; value: string }>;
-  item: PostmanFolder[];
+function bearer() {
+  return [{ key: 'Authorization', value: 'Bearer {{accessToken}}', type: 'text' }];
 }
 
-const spec = openapiSpec as {
-  info?: { title?: string; version?: string };
-  paths?: Record<string, Record<string, { tags?: string[]; summary?: string; requestBody?: unknown }>>;
-};
-
-const folders = new Map<string, PostmanFolder>();
-
-const paths = spec.paths ?? {};
-for (const [route, methods] of Object.entries(paths)) {
-  for (const [method, def] of Object.entries(methods)) {
-    if (!['get', 'post', 'put', 'patch', 'delete'].includes(method.toLowerCase())) continue;
-    const tag = def.tags?.[0] ?? 'Default';
-    if (!folders.has(tag)) folders.set(tag, { name: tag, item: [] });
-
-    const segments = route.replace(/^\//, '').split('/');
-    folders.get(tag)!.item.push({
-      name: def.summary ?? `${method.toUpperCase()} ${route}`,
-      request: {
-        method: method.toUpperCase(),
-        header: [{ key: 'Content-Type', value: 'application/json', type: 'text' }],
-        url: {
-          raw: `{{baseUrl}}${route}`,
-          host: ['{{baseUrl}}'],
-          path: segments,
-        },
-        ...(def.requestBody
-          ? {
-              body: {
-                mode: 'raw',
-                raw: '{}',
-                options: { raw: { language: 'json' } },
-              },
-            }
-          : {}),
-      },
-    });
-  }
+function url(path: string, query?: Array<{ key: string; value: string | null; description?: string; disabled?: boolean }>) {
+  const segments = path.replace(/^\//, '').split('/');
+  const raw = query?.length
+    ? `{{baseUrl}}${path}?${query.filter(q => !q.disabled && q.value !== null).map(q => `${q.key}=${q.value}`).join('&')}`
+    : `{{baseUrl}}${path}`;
+  return { raw, host: ['{{baseUrl}}'], path: segments, ...(query ? { query } : {}) };
 }
 
-const collection: PostmanCollection = {
+function script(...lines: string[]) {
+  return [{ listen: 'test', script: { exec: lines, type: 'text/javascript' } }];
+}
+
+// ── collection ─────────────────────────────────────────────────────────────────
+
+const collection = {
   info: {
-    name: spec.info?.title ?? 'Beats API',
-    _postman_id: '00000000-0000-0000-0000-000000000000',
+    name: 'Beats API',
     schema: 'https://schema.getpostman.com/json/collection/v2.1.0/collection.json',
-  },
-  auth: {
-    type: 'bearer',
-    bearer: [{ key: 'token', value: '{{accessToken}}', type: 'string' }],
+    description: 'Beats API collection. Start with Auth module.',
   },
   variable: [
-    { key: 'baseUrl', value: 'http://localhost:4000/api/v1' },
-    { key: 'accessToken', value: '' },
+    { key: 'baseUrl', value: 'http://localhost:4000/api/v1', type: 'string' },
+    { key: 'accessToken', value: '', type: 'string' },
+    { key: 'refreshToken', value: '', type: 'string' },
+    { key: 'resetToken', value: '', type: 'string' },
   ],
-  item: Array.from(folders.values()),
+  item: [
+    // ── Auth ──────────────────────────────────────────────────────────────────
+    {
+      name: 'Auth',
+      item: [
+        {
+          name: 'Register',
+          event: script(
+            'if (pm.response.code === 201) {',
+            '  const body = pm.response.json();',
+            "  pm.collectionVariables.set('accessToken', body.data.tokens.accessToken);",
+            "  pm.collectionVariables.set('refreshToken', body.data.tokens.refreshToken);",
+            '}',
+          ),
+          request: {
+            method: 'POST',
+            header: [{ key: 'Content-Type', value: 'application/json' }],
+            body: json({ firstname: 'John', lastname: 'Doe', username: 'johndoe', email: 'john.doe@example.com', password: 'Password123!', is_author: false }),
+            url: url('/auth/register'),
+            description: 'Register a new user. Auto-saves accessToken and refreshToken on success.',
+          },
+          response: [],
+        },
+        {
+          name: 'Login',
+          event: script(
+            'if (pm.response.code === 200) {',
+            '  const body = pm.response.json();',
+            "  pm.collectionVariables.set('accessToken', body.data.tokens.accessToken);",
+            "  pm.collectionVariables.set('refreshToken', body.data.tokens.refreshToken);",
+            '}',
+          ),
+          request: {
+            method: 'POST',
+            header: [{ key: 'Content-Type', value: 'application/json' }],
+            body: json({ email: 'john.doe@example.com', password: 'Password123!' }),
+            url: url('/auth/login'),
+            description: 'Login with email and password. Auto-saves tokens on success.',
+          },
+          response: [],
+        },
+        {
+          name: 'Logout',
+          event: script(
+            'if (pm.response.code === 200) {',
+            "  pm.collectionVariables.set('accessToken', '');",
+            "  pm.collectionVariables.set('refreshToken', '');",
+            '}',
+          ),
+          request: {
+            method: 'POST',
+            header: [{ key: 'Content-Type', value: 'application/json' }],
+            body: json({ refreshToken: '{{refreshToken}}' }),
+            url: url('/auth/logout'),
+            description: 'Logout by invalidating the refresh token. Clears stored tokens on success.',
+          },
+          response: [],
+        },
+        {
+          name: 'Refresh Token',
+          event: script(
+            'if (pm.response.code === 200) {',
+            '  const body = pm.response.json();',
+            "  pm.collectionVariables.set('accessToken', body.data.accessToken);",
+            "  pm.collectionVariables.set('refreshToken', body.data.refreshToken);",
+            '}',
+          ),
+          request: {
+            method: 'POST',
+            header: [{ key: 'Content-Type', value: 'application/json' }],
+            body: json({ refreshToken: '{{refreshToken}}' }),
+            url: url('/auth/refresh-token'),
+            description: 'Exchange a refresh token for a new access/refresh token pair (token rotation).',
+          },
+          response: [],
+        },
+        {
+          name: 'Forgot Password',
+          event: script(
+            'if (pm.response.code === 200) {',
+            '  const body = pm.response.json();',
+            '  if (body.data && body.data.resetToken) {',
+            "    pm.collectionVariables.set('resetToken', body.data.resetToken);",
+            "    console.log('Reset token saved:', body.data.resetToken);",
+            '  }',
+            '}',
+          ),
+          request: {
+            method: 'POST',
+            header: [{ key: 'Content-Type', value: 'application/json' }],
+            body: json({ email: 'john.doe@example.com' }),
+            url: url('/auth/forgot-password'),
+            description: 'Request a password reset. In dev/test mode the token is returned in the response.',
+          },
+          response: [],
+        },
+        {
+          name: 'Reset Password',
+          event: script(
+            'if (pm.response.code === 200) {',
+            "  pm.collectionVariables.set('resetToken', '');",
+            "  pm.collectionVariables.set('accessToken', '');",
+            "  pm.collectionVariables.set('refreshToken', '');",
+            '}',
+          ),
+          request: {
+            method: 'POST',
+            header: [{ key: 'Content-Type', value: 'application/json' }],
+            body: json({ email: 'john.doe@example.com', token: '{{resetToken}}', password: 'NewPassword123!' }),
+            url: url('/auth/reset-password'),
+            description: 'Reset password. Revokes all sessions — login again afterwards.',
+          },
+          response: [],
+        },
+      ],
+    },
+
+    // ── User ──────────────────────────────────────────────────────────────────
+    {
+      name: 'User',
+      item: [
+        {
+          name: 'Get Profile',
+          request: {
+            method: 'GET',
+            header: bearer(),
+            url: url('/user/profile'),
+            description: 'Get the authenticated user\'s profile.',
+          },
+          response: [],
+        },
+        {
+          name: 'Update Profile',
+          request: {
+            method: 'PUT',
+            header: [...bearer(), { key: 'Content-Type', value: 'application/json' }],
+            body: json({ name: 'John Doe', bio: 'Producer from NYC' }),
+            url: url('/user/profile'),
+            description: 'Update name and/or bio. At least one field is required.',
+          },
+          response: [],
+        },
+        {
+          name: 'Upload Avatar',
+          request: {
+            method: 'PUT',
+            header: bearer(),
+            body: formdata([
+              { key: 'avatar', type: 'file', description: 'JPEG, PNG, WebP, or GIF — max 5 MB' },
+            ]),
+            url: url('/user/profile/avatar'),
+            description: 'Upload a profile avatar via multipart/form-data. Field name must be "avatar". Returns updated profile with new avatar URL.',
+          },
+          response: [],
+        },
+      ],
+    },
+
+    // ── Beats ─────────────────────────────────────────────────────────────────
+    {
+      name: 'Beats',
+      item: [
+        {
+          name: 'List Beats',
+          request: {
+            method: 'GET',
+            header: [],
+            url: url('/beats', [
+              { key: 'page', value: '1' },
+              { key: 'limit', value: '20' },
+              { key: 'sort', value: 'newest', description: 'newest | oldest | priceAsc | priceDesc | bpmAsc | bpmDesc' },
+            ]),
+            description: 'Paginated list of all published beats.',
+          },
+          response: [],
+        },
+        {
+          name: 'Get Beat',
+          request: {
+            method: 'GET',
+            header: [],
+            url: url('/beats/1'),
+            description: 'Single beat detail by numeric ID.',
+          },
+          response: [],
+        },
+        {
+          name: 'Search Beats',
+          request: {
+            method: 'GET',
+            header: [],
+            url: url('/beats/search', [
+              { key: 'q', value: 'trap', description: 'Search in title, description, tags' },
+              { key: 'bpm', value: null, disabled: true, description: 'Exact BPM match' },
+              { key: 'tag', value: null, disabled: true, description: 'Tag contains search' },
+              { key: 'sort', value: 'newest', description: 'newest | oldest | priceAsc | priceDesc | bpmAsc | bpmDesc' },
+              { key: 'page', value: '1' },
+              { key: 'limit', value: '20' },
+            ]),
+            description: 'Full-text search across beat title, description, and tags. At least one of q, bpm, or tag is required.',
+          },
+          response: [],
+        },
+        {
+          name: 'Filter Beats',
+          request: {
+            method: 'GET',
+            header: [],
+            url: url('/beats/filter', [
+              { key: 'category', value: null, disabled: true, description: 'Category slug' },
+              { key: 'subCategory', value: null, disabled: true, description: 'Sub-category slug' },
+              { key: 'priceMin', value: null, disabled: true, description: 'Min regular_price' },
+              { key: 'priceMax', value: null, disabled: true, description: 'Max regular_price' },
+              { key: 'isFree', value: null, disabled: true, description: 'true | false' },
+              { key: 'sort', value: 'newest' },
+              { key: 'page', value: '1' },
+              { key: 'limit', value: '20' },
+            ]),
+            description: 'Filter beats by category, sub-category, price range, or free flag.',
+          },
+          response: [],
+        },
+        {
+          name: 'Featured Beats',
+          request: {
+            method: 'GET',
+            header: [],
+            url: url('/beats/featured', [
+              { key: 'page', value: '1' },
+              { key: 'limit', value: '20' },
+            ]),
+            description: 'Beats marked as featured.',
+          },
+          response: [],
+        },
+        {
+          name: 'Free Beats',
+          request: {
+            method: 'GET',
+            header: [],
+            url: url('/beats/free', [
+              { key: 'page', value: '1' },
+              { key: 'limit', value: '20' },
+            ]),
+            description: 'Beats available for free.',
+          },
+          response: [],
+        },
+        {
+          name: 'Create Beat',
+          request: {
+            method: 'POST',
+            header: [...bearer(), { key: 'Content-Type', value: 'application/json' }],
+            body: json({
+              title: 'Dark Trap',
+              description: 'Hard-hitting 808s',
+              bpm: 140,
+              regularPrice: '29.99',
+              extendedPrice: '99.99',
+              isFree: false,
+              audioUrl: 'https://example.com/audio.mp3',
+              coverImageUrl: 'https://example.com/cover.jpg',
+              tags: ['trap', 'dark', '808'],
+              categoryId: '1',
+            }),
+            url: url('/beats'),
+            description: 'Create a new beat. Requires PRODUCER or ADMIN role.',
+          },
+          response: [],
+        },
+        {
+          name: 'Replace Beat',
+          request: {
+            method: 'PUT',
+            header: [...bearer(), { key: 'Content-Type', value: 'application/json' }],
+            body: json({
+              title: 'Dark Trap v2',
+              description: 'Updated version',
+              bpm: 140,
+              regularPrice: '29.99',
+              extendedPrice: '99.99',
+              isFree: false,
+              tags: ['trap', 'dark'],
+              categoryId: '1',
+            }),
+            url: url('/beats/1'),
+            description: 'Replace a beat by ID. Requires PRODUCER or ADMIN role.',
+          },
+          response: [],
+        },
+        {
+          name: 'Delete Beat',
+          request: {
+            method: 'DELETE',
+            header: bearer(),
+            url: url('/beats/1'),
+            description: 'Delete a beat by ID. Requires PRODUCER or ADMIN role.',
+          },
+          response: [],
+        },
+      ],
+    },
+
+    // ── Categories ────────────────────────────────────────────────────────────
+    {
+      name: 'Categories',
+      item: [
+        {
+          name: 'List Categories',
+          request: {
+            method: 'GET',
+            header: [],
+            url: url('/categories'),
+            description: 'All genres/categories ordered by name.',
+          },
+          response: [],
+        },
+        {
+          name: 'Beats by Category',
+          request: {
+            method: 'GET',
+            header: [],
+            url: url('/categories/hip-hop/beats', [
+              { key: 'page', value: '1' },
+              { key: 'limit', value: '20' },
+              { key: 'sort', value: 'newest' },
+            ]),
+            description: 'Paginated beats for a specific category identified by its slug.',
+          },
+          response: [],
+        },
+      ],
+    },
+  ],
 };
 
-const outDir = path.resolve(__dirname, '..', 'docs');
-fs.mkdirSync(outDir, { recursive: true });
-const outFile = path.join(outDir, 'postman-collection.json');
+// ── write ──────────────────────────────────────────────────────────────────────
+
+const outFile = path.resolve(__dirname, '..', 'beats-api.postman_collection.json');
 fs.writeFileSync(outFile, JSON.stringify(collection, null, 2));
-console.log(`[postman] Wrote ${outFile} (${collection.item.length} folders)`);
+console.log(`[postman] Wrote ${outFile}`);
+console.log(`[postman] Folders: ${collection.item.map(f => `${f.name} (${f.item.length})`).join(', ')}`);

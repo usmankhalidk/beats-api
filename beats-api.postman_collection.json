@@ -50,18 +50,31 @@
           "request": {
             "method": "POST",
             "header": [
-              { "key": "Content-Type", "value": "application/json" }
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"firstname\": \"John\",\n  \"lastname\": \"Doe\",\n  \"username\": \"johndoe\",\n  \"email\": \"john.doe@example.com\",\n  \"password\": \"Password123!\",\n  \"is_author\": false\n}"
+              "raw": "{\n  \"firstname\": \"John\",\n  \"lastname\": \"Doe\",\n  \"username\": \"johndoe\",\n  \"email\": \"john.doe@example.com\",\n  \"password\": \"Password123!\",\n  \"is_author\": false\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             },
             "url": {
               "raw": "{{baseUrl}}/auth/register",
-              "host": ["{{baseUrl}}"],
-              "path": ["auth", "register"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "register"
+              ]
             },
-            "description": "Register a new user. Auto-saves accessToken and refreshToken to collection variables on success."
+            "description": "Register a new user. Auto-saves accessToken and refreshToken on success."
           },
           "response": []
         },
@@ -85,18 +98,31 @@
           "request": {
             "method": "POST",
             "header": [
-              { "key": "Content-Type", "value": "application/json" }
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"email\": \"john.doe@example.com\",\n  \"password\": \"Password123!\"\n}"
+              "raw": "{\n  \"email\": \"john.doe@example.com\",\n  \"password\": \"Password123!\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             },
             "url": {
               "raw": "{{baseUrl}}/auth/login",
-              "host": ["{{baseUrl}}"],
-              "path": ["auth", "login"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
             },
-            "description": "Login with email and password. Auto-saves accessToken and refreshToken to collection variables on success."
+            "description": "Login with email and password. Auto-saves tokens on success."
           },
           "response": []
         },
@@ -119,18 +145,31 @@
           "request": {
             "method": "POST",
             "header": [
-              { "key": "Content-Type", "value": "application/json" }
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"refreshToken\": \"{{refreshToken}}\"\n}"
+              "raw": "{\n  \"refreshToken\": \"{{refreshToken}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             },
             "url": {
               "raw": "{{baseUrl}}/auth/logout",
-              "host": ["{{baseUrl}}"],
-              "path": ["auth", "logout"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "logout"
+              ]
             },
-            "description": "Logout by invalidating the refresh token. Clears stored tokens from collection variables on success."
+            "description": "Logout by invalidating the refresh token. Clears stored tokens on success."
           },
           "response": []
         },
@@ -154,18 +193,31 @@
           "request": {
             "method": "POST",
             "header": [
-              { "key": "Content-Type", "value": "application/json" }
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"refreshToken\": \"{{refreshToken}}\"\n}"
+              "raw": "{\n  \"refreshToken\": \"{{refreshToken}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             },
             "url": {
               "raw": "{{baseUrl}}/auth/refresh-token",
-              "host": ["{{baseUrl}}"],
-              "path": ["auth", "refresh-token"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "refresh-token"
+              ]
             },
-            "description": "Exchange a refresh token for a new access/refresh token pair (token rotation). Auto-saves new tokens on success."
+            "description": "Exchange a refresh token for a new access/refresh token pair (token rotation)."
           },
           "response": []
         },
@@ -178,7 +230,6 @@
                 "exec": [
                   "if (pm.response.code === 200) {",
                   "  const body = pm.response.json();",
-                  "  // In dev/test environments the reset token is returned directly",
                   "  if (body.data && body.data.resetToken) {",
                   "    pm.collectionVariables.set('resetToken', body.data.resetToken);",
                   "    console.log('Reset token saved:', body.data.resetToken);",
@@ -192,18 +243,31 @@
           "request": {
             "method": "POST",
             "header": [
-              { "key": "Content-Type", "value": "application/json" }
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"email\": \"john.doe@example.com\"\n}"
+              "raw": "{\n  \"email\": \"john.doe@example.com\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             },
             "url": {
               "raw": "{{baseUrl}}/auth/forgot-password",
-              "host": ["{{baseUrl}}"],
-              "path": ["auth", "forgot-password"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "forgot-password"
+              ]
             },
-            "description": "Request a password reset link. In dev/test mode, the reset token is returned in the response and auto-saved to the resetToken variable. In production, the token is sent via email only."
+            "description": "Request a password reset. In dev/test mode the token is returned in the response."
           },
           "response": []
         },
@@ -227,18 +291,31 @@
           "request": {
             "method": "POST",
             "header": [
-              { "key": "Content-Type", "value": "application/json" }
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"email\": \"john.doe@example.com\",\n  \"token\": \"{{resetToken}}\",\n  \"password\": \"NewPassword123!\"\n}"
+              "raw": "{\n  \"email\": \"john.doe@example.com\",\n  \"token\": \"{{resetToken}}\",\n  \"password\": \"NewPassword123!\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             },
             "url": {
               "raw": "{{baseUrl}}/auth/reset-password",
-              "host": ["{{baseUrl}}"],
-              "path": ["auth", "reset-password"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "reset-password"
+              ]
             },
-            "description": "Reset password using the token from the Forgot Password step. Revokes all existing sessions — you must login again afterwards. Clears all stored tokens on success."
+            "description": "Reset password. Revokes all sessions — login again afterwards."
           },
           "response": []
         }
@@ -252,12 +329,21 @@
           "request": {
             "method": "GET",
             "header": [
-              { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              }
             ],
             "url": {
               "raw": "{{baseUrl}}/user/profile",
-              "host": ["{{baseUrl}}"],
-              "path": ["user", "profile"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "user",
+                "profile"
+              ]
             },
             "description": "Get the authenticated user's profile."
           },
@@ -268,17 +354,34 @@
           "request": {
             "method": "PUT",
             "header": [
-              { "key": "Authorization", "value": "Bearer {{accessToken}}" },
-              { "key": "Content-Type", "value": "application/json" }
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"name\": \"John Doe\",\n  \"bio\": \"Producer from NYC\"\n}"
+              "raw": "{\n  \"name\": \"John Doe\",\n  \"bio\": \"Producer from NYC\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             },
             "url": {
               "raw": "{{baseUrl}}/user/profile",
-              "host": ["{{baseUrl}}"],
-              "path": ["user", "profile"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "user",
+                "profile"
+              ]
             },
             "description": "Update name and/or bio. At least one field is required."
           },
@@ -289,7 +392,11 @@
           "request": {
             "method": "PUT",
             "header": [
-              { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              }
             ],
             "body": {
               "mode": "formdata",
@@ -303,10 +410,16 @@
             },
             "url": {
               "raw": "{{baseUrl}}/user/profile/avatar",
-              "host": ["{{baseUrl}}"],
-              "path": ["user", "profile", "avatar"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "user",
+                "profile",
+                "avatar"
+              ]
             },
-            "description": "Upload a profile avatar image via multipart/form-data. Field name must be 'avatar'. Returns the updated profile with the new avatar URL."
+            "description": "Upload a profile avatar via multipart/form-data. Field name must be \"avatar\". Returns updated profile with new avatar URL."
           },
           "response": []
         }
@@ -322,12 +435,26 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/beats?page=1&limit=20&sort=newest",
-              "host": ["{{baseUrl}}"],
-              "path": ["beats"],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "beats"
+              ],
               "query": [
-                { "key": "page", "value": "1" },
-                { "key": "limit", "value": "20" },
-                { "key": "sort", "value": "newest", "description": "newest | oldest | priceAsc | priceDesc | bpmAsc | bpmDesc" }
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "20"
+                },
+                {
+                  "key": "sort",
+                  "value": "newest",
+                  "description": "newest | oldest | priceAsc | priceDesc | bpmAsc | bpmDesc"
+                }
               ]
             },
             "description": "Paginated list of all published beats."
@@ -341,8 +468,13 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/beats/1",
-              "host": ["{{baseUrl}}"],
-              "path": ["beats", "1"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "beats",
+                "1"
+              ]
             },
             "description": "Single beat detail by numeric ID."
           },
@@ -354,19 +486,48 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/beats/search?q=trap&page=1&limit=20",
-              "host": ["{{baseUrl}}"],
-              "path": ["beats", "search"],
+              "raw": "{{baseUrl}}/beats/search?q=trap&sort=newest&page=1&limit=20",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "beats",
+                "search"
+              ],
               "query": [
-                { "key": "q", "value": "trap", "description": "Search in title, description, tags" },
-                { "key": "bpm", "value": null, "disabled": true, "description": "Exact BPM match" },
-                { "key": "tag", "value": null, "disabled": true, "description": "Tag contains search" },
-                { "key": "sort", "value": "newest", "description": "newest | oldest | priceAsc | priceDesc | bpmAsc | bpmDesc" },
-                { "key": "page", "value": "1" },
-                { "key": "limit", "value": "20" }
+                {
+                  "key": "q",
+                  "value": "trap",
+                  "description": "Search in title, description, tags"
+                },
+                {
+                  "key": "bpm",
+                  "value": null,
+                  "disabled": true,
+                  "description": "Exact BPM match"
+                },
+                {
+                  "key": "tag",
+                  "value": null,
+                  "disabled": true,
+                  "description": "Tag contains search"
+                },
+                {
+                  "key": "sort",
+                  "value": "newest",
+                  "description": "newest | oldest | priceAsc | priceDesc | bpmAsc | bpmDesc"
+                },
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "20"
+                }
               ]
             },
-            "description": "Full-text search across beat name, description, and tags. At least one of q, bpm, or tag is required."
+            "description": "Full-text search across beat title, description, and tags. At least one of q, bpm, or tag is required."
           },
           "response": []
         },
@@ -376,18 +537,57 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/beats/filter?page=1&limit=20",
-              "host": ["{{baseUrl}}"],
-              "path": ["beats", "filter"],
+              "raw": "{{baseUrl}}/beats/filter?sort=newest&page=1&limit=20",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "beats",
+                "filter"
+              ],
               "query": [
-                { "key": "category", "value": null, "disabled": true, "description": "Category slug" },
-                { "key": "subCategory", "value": null, "disabled": true, "description": "Sub-category slug" },
-                { "key": "priceMin", "value": null, "disabled": true, "description": "Min regular_price" },
-                { "key": "priceMax", "value": null, "disabled": true, "description": "Max regular_price" },
-                { "key": "isFree", "value": null, "disabled": true, "description": "true | false" },
-                { "key": "sort", "value": "newest" },
-                { "key": "page", "value": "1" },
-                { "key": "limit", "value": "20" }
+                {
+                  "key": "category",
+                  "value": null,
+                  "disabled": true,
+                  "description": "Category slug"
+                },
+                {
+                  "key": "subCategory",
+                  "value": null,
+                  "disabled": true,
+                  "description": "Sub-category slug"
+                },
+                {
+                  "key": "priceMin",
+                  "value": null,
+                  "disabled": true,
+                  "description": "Min regular_price"
+                },
+                {
+                  "key": "priceMax",
+                  "value": null,
+                  "disabled": true,
+                  "description": "Max regular_price"
+                },
+                {
+                  "key": "isFree",
+                  "value": null,
+                  "disabled": true,
+                  "description": "true | false"
+                },
+                {
+                  "key": "sort",
+                  "value": "newest"
+                },
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "20"
+                }
               ]
             },
             "description": "Filter beats by category, sub-category, price range, or free flag."
@@ -401,14 +601,25 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/beats/featured?page=1&limit=20",
-              "host": ["{{baseUrl}}"],
-              "path": ["beats", "featured"],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "beats",
+                "featured"
+              ],
               "query": [
-                { "key": "page", "value": "1" },
-                { "key": "limit", "value": "20" }
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "20"
+                }
               ]
             },
-            "description": "Beats marked as featured (is_featured = true)."
+            "description": "Beats marked as featured."
           },
           "response": []
         },
@@ -419,14 +630,125 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/beats/free?page=1&limit=20",
-              "host": ["{{baseUrl}}"],
-              "path": ["beats", "free"],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "beats",
+                "free"
+              ],
               "query": [
-                { "key": "page", "value": "1" },
-                { "key": "limit", "value": "20" }
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "20"
+                }
               ]
             },
-            "description": "Beats available for free (is_free = true)."
+            "description": "Beats available for free."
+          },
+          "response": []
+        },
+        {
+          "name": "Create Beat",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Dark Trap\",\n  \"description\": \"Hard-hitting 808s\",\n  \"bpm\": 140,\n  \"regularPrice\": \"29.99\",\n  \"extendedPrice\": \"99.99\",\n  \"isFree\": false,\n  \"audioUrl\": \"https://example.com/audio.mp3\",\n  \"coverImageUrl\": \"https://example.com/cover.jpg\",\n  \"tags\": [\n    \"trap\",\n    \"dark\",\n    \"808\"\n  ],\n  \"categoryId\": \"1\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/beats",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "beats"
+              ]
+            },
+            "description": "Create a new beat. Requires PRODUCER or ADMIN role."
+          },
+          "response": []
+        },
+        {
+          "name": "Replace Beat",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Dark Trap v2\",\n  \"description\": \"Updated version\",\n  \"bpm\": 140,\n  \"regularPrice\": \"29.99\",\n  \"extendedPrice\": \"99.99\",\n  \"isFree\": false,\n  \"tags\": [\n    \"trap\",\n    \"dark\"\n  ],\n  \"categoryId\": \"1\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/beats/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "beats",
+                "1"
+              ]
+            },
+            "description": "Replace a beat by ID. Requires PRODUCER or ADMIN role."
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Beat",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/beats/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "beats",
+                "1"
+              ]
+            },
+            "description": "Delete a beat by ID. Requires PRODUCER or ADMIN role."
           },
           "response": []
         }
@@ -442,8 +764,12 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/categories",
-              "host": ["{{baseUrl}}"],
-              "path": ["categories"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "categories"
+              ]
             },
             "description": "All genres/categories ordered by name."
           },
@@ -456,12 +782,27 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/categories/hip-hop/beats?page=1&limit=20&sort=newest",
-              "host": ["{{baseUrl}}"],
-              "path": ["categories", "hip-hop", "beats"],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "categories",
+                "hip-hop",
+                "beats"
+              ],
               "query": [
-                { "key": "page", "value": "1" },
-                { "key": "limit", "value": "20" },
-                { "key": "sort", "value": "newest" }
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "20"
+                },
+                {
+                  "key": "sort",
+                  "value": "newest"
+                }
               ]
             },
             "description": "Paginated beats for a specific category identified by its slug."
