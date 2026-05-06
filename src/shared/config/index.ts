@@ -26,10 +26,10 @@ const envSchema = z.object({
   LOG_LEVEL: z.enum(['debug', 'info', 'warn', 'error']).default('info'),
 
   CONTABO_ENDPOINT: z.string().url(),
-  CONTABO_CLIENT_ID: z.string().min(1, 'CONTABO_CLIENT_ID is required'),
-  CONTABO_CLIENT_SECRET: z.string().min(1, 'CONTABO_CLIENT_SECRET is required'),
-  CONTABO_BUCKET_NAME: z.string().min(1).default('profile.avatars'),
-  CONTABO_BUCKET_URL: z.string().url(),
+  CONTABO_ACCESS_ID: z.string().min(1, 'CONTABO_ACCESS_ID is required'),
+  CONTABO_ACCESS_KEY: z.string().min(1, 'CONTABO_ACCESS_KEY is required'),
+  CONTABO_AVATAR_BUCKET_NAME: z.string().min(1).default('profile.avatars'),
+  CONTABO_AVATAR_BASE_URL: z.string().url(),
 });
 
 const parsed = envSchema.safeParse(process.env);
@@ -83,10 +83,10 @@ export const config = {
 
   storage: {
     endpoint: env.CONTABO_ENDPOINT,
-    clientId: env.CONTABO_CLIENT_ID,
-    clientSecret: env.CONTABO_CLIENT_SECRET,
-    profilesBucket: env.CONTABO_BUCKET_NAME,
-    profilesBucketUrl: env.CONTABO_BUCKET_URL,
+    accessId: env.CONTABO_ACCESS_ID,
+    accessKey: env.CONTABO_ACCESS_KEY,
+    avatarBucket: env.CONTABO_AVATAR_BUCKET_NAME,
+    avatarBaseUrl: env.CONTABO_AVATAR_BASE_URL,
   },
 } as const;
 

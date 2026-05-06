@@ -11,10 +11,12 @@ function getS3(): S3Client {
       endpoint: config.storage.endpoint,
       region: 'eu2',
       credentials: {
-        accessKeyId: config.storage.clientId,
-        secretAccessKey: config.storage.clientSecret,
+        accessKeyId: config.storage.accessId,
+        secretAccessKey: config.storage.accessKey,
       },
       forcePathStyle: true,
+      requestChecksumCalculation: "WHEN_REQUIRED",
+      responseChecksumValidation: "WHEN_REQUIRED",
     });
   }
   return s3Instance;
@@ -28,33 +30,28 @@ export async function uploadAvatar(
 ): Promise<string> {
   const ext = path.extname(originalName).toLowerCase() || '.jpg';
   const key = `avatars/${userId}/${randomUUID()}${ext}`;
-  try{
 
     await getS3().send(
       new PutObjectCommand({
-        Bucket: config.storage.profilesBucket,
+        Bucket: config.storage.avatarBucket,
         Key: key,
         Body: buffer,
         ContentType: mimetype,
-        ACL: 'public-read',
       }),
     );
-  }catch(error){
-    console.log('error-->',error)
-  }
 
 
-  return `${config.storage.profilesBucketUrl}/${key}`;
+  return `${config.storage.avatarBaseUrl}/${key}`;
 }
 
 export async function deleteAvatar(url: string): Promise<void> {
-  const prefix = `${config.storage.profilesBucketUrl}/`;
+  const prefix = `${config.storage.avatarBaseUrl}/`;
   if (!url.startsWith(prefix)) return;
   const key = url.slice(prefix.length);
 
   await getS3().send(
     new DeleteObjectCommand({
-      Bucket: config.storage.profilesBucket,
+      Bucket: config.storage.avatarBucket,
       Key: key,
     }),
   );
