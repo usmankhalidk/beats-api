@@ -1,21 +1,33 @@
 import { Errors } from '@utils/api-error';
 import type { PaginationMeta } from '@utils/pagination';
-import type { BeatDTO } from '@modules/beats/service';
+import { listBeatsByCategoryId, type BeatDTO } from '@modules/beats/service';
+import * as categoriesRepo from './repository';
 import type { CategoryBeatsQuery } from './validation';
 
 export interface CategoryDTO {
   id: string;
   name: string;
   slug: string;
+  title: string | null;
+  description: string | null;
 }
 
 export async function listCategories(): Promise<CategoryDTO[]> {
-  throw Errors.notImplemented({ feature: 'categories.list' });
+  const cats = await categoriesRepo.listAll();
+  return cats.map((c) => ({
+    id: c.id.toString(),
+    name: c.name,
+    slug: c.slug,
+    title: c.title,
+    description: c.description,
+  }));
 }
 
 export async function listCategoryBeats(
-  _slug: string,
-  _query: CategoryBeatsQuery,
+  slug: string,
+  query: CategoryBeatsQuery,
 ): Promise<{ items: BeatDTO[]; meta: PaginationMeta }> {
-  throw Errors.notImplemented({ feature: 'categories.beats' });
+  const category = await categoriesRepo.findBySlug(slug);
+  if (!category) throw Errors.notFound({ resource: 'category' });
+  return listBeatsByCategoryId(category.id, query);
 }

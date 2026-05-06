@@ -11,5 +11,9 @@ export type SlugParam = z.infer<typeof slugParamSchema>;
 export const listCategoriesQuerySchema = z.object({}).strict();
 export type ListCategoriesQuery = z.infer<typeof listCategoriesQuerySchema>;
 
-export const categoryBeatsQuerySchema = paginationQuerySchema;
+export const categoryBeatsQuerySchema = paginationQuerySchema.extend({
+  sort: z
+    .enum(['newest', 'oldest', 'priceAsc', 'priceDesc', 'bpmAsc', 'bpmDesc'])
+    .default('newest'),
+});
 export type CategoryBeatsQuery = z.infer<typeof categoryBeatsQuerySchema>;

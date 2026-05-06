@@ -243,6 +243,164 @@
           "response": []
         }
       ]
+    },
+    {
+      "name": "Beats",
+      "item": [
+        {
+          "name": "List Beats",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/beats?page=1&limit=20&sort=newest",
+              "host": ["{{baseUrl}}"],
+              "path": ["beats"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "20" },
+                { "key": "sort", "value": "newest", "description": "newest | oldest | priceAsc | priceDesc | bpmAsc | bpmDesc" }
+              ]
+            },
+            "description": "Paginated list of all published beats."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Beat",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/beats/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["beats", "1"]
+            },
+            "description": "Single beat detail by numeric ID."
+          },
+          "response": []
+        },
+        {
+          "name": "Search Beats",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/beats/search?q=trap&page=1&limit=20",
+              "host": ["{{baseUrl}}"],
+              "path": ["beats", "search"],
+              "query": [
+                { "key": "q", "value": "trap", "description": "Search in title, description, tags" },
+                { "key": "bpm", "value": null, "disabled": true, "description": "Exact BPM match" },
+                { "key": "tag", "value": null, "disabled": true, "description": "Tag contains search" },
+                { "key": "sort", "value": "newest", "description": "newest | oldest | priceAsc | priceDesc | bpmAsc | bpmDesc" },
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "20" }
+              ]
+            },
+            "description": "Full-text search across beat name, description, and tags. At least one of q, bpm, or tag is required."
+          },
+          "response": []
+        },
+        {
+          "name": "Filter Beats",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/beats/filter?page=1&limit=20",
+              "host": ["{{baseUrl}}"],
+              "path": ["beats", "filter"],
+              "query": [
+                { "key": "category", "value": null, "disabled": true, "description": "Category slug" },
+                { "key": "subCategory", "value": null, "disabled": true, "description": "Sub-category slug" },
+                { "key": "priceMin", "value": null, "disabled": true, "description": "Min regular_price" },
+                { "key": "priceMax", "value": null, "disabled": true, "description": "Max regular_price" },
+                { "key": "isFree", "value": null, "disabled": true, "description": "true | false" },
+                { "key": "sort", "value": "newest" },
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "20" }
+              ]
+            },
+            "description": "Filter beats by category, sub-category, price range, or free flag."
+          },
+          "response": []
+        },
+        {
+          "name": "Featured Beats",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/beats/featured?page=1&limit=20",
+              "host": ["{{baseUrl}}"],
+              "path": ["beats", "featured"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "20" }
+              ]
+            },
+            "description": "Beats marked as featured (is_featured = true)."
+          },
+          "response": []
+        },
+        {
+          "name": "Free Beats",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/beats/free?page=1&limit=20",
+              "host": ["{{baseUrl}}"],
+              "path": ["beats", "free"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "20" }
+              ]
+            },
+            "description": "Beats available for free (is_free = true)."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Categories",
+      "item": [
+        {
+          "name": "List Categories",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/categories",
+              "host": ["{{baseUrl}}"],
+              "path": ["categories"]
+            },
+            "description": "All genres/categories ordered by name."
+          },
+          "response": []
+        },
+        {
+          "name": "Beats by Category",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/categories/hip-hop/beats?page=1&limit=20&sort=newest",
+              "host": ["{{baseUrl}}"],
+              "path": ["categories", "hip-hop", "beats"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "20" },
+                { "key": "sort", "value": "newest" }
+              ]
+            },
+            "description": "Paginated beats for a specific category identified by its slug."
+          },
+          "response": []
+        }
+      ]
     }
   ]
 }

@@ -18,31 +18,33 @@ function requireUserId(req: Request): string {
 
 export async function list(req: Request, res: Response): Promise<Response> {
   const { items, meta } = await beatsService.listBeats(req.query as unknown as ListBeatsQuery);
-  return successResponse(res, { data: items, meta });
+  return successResponse(res, { data: items, meta: { ...meta } });
 }
 
 export async function search(req: Request, res: Response): Promise<Response> {
   const { items, meta } = await beatsService.searchBeats(req.query as unknown as SearchBeatsQuery);
-  return successResponse(res, { data: items, meta });
+  return successResponse(res, { data: items, meta: { ...meta } });
 }
 
 export async function filter(req: Request, res: Response): Promise<Response> {
   const { items, meta } = await beatsService.filterBeats(req.query as unknown as FilterBeatsQuery);
-  return successResponse(res, { data: items, meta });
+  return successResponse(res, { data: items, meta: { ...meta } });
 }
 
 export async function featured(req: Request, res: Response): Promise<Response> {
-  const { items, meta } = await beatsService.featuredBeats(req.query as unknown as FeaturedBeatsQuery);
-  return successResponse(res, { data: items, meta });
+  const { items, meta } = await beatsService.featuredBeats(
+    req.query as unknown as FeaturedBeatsQuery,
+  );
+  return successResponse(res, { data: items, meta: { ...meta } });
 }
 
 export async function free(req: Request, res: Response): Promise<Response> {
   const { items, meta } = await beatsService.freeBeats(req.query as unknown as FreeBeatsQuery);
-  return successResponse(res, { data: items, meta });
+  return successResponse(res, { data: items, meta: { ...meta } });
 }
 
 export async function get(req: Request, res: Response): Promise<Response> {
-  const data = await beatsService.getBeat(req.params.id);
+  const data = await beatsService.getBeat(req.params.id as string);
   return successResponse(res, { data });
 }
 
@@ -52,11 +54,11 @@ export async function create(req: Request, res: Response): Promise<Response> {
 }
 
 export async function replace(req: Request, res: Response): Promise<Response> {
-  const data = await beatsService.replaceBeat(requireUserId(req), req.params.id, req.body);
+  const data = await beatsService.replaceBeat(requireUserId(req), req.params.id as string, req.body);
   return successResponse(res, { data, message: 'BEAT_UPDATED' });
 }
 
 export async function remove(req: Request, res: Response): Promise<Response> {
-  await beatsService.deleteBeat(requireUserId(req), req.params.id);
+  await beatsService.deleteBeat(requireUserId(req), req.params.id as string);
   return successResponse(res, { data: null, message: 'BEAT_DELETED' });
 }
