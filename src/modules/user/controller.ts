@@ -19,6 +19,7 @@ export async function updateProfile(req: Request, res: Response): Promise<Respon
 }
 
 export async function updateAvatar(req: Request, res: Response): Promise<Response> {
-  const data = await userService.updateAvatar(requireUserId(req), req.body);
+  if (!req.file) throw Errors.badRequest({ reason: 'avatar_file_required' });
+  const data = await userService.updateAvatar(requireUserId(req), req.file);
   return successResponse(res, { data, message: 'AVATAR_UPDATED' });
 }

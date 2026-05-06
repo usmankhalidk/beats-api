@@ -24,6 +24,12 @@ const envSchema = z.object({
   RATE_LIMIT_MAX: z.coerce.number().int().positive().default(100),
 
   LOG_LEVEL: z.enum(['debug', 'info', 'warn', 'error']).default('info'),
+
+  CONTABO_ENDPOINT: z.string().url(),
+  CONTABO_ACCESS_ID: z.string().min(1, 'CONTABO_ACCESS_ID is required'),
+  CONTABO_ACCESS_KEY: z.string().min(1, 'CONTABO_ACCESS_KEY is required'),
+  CONTABO_AVATAR_BUCKET_NAME: z.string().min(1).default('profile.avatars'),
+  CONTABO_AVATAR_BASE_URL: z.string().url(),
 });
 
 const parsed = envSchema.safeParse(process.env);
@@ -73,6 +79,14 @@ export const config = {
 
   log: {
     level: env.LOG_LEVEL,
+  },
+
+  storage: {
+    endpoint: env.CONTABO_ENDPOINT,
+    accessId: env.CONTABO_ACCESS_ID,
+    accessKey: env.CONTABO_ACCESS_KEY,
+    avatarBucket: env.CONTABO_AVATAR_BUCKET_NAME,
+    avatarBaseUrl: env.CONTABO_AVATAR_BASE_URL,
   },
 } as const;
 
