@@ -87,6 +87,8 @@ model User {
   uploaded_files                               uploaded_files[]
   user_badges                                  user_badges[]
   user_login_logs                              user_login_logs[]
+  playlists                                    playlists[]
+  refresh_tokens                               refresh_tokens[]
   levels                                       levels?                @relation(fields: [level_id], references: [id], onUpdate: Restrict, map: "users_level_id_foreign")
   withdrawal_methods                           withdrawal_methods?    @relation(fields: [withdrawal_method_id], references: [id], onUpdate: Restrict, map: "users_withdrawal_method_id_foreign")
   withdrawals                                  withdrawals[]
@@ -703,6 +705,8 @@ model items {
   total_views           BigInt              @default(0) @db.UnsignedBigInt
   current_month_views   BigInt              @default(0) @db.UnsignedBigInt
   free_downloads        BigInt              @default(0) @db.UnsignedBigInt
+  bpm                   Int?                @db.UnsignedSmallInt
+  music_key             String?             @db.VarChar(10)
   purchasing_status     Boolean             @default(true)
   is_premium            Boolean             @default(false)
   is_free               Boolean?            @default(false)
@@ -732,10 +736,12 @@ model items {
   purchases             purchases[]
   sales                 sales[]
   transaction_items     transaction_items[]
+  playlist_items        playlist_items[]
 
   @@index([author_id], map: "items_ author_id_foreign")
   @@index([category_id], map: "items_category_id_foreign")
   @@index([sub_category_id], map: "items_sub_category_id_foreign")
+  @@index([bpm])
 }
 
 model jobs {
@@ -1403,4 +1409,47 @@ enum users_exclusivity {
 enum payment_gateways_mode {
   sandbox
   live
+}
+
+model playlists {
+  id          BigInt           @id @default(autoincrement()) @db.UnsignedBigInt
+  user_id     BigInt           @db.UnsignedBigInt
+  name        String           @db.VarChar(150)
+  description String?          @db.Text
+  is_public   Boolean          @default(false)
+  created_at  DateTime?        @db.Timestamp(0)
+  updated_at  DateTime?        @db.Timestamp(0)
+  user        User             @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  items       playlist_items[]
+
+  @@index([user_id])
+}
+
+model playlist_items {
+  id          BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  playlist_id BigInt    @db.UnsignedBigInt
+  item_id     BigInt    @db.UnsignedBigInt
+  position    Int       @default(0)
+  created_at  DateTime? @db.Timestamp(0)
+  playlist    playlists @relation(fields: [playlist_id], references: [id], onDelete: Cascade)
+  item        items     @relation(fields: [item_id], references: [id], onDelete: Cascade)
+
+  @@unique([playlist_id, item_id])
+  @@index([item_id])
+}
+
+model refresh_tokens {
+  id          BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  user_id     BigInt    @db.UnsignedBigInt
+  token_hash  String    @unique @db.VarChar(255)
+  user_agent  String?   @db.VarChar(255)
+  ip          String?   @db.VarChar(64)
+  expires_at  DateTime  @db.Timestamp(0)
+  revoked_at  DateTime? @db.Timestamp(0)
+  replaced_by BigInt?   @db.UnsignedBigInt
+  created_at  DateTime? @db.Timestamp(0)
+  user        User      @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@index([user_id])
+  @@index([expires_at])
 }

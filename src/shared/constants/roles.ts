@@ -1,9 +1,7 @@
-import { UserRole } from '@prisma/client';
-
 export const ROLES = {
-  USER: UserRole.user,
-  PRODUCER: UserRole.producer,
-  ADMIN: UserRole.admin,
+  USER: 'user',
+  PRODUCER: 'producer',
+  ADMIN: 'admin',
 } as const;
 
 export type Role = (typeof ROLES)[keyof typeof ROLES];

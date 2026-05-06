@@ -12,7 +12,6 @@ export interface AccessTokenPayload extends JwtPayload {
 
 export interface RefreshTokenPayload extends JwtPayload {
   sub: string;
-  jti: string;
   type: 'refresh';
 }
 
@@ -25,10 +24,10 @@ export function signAccessToken(payload: { userId: string; role: string }): stri
   );
 }
 
-export function signRefreshToken(payload: { userId: string; jti: string }): string {
+export function signRefreshToken(payload: { userId: string }): string {
   const opts: SignOptions = { expiresIn: config.jwt.refreshExpiresIn as SignOptions['expiresIn'] };
   return jwt.sign(
-    { sub: payload.userId, jti: payload.jti, type: 'refresh' },
+    { sub: payload.userId, type: 'refresh' },
     config.jwt.refreshSecret,
     opts,
   );

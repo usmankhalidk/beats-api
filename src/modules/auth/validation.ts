@@ -1,10 +1,12 @@
 import { z } from 'zod';
 
 export const registerBodySchema = z.object({
-  name: z.string().trim().min(1).max(255),
-  email: z.string().trim().toLowerCase().email().max(255),
+  firstname: z.string().trim().min(1).max(50),
+  lastname: z.string().trim().min(1).max(50),
+  username: z.string().trim().min(3).max(50).regex(/^[a-zA-Z0-9_.-]+$/).optional(),
+  email: z.string().trim().toLowerCase().email().max(100),
   password: z.string().min(8).max(128),
-  role: z.enum(['user', 'producer']).optional(),
+  is_author: z.boolean().optional(),
 });
 export type RegisterInput = z.infer<typeof registerBodySchema>;
 
@@ -30,6 +32,7 @@ export const forgotPasswordBodySchema = z.object({
 export type ForgotPasswordInput = z.infer<typeof forgotPasswordBodySchema>;
 
 export const resetPasswordBodySchema = z.object({
+  email: z.string().trim().toLowerCase().email(),
   token: z.string().min(1),
   password: z.string().min(8).max(128),
 });
