@@ -2,6 +2,7 @@ import type { Prisma } from '@prisma/client';
 import { Errors } from '@utils/api-error';
 import { buildPaginationMeta, toPrismaSkipTake } from '@utils/pagination';
 import type { PaginationMeta } from '@utils/pagination';
+import * as storage from '@utils/storage';
 import * as beatsRepo from './repository';
 import type { ItemWithRelations } from './repository';
 import type {
@@ -207,19 +208,95 @@ export async function listBeatsByCategoryId(
   return paginate({ category_id: categoryId }, query.sort, query);
 }
 
-// ── Write stubs (implemented with producer module) ───────────────────────────
-export async function createBeat(_producerId: string, _input: CreateBeatInput): Promise<BeatDTO> {
-  throw Errors.notImplemented({ feature: 'beats.create' });
+// ── Write operations (producer module) ──────────────────────────────────────
+
+export interface BeatFileInput {
+  buffer: Buffer;
+  originalname: string;
+  mimetype: string;
+}
+
+export async function createBeat(
+  producerId: string,
+  input: CreateBeatInput,
+  beatFile: BeatFileInput,
+  coverFile?: BeatFileInput,
+): Promise<BeatDTO> {
+  const slug = await beatsRepo.generateUniqueSlug(input.title);
+  const item = await beatsRepo.create({
+    author_id: BigInt(producerId),
+    name: input.title,
+    slug,
+    description: input.description ?? '',
+    category_id: BigInt(input.categoryId),
+    sub_category_id: input.subCategoryId ? BigInt(input.subCategoryId) : undefined,
+    regular_price: parseFloat(input.regularPrice),
+    extended_price: parseFloat(input.extendedPrice),
+    bpm: input.bpm,
+    music_key: input.musicKey,
+    tags: JSON.stringify(input.tags ?? []),
+    is_free: input.isFree,
+    main_file: 'pending',
+  });
+
+  const itemId = item.id.toString();
+  try {
+    const beatKey = await storage.uploadBeatFile(beatFile.buffer, beatFile.originalname, beatFile.mimetype, itemId);
+    let thumbnail: string | undefined;
+    if (coverFile) {
+      thumbnail = await storage.uploadCoverImage(coverFile.buffer, coverFile.originalname, coverFile.mimetype, itemId);
+    }
+    const updated = await beatsRepo.update(item.id, { main_file: beatKey, thumbnail });
+    return toDTO(updated);
+  } catch (err) {
+    await beatsRepo.deleteById(item.id).catch(() => {});
+    throw err;
+  }
 }
 
 export async function replaceBeat(
-  _producerId: string,
-  _id: string,
-  _input: ReplaceBeatInput,
+  producerId: string,
+  id: string,
+  input: ReplaceBeatInput,
+  beatFile?: BeatFileInput,
+  coverFile?: BeatFileInput,
 ): Promise<BeatDTO> {
-  throw Errors.notImplemented({ feature: 'beats.replace' });
+  const existing = await beatsRepo.findByIdForAuthor(BigInt(id), BigInt(producerId));
+  if (!existing) throw Errors.notFound({ resource: 'beat' });
+
+  const slug = await beatsRepo.generateUniqueSlug(input.title);
+  const updateData: Parameters<typeof beatsRepo.update>[1] = {
+    name: input.title,
+    slug,
+    description: input.description ?? '',
+    category_id: BigInt(input.categoryId),
+    sub_category_id: input.subCategoryId ? BigInt(input.subCategoryId) : null,
+    regular_price: parseFloat(input.regularPrice),
+    extended_price: parseFloat(input.extendedPrice),
+    bpm: input.bpm ?? null,
+    music_key: input.musicKey ?? null,
+    tags: JSON.stringify(input.tags ?? []),
+    is_free: input.isFree,
+  };
+
+  if (beatFile) {
+    updateData.main_file = await storage.uploadBeatFile(beatFile.buffer, beatFile.originalname, beatFile.mimetype, id);
+  }
+  if (coverFile) {
+    if (existing.thumbnail) await storage.deleteCoverImage(existing.thumbnail).catch(() => {});
+    updateData.thumbnail = await storage.uploadCoverImage(coverFile.buffer, coverFile.originalname, coverFile.mimetype, id);
+  }
+
+  const updated = await beatsRepo.update(BigInt(id), updateData);
+  return toDTO(updated);
 }
 
-export async function deleteBeat(_producerId: string, _id: string): Promise<void> {
-  throw Errors.notImplemented({ feature: 'beats.delete' });
+export async function deleteBeat(producerId: string, id: string): Promise<void> {
+  const existing = await beatsRepo.findByIdForAuthor(BigInt(id), BigInt(producerId));
+  if (!existing) throw Errors.notFound({ resource: 'beat' });
+  await Promise.all([
+    storage.deleteBeatFile(existing.main_file).catch(() => {}),
+    existing.thumbnail ? storage.deleteCoverImage(existing.thumbnail).catch(() => {}) : Promise.resolve(),
+  ]);
+  await beatsRepo.deleteById(BigInt(id));
 }

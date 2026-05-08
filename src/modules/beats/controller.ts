@@ -3,6 +3,7 @@ import { successResponse } from '@utils/response';
 import { Errors } from '@utils/api-error';
 import { HTTP_STATUS } from '@constants/http-status';
 import * as beatsService from './service';
+import type { BeatFileInput } from './service';
 import type {
   FeaturedBeatsQuery,
   FilterBeatsQuery,
@@ -48,13 +49,26 @@ export async function get(req: Request, res: Response): Promise<Response> {
   return successResponse(res, { data });
 }
 
+function extractFiles(req: Request): { beatFile?: BeatFileInput; coverFile?: BeatFileInput } {
+  const files = req.files as Record<string, Express.Multer.File[]> | undefined;
+  const beat = files?.['beatFile']?.[0];
+  const cover = files?.['coverImage']?.[0];
+  return {
+    beatFile: beat ? { buffer: beat.buffer, originalname: beat.originalname, mimetype: beat.mimetype } : undefined,
+    coverFile: cover ? { buffer: cover.buffer, originalname: cover.originalname, mimetype: cover.mimetype } : undefined,
+  };
+}
+
 export async function create(req: Request, res: Response): Promise<Response> {
-  const data = await beatsService.createBeat(requireUserId(req), req.body);
+  const { beatFile, coverFile } = extractFiles(req);
+  if (!beatFile) throw Errors.badRequest({ reason: 'beatFile is required' });
+  const data = await beatsService.createBeat(requireUserId(req), req.body, beatFile, coverFile);
   return successResponse(res, { data, message: 'BEAT_CREATED', code: HTTP_STATUS.CREATED });
 }
 
 export async function replace(req: Request, res: Response): Promise<Response> {
-  const data = await beatsService.replaceBeat(requireUserId(req), req.params.id as string, req.body);
+  const { beatFile, coverFile } = extractFiles(req);
+  const data = await beatsService.replaceBeat(requireUserId(req), req.params.id as string, req.body, beatFile, coverFile);
   return successResponse(res, { data, message: 'BEAT_UPDATED' });
 }
 

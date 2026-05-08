@@ -30,6 +30,7 @@ const envSchema = z.object({
   CONTABO_ACCESS_KEY: z.string().min(1, 'CONTABO_ACCESS_KEY is required'),
   CONTABO_AVATAR_BUCKET_NAME: z.string().min(1).default('profile.avatars'),
   CONTABO_AVATAR_BASE_URL: z.string().url(),
+  BEAT_BUCKET_NAME: z.string().min(1).default('beats'),
 });
 
 const parsed = envSchema.safeParse(process.env);
@@ -87,6 +88,7 @@ export const config = {
     accessKey: env.CONTABO_ACCESS_KEY,
     avatarBucket: env.CONTABO_AVATAR_BUCKET_NAME,
     avatarBaseUrl: env.CONTABO_AVATAR_BASE_URL,
+    beatBucket: env.BEAT_BUCKET_NAME,
   },
 } as const;
 

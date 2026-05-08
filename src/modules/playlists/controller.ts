@@ -20,15 +20,11 @@ export async function create(req: Request, res: Response): Promise<Response> {
 }
 
 export async function addBeat(req: Request, res: Response): Promise<Response> {
-  await playlistsService.addBeat(requireUserId(req), req.params.id, req.body);
-  return successResponse(res, {
-    data: null,
-    message: 'BEAT_ADDED_TO_PLAYLIST',
-    code: HTTP_STATUS.CREATED,
-  });
+  await playlistsService.addBeat(requireUserId(req), String(req.params['id']), req.body);
+  return successResponse(res, { data: null, message: 'BEAT_ADDED_TO_PLAYLIST', code: HTTP_STATUS.CREATED });
 }
 
 export async function removeBeat(req: Request, res: Response): Promise<Response> {
-  await playlistsService.removeBeat(requireUserId(req), req.params.id, req.params.beatId);
+  await playlistsService.removeBeat(requireUserId(req), String(req.params['id']), String(req.params['beatId']));
   return successResponse(res, { data: null, message: 'BEAT_REMOVED_FROM_PLAYLIST' });
 }

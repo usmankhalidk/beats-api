@@ -1,24 +1,24 @@
 import { z } from 'zod';
 
-export const playlistIdParamSchema = z.object({ id: z.string().uuid() });
+const bigIntId = z.string().regex(/^\d+$/, 'id must be a positive integer');
+
+export const playlistIdParamSchema = z.object({ id: bigIntId });
 export type PlaylistIdParam = z.infer<typeof playlistIdParamSchema>;
 
 export const playlistBeatParamSchema = z.object({
-  id: z.string().uuid(),
-  beatId: z.string().uuid(),
+  id: bigIntId,
+  beatId: bigIntId,
 });
 export type PlaylistBeatParam = z.infer<typeof playlistBeatParamSchema>;
 
-export const createPlaylistBodySchema = z
-  .object({
-    name: z.string().trim().min(1).max(255),
-  })
-  .strict();
+export const createPlaylistBodySchema = z.object({
+  name: z.string().trim().min(1).max(150),
+  description: z.string().trim().max(2000).optional(),
+  isPublic: z.boolean().default(false),
+}).strict();
 export type CreatePlaylistInput = z.infer<typeof createPlaylistBodySchema>;
 
-export const addBeatToPlaylistBodySchema = z
-  .object({
-    beatId: z.string().uuid(),
-  })
-  .strict();
+export const addBeatToPlaylistBodySchema = z.object({
+  beatId: bigIntId,
+}).strict();
 export type AddBeatToPlaylistInput = z.infer<typeof addBeatToPlaylistBodySchema>;

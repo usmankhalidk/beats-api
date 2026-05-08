@@ -9,6 +9,6 @@ function requireUserId(req: Request): string {
 }
 
 export async function get(req: Request, res: Response): Promise<Response> {
-  const data = await downloadsService.getDownloadGrant(requireUserId(req), req.params.id);
+  const data = await downloadsService.getDownloadGrant(requireUserId(req), String(req.params['id']));
   return successResponse(res, { data });
 }

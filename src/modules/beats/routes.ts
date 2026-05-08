@@ -1,8 +1,11 @@
 import { Router } from 'express';
+import type { Request, Response, NextFunction } from 'express';
+import multer from 'multer';
 import { asyncHandler } from '@utils/async-handler';
 import { authenticate, optionalAuthenticate } from '@middleware/auth';
 import { requireRoles } from '@middleware/role';
 import { validate } from '@middleware/validate';
+import { Errors } from '@utils/api-error';
 import { ROLES } from '@constants/roles';
 import * as beatsController from './controller';
 import {
@@ -17,6 +20,32 @@ import {
 } from './validation';
 
 const router = Router();
+
+const beatUpload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 100 * 1024 * 1024 },
+  fileFilter: (_req, file, cb) => {
+    const audioTypes = ['audio/mpeg', 'audio/wav', 'audio/flac', 'audio/aac', 'audio/mp4', 'audio/x-wav'];
+    const imageTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+    if (file.fieldname === 'beatFile' && audioTypes.includes(file.mimetype)) return cb(null, true);
+    if (file.fieldname === 'coverImage' && imageTypes.includes(file.mimetype)) return cb(null, true);
+    cb(new Error(`Unsupported file type for field: ${file.fieldname}`));
+  },
+}).fields([
+  { name: 'beatFile', maxCount: 1 },
+  { name: 'coverImage', maxCount: 1 },
+]);
+
+function handleBeatUpload(req: Request, res: Response, next: NextFunction): void {
+  beatUpload(req, res, (err: unknown) => {
+    if (err instanceof multer.MulterError) {
+      next(err.code === 'LIMIT_FILE_SIZE' ? Errors.badRequest({ reason: 'file_too_large', maxSize: '100MB' }) : Errors.badRequest({ reason: err.code }));
+      return;
+    }
+    if (err instanceof Error) { next(Errors.badRequest({ reason: err.message })); return; }
+    next();
+  });
+}
 
 /**
  * IMPORTANT: literal sub-routes (/search, /filter, /featured, /free) must be
@@ -295,14 +324,14 @@ router.get(
  * /beats:
  *   post:
  *     tags: [Beats]
- *     summary: Create a new beat
- *     description: Requires PRODUCER or ADMIN role.
+ *     summary: Upload a new beat
+ *     description: Requires PRODUCER or ADMIN role. Send as multipart/form-data.
  *     security:
  *       - bearerAuth: []
  *     requestBody:
  *       required: true
  *       content:
- *         application/json:
+ *         multipart/form-data:
  *           schema:
  *             $ref: '#/components/schemas/BeatWrite'
  *     responses:
@@ -317,6 +346,8 @@ router.get(
  *                   properties:
  *                     data:
  *                       $ref: '#/components/schemas/Beat'
+ *       400:
+ *         $ref: '#/components/responses/BadRequest'
  *       401:
  *         $ref: '#/components/responses/Unauthorized'
  *       403:
@@ -328,6 +359,7 @@ router.post(
   '/',
   authenticate,
   requireRoles(ROLES.PRODUCER, ROLES.ADMIN),
+  handleBeatUpload,
   validate({ body: createBeatBodySchema }),
   asyncHandler(beatsController.create),
 );
@@ -337,8 +369,8 @@ router.post(
  * /beats/{id}:
  *   put:
  *     tags: [Beats]
- *     summary: Replace a beat by ID
- *     description: Requires PRODUCER or ADMIN role.
+ *     summary: Update a beat by ID
+ *     description: Requires PRODUCER or ADMIN role. Send as multipart/form-data. beatFile and coverImage are optional — omit to keep existing files.
  *     security:
  *       - bearerAuth: []
  *     parameters:
@@ -351,12 +383,12 @@ router.post(
  *     requestBody:
  *       required: true
  *       content:
- *         application/json:
+ *         multipart/form-data:
  *           schema:
  *             $ref: '#/components/schemas/BeatWrite'
  *     responses:
  *       200:
- *         description: Beat replaced
+ *         description: Beat updated
  *         content:
  *           application/json:
  *             schema:
@@ -379,6 +411,7 @@ router.put(
   '/:id',
   authenticate,
   requireRoles(ROLES.PRODUCER, ROLES.ADMIN),
+  handleBeatUpload,
   validate({ params: idParamSchema, body: replaceBeatBodySchema }),
   asyncHandler(beatsController.replace),
 );

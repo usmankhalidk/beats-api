@@ -14,7 +14,7 @@ export async function earnings(req: Request, res: Response): Promise<Response> {
     requireProducerId(req),
     req.query as unknown as EarningsQuery,
   );
-  return successResponse(res, { data: items, meta: { ...meta, totalAmount } });
+  return successResponse(res, { data: items, meta: { ...(meta as unknown as Record<string, unknown>), totalAmount } });
 }
 
 export async function sales(req: Request, res: Response): Promise<Response> {
@@ -22,5 +22,5 @@ export async function sales(req: Request, res: Response): Promise<Response> {
     requireProducerId(req),
     req.query as unknown as SalesQuery,
   );
-  return successResponse(res, { data: items, meta });
+  return successResponse(res, { data: items, meta: meta as unknown as Record<string, unknown> });
 }

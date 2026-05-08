@@ -1,6 +1,17 @@
-import type { Download } from '@prisma/client';
 import { prisma } from '@utils/prisma-client';
 
-export async function findByIdForUser(id: string, userId: string): Promise<Download | null> {
-  return prisma.download.findFirst({ where: { id, userId } });
+export type PurchaseRow = NonNullable<Awaited<ReturnType<typeof findPurchase>>>;
+
+export async function findPurchase(id: bigint, userId: bigint) {
+  return prisma.purchases.findFirst({
+    where: { id, user_id: userId, status: true },
+    select: {
+      id: true,
+      item_id: true,
+      license_type: true,
+      items: {
+        select: { name: true, main_file: true },
+      },
+    },
+  });
 }

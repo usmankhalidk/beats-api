@@ -1,35 +1,60 @@
-import type { Earning, OrderItem, Prisma } from '@prisma/client';
+import type { Prisma } from '@prisma/client';
 import { prisma } from '@utils/prisma-client';
 
-export async function listEarningsForProducer(args: {
-  producerId: string;
-  where: Prisma.EarningWhereInput;
-  skip: number;
-  take: number;
-}): Promise<{ rows: Earning[]; total: number; sum: string }> {
-  const where: Prisma.EarningWhereInput = { producerId: args.producerId, ...args.where };
-  const [rows, total, agg] = await Promise.all([
-    prisma.earning.findMany({ where, skip: args.skip, take: args.take, orderBy: { createdAt: 'desc' } }),
-    prisma.earning.count({ where }),
-    prisma.earning.aggregate({ where, _sum: { amount: true } }),
-  ]);
-  return { rows, total, sum: (agg._sum.amount ?? '0').toString() };
-}
+export type SaleRow = {
+  id: bigint;
+  author_id: bigint;
+  user_id: bigint;
+  item_id: bigint;
+  license_type: boolean;
+  price: number;
+  author_earning: number | null;
+  created_at: Date | null;
+};
 
 export async function listSalesForProducer(args: {
-  producerId: string;
-  where: Prisma.OrderItemWhereInput;
+  producerId: bigint;
+  from?: Date;
+  to?: Date;
   skip: number;
   take: number;
-}): Promise<{ rows: OrderItem[]; total: number }> {
-  const where: Prisma.OrderItemWhereInput = {
-    beat: { producerId: args.producerId },
-    order: { status: 'paid' },
-    ...args.where,
+}): Promise<{ rows: SaleRow[]; total: number; totalEarning: number }> {
+  const where: Prisma.salesWhereInput = {
+    author_id: args.producerId,
+    ...(args.from || args.to
+      ? {
+          created_at: {
+            ...(args.from ? { gte: args.from } : {}),
+            ...(args.to ? { lte: args.to } : {}),
+          },
+        }
+      : {}),
   };
-  const [rows, total] = await Promise.all([
-    prisma.orderItem.findMany({ where, skip: args.skip, take: args.take, include: { order: true } }),
-    prisma.orderItem.count({ where }),
+
+  const [rows, total, agg] = await Promise.all([
+    prisma.sales.findMany({
+      where,
+      skip: args.skip,
+      take: args.take,
+      orderBy: { created_at: 'desc' },
+      select: {
+        id: true,
+        author_id: true,
+        user_id: true,
+        item_id: true,
+        license_type: true,
+        price: true,
+        author_earning: true,
+        created_at: true,
+      },
+    }),
+    prisma.sales.count({ where }),
+    prisma.sales.aggregate({ where, _sum: { author_earning: true } }),
   ]);
-  return { rows, total };
+
+  return {
+    rows: rows as SaleRow[],
+    total,
+    totalEarning: agg._sum.author_earning ?? 0,
+  };
 }

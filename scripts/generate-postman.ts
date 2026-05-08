@@ -298,41 +298,44 @@ const collection = {
           name: 'Create Beat',
           request: {
             method: 'POST',
-            header: [...bearer(), { key: 'Content-Type', value: 'application/json' }],
-            body: json({
-              title: 'Dark Trap',
-              description: 'Hard-hitting 808s',
-              bpm: 140,
-              regularPrice: '29.99',
-              extendedPrice: '99.99',
-              isFree: false,
-              audioUrl: 'https://example.com/audio.mp3',
-              coverImageUrl: 'https://example.com/cover.jpg',
-              tags: ['trap', 'dark', '808'],
-              categoryId: '1',
-            }),
+            header: bearer(),
+            body: formdata([
+              { key: 'beatFile', type: 'file', description: 'Audio file (MP3, WAV, FLAC) — max 100 MB. Required.' },
+              { key: 'coverImage', type: 'file', description: 'Cover image (JPEG, PNG, WebP, GIF). Optional.' },
+              { key: 'title', type: 'text', value: 'Dark Trap' },
+              { key: 'description', type: 'text', value: 'Hard-hitting 808s' },
+              { key: 'bpm', type: 'text', value: '140' },
+              { key: 'musicKey', type: 'text', value: 'Am' },
+              { key: 'regularPrice', type: 'text', value: '29.99' },
+              { key: 'extendedPrice', type: 'text', value: '99.99' },
+              { key: 'isFree', type: 'text', value: 'false' },
+              { key: 'tags', type: 'text', value: 'trap,dark,808', description: 'Comma-separated or JSON array' },
+              { key: 'categoryId', type: 'text', value: '1' },
+            ]),
             url: url('/beats'),
-            description: 'Create a new beat. Requires PRODUCER or ADMIN role.',
+            description: 'Upload a new beat as multipart/form-data. beatFile (audio) is required. Requires PRODUCER or ADMIN role.',
           },
           response: [],
         },
         {
-          name: 'Replace Beat',
+          name: 'Update Beat',
           request: {
             method: 'PUT',
-            header: [...bearer(), { key: 'Content-Type', value: 'application/json' }],
-            body: json({
-              title: 'Dark Trap v2',
-              description: 'Updated version',
-              bpm: 140,
-              regularPrice: '29.99',
-              extendedPrice: '99.99',
-              isFree: false,
-              tags: ['trap', 'dark'],
-              categoryId: '1',
-            }),
+            header: bearer(),
+            body: formdata([
+              { key: 'beatFile', type: 'file', description: 'New audio file — omit to keep existing.' },
+              { key: 'coverImage', type: 'file', description: 'New cover image — omit to keep existing.' },
+              { key: 'title', type: 'text', value: 'Dark Trap v2' },
+              { key: 'description', type: 'text', value: 'Updated version' },
+              { key: 'bpm', type: 'text', value: '140' },
+              { key: 'regularPrice', type: 'text', value: '29.99' },
+              { key: 'extendedPrice', type: 'text', value: '99.99' },
+              { key: 'isFree', type: 'text', value: 'false' },
+              { key: 'tags', type: 'text', value: 'trap,dark' },
+              { key: 'categoryId', type: 'text', value: '1' },
+            ]),
             url: url('/beats/1'),
-            description: 'Replace a beat by ID. Requires PRODUCER or ADMIN role.',
+            description: 'Update a beat by ID as multipart/form-data. Files are optional — omit to keep existing. Requires PRODUCER or ADMIN role.',
           },
           response: [],
         },
@@ -430,6 +433,109 @@ const collection = {
             body: json({ cartItemIds: ['1', '2'] }),
             url: url('/checkout'),
             description: 'Initiate checkout. Run POST /orders/validate first. Returns 501 until a payment provider is integrated.',
+          },
+          response: [],
+        },
+      ],
+    },
+
+    // ── Dashboard ─────────────────────────────────────────────────────────────
+    {
+      name: 'Dashboard',
+      item: [
+        {
+          name: 'Get Earnings',
+          request: {
+            method: 'GET',
+            header: bearer(),
+            url: url('/dashboard/earnings', [
+              { key: 'from', value: null, disabled: true, description: 'ISO 8601 date-time, e.g. 2025-01-01T00:00:00Z' },
+              { key: 'to', value: null, disabled: true, description: 'ISO 8601 date-time' },
+              { key: 'page', value: '1' },
+              { key: 'limit', value: '20' },
+            ]),
+            description: 'Producer earnings per sale with total amount in meta. Requires PRODUCER or ADMIN role.',
+          },
+          response: [],
+        },
+        {
+          name: 'Get Sales',
+          request: {
+            method: 'GET',
+            header: bearer(),
+            url: url('/dashboard/sales', [
+              { key: 'from', value: null, disabled: true, description: 'ISO 8601 date-time' },
+              { key: 'to', value: null, disabled: true, description: 'ISO 8601 date-time' },
+              { key: 'page', value: '1' },
+              { key: 'limit', value: '20' },
+            ]),
+            description: 'Paginated list of individual beat sales for the producer. Requires PRODUCER or ADMIN role.',
+          },
+          response: [],
+        },
+      ],
+    },
+
+    // ── Downloads ─────────────────────────────────────────────────────────────
+    {
+      name: 'Downloads',
+      item: [
+        {
+          name: 'Get Download URL',
+          request: {
+            method: 'GET',
+            header: bearer(),
+            url: url('/downloads/5'),
+            description: 'Get a pre-signed S3 download URL for a purchased beat. The `id` is the purchase ID (purchases.id), not the beat ID. URL is valid for 1 hour.',
+          },
+          response: [],
+        },
+      ],
+    },
+
+    // ── Playlists ─────────────────────────────────────────────────────────────
+    {
+      name: 'Playlists',
+      item: [
+        {
+          name: 'List Playlists',
+          request: {
+            method: 'GET',
+            header: bearer(),
+            url: url('/playlists'),
+            description: "List the authenticated user's playlists with full item details ordered by position.",
+          },
+          response: [],
+        },
+        {
+          name: 'Create Playlist',
+          request: {
+            method: 'POST',
+            header: [...bearer(), { key: 'Content-Type', value: 'application/json' }],
+            body: json({ name: 'My Trap Beats', description: 'Best trap beats of 2025', isPublic: false }),
+            url: url('/playlists'),
+            description: 'Create a new playlist.',
+          },
+          response: [],
+        },
+        {
+          name: 'Add Beat to Playlist',
+          request: {
+            method: 'POST',
+            header: [...bearer(), { key: 'Content-Type', value: 'application/json' }],
+            body: json({ beatId: '42' }),
+            url: url('/playlists/1/add'),
+            description: 'Add a published beat to a playlist. Returns 409 if beat is already in the playlist.',
+          },
+          response: [],
+        },
+        {
+          name: 'Remove Beat from Playlist',
+          request: {
+            method: 'DELETE',
+            header: bearer(),
+            url: url('/playlists/1/remove/42'),
+            description: 'Remove a beat from a playlist by playlist ID and beat ID.',
           },
           response: [],
         },

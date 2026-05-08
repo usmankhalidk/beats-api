@@ -42,24 +42,36 @@ export type FeaturedBeatsQuery = z.infer<typeof featuredBeatsQuerySchema>;
 export const freeBeatsQuerySchema = paginationQuerySchema;
 export type FreeBeatsQuery = z.infer<typeof freeBeatsQuerySchema>;
 
-// ── Write schemas (producer endpoints, implemented later) ────────────────────
+// ── Write schemas (multipart/form-data — all fields arrive as strings) ──────
 const decimalString = z
-  .union([z.string(), z.number()])
-  .transform((v) => (typeof v === 'number' ? v.toString() : v))
+  .string()
   .refine((v) => /^\d+(\.\d{1,2})?$/.test(v), {
     message: 'must be a decimal with up to 2 fractional digits',
+  });
+
+// tags: accept JSON array string OR comma-separated string
+const tagsField = z
+  .string()
+  .optional()
+  .transform((v) => {
+    if (!v) return [];
+    try {
+      const parsed = JSON.parse(v) as unknown;
+      return Array.isArray(parsed) ? (parsed as string[]).map(String) : [];
+    } catch {
+      return v.split(',').map((t) => t.trim()).filter(Boolean);
+    }
   });
 
 export const createBeatBodySchema = z.object({
   title: z.string().trim().min(1).max(100),
   description: z.string().trim().max(5000).optional(),
-  bpm: z.number().int().positive().max(400),
+  bpm: z.coerce.number().int().positive().max(400).optional(),
+  musicKey: z.string().trim().max(10).optional(),
   regularPrice: decimalString,
   extendedPrice: decimalString,
-  isFree: z.boolean().default(false),
-  audioUrl: z.string().url().max(500).optional(),
-  coverImageUrl: z.string().url().max(500).optional(),
-  tags: z.array(z.string().trim().max(50)).max(20).optional(),
+  isFree: z.enum(['true', 'false']).transform((v) => v === 'true').default('false'),
+  tags: tagsField,
   categoryId: z.string().regex(/^\d+$/),
   subCategoryId: z.string().regex(/^\d+$/).optional(),
 });

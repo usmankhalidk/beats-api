@@ -56,3 +56,70 @@ export async function list(args: {
   ]);
   return { rows, total };
 }
+
+export async function findByIdForAuthor(
+  id: bigint,
+  authorId: bigint,
+): Promise<{ id: bigint; main_file: string; thumbnail: string | null } | null> {
+  return prisma.items.findFirst({
+    where: { id, author_id: authorId },
+    select: { id: true, main_file: true, thumbnail: true },
+  });
+}
+
+export async function generateUniqueSlug(name: string): Promise<string> {
+  const base = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+  let slug = base;
+  let counter = 1;
+  while (await prisma.items.findFirst({ where: { slug }, select: { id: true } })) {
+    slug = `${base}-${counter++}`;
+  }
+  return slug;
+}
+
+export async function create(data: {
+  author_id: bigint;
+  name: string;
+  slug: string;
+  description: string;
+  category_id: bigint;
+  sub_category_id?: bigint;
+  regular_price: number;
+  extended_price: number;
+  bpm?: number;
+  music_key?: string;
+  tags: string;
+  thumbnail?: string;
+  main_file: string;
+  is_free: boolean;
+}): Promise<ItemWithRelations> {
+  return prisma.items.create({
+    data: { ...data, preview_type: 'audio', status: 1 },
+    include: INCLUDE,
+  });
+}
+
+export async function update(
+  id: bigint,
+  data: Partial<{
+    name: string;
+    slug: string;
+    description: string;
+    category_id: bigint;
+    sub_category_id: bigint | null;
+    regular_price: number;
+    extended_price: number;
+    bpm: number | null;
+    music_key: string | null;
+    tags: string;
+    thumbnail: string;
+    main_file: string;
+    is_free: boolean;
+  }>,
+): Promise<ItemWithRelations> {
+  return prisma.items.update({ where: { id }, data, include: INCLUDE });
+}
+
+export async function deleteById(id: bigint): Promise<void> {
+  await prisma.items.delete({ where: { id } });
+}
