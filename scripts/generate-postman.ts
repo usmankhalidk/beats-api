@@ -379,6 +379,104 @@ const collection = {
         },
       ],
     },
+
+    // ── Cart ──────────────────────────────────────────────────────────────────
+    {
+      name: 'Cart',
+      item: [
+        {
+          name: 'Get Cart',
+          request: {
+            method: 'GET',
+            header: bearer(),
+            url: url('/cart'),
+            description: 'Get the authenticated user\'s cart with beat details.',
+          },
+          response: [],
+        },
+        {
+          name: 'Add to Cart',
+          request: {
+            method: 'POST',
+            header: [...bearer(), { key: 'Content-Type', value: 'application/json' }],
+            body: json({ beatId: '42', licenseType: 'regular' }),
+            url: url('/cart/add'),
+            description: 'Add a beat to the cart. licenseType: regular | extended.',
+          },
+          response: [],
+        },
+        {
+          name: 'Remove from Cart',
+          request: {
+            method: 'DELETE',
+            header: bearer(),
+            url: url('/cart/remove/7'),
+            description: 'Remove a cart item by its numeric ID.',
+          },
+          response: [],
+        },
+      ],
+    },
+
+    // ── Checkout ──────────────────────────────────────────────────────────────
+    {
+      name: 'Checkout',
+      item: [
+        {
+          name: 'Checkout',
+          request: {
+            method: 'POST',
+            header: [...bearer(), { key: 'Content-Type', value: 'application/json' }],
+            body: json({ cartItemIds: ['1', '2'] }),
+            url: url('/checkout'),
+            description: 'Initiate checkout. Run POST /orders/validate first. Returns 501 until a payment provider is integrated.',
+          },
+          response: [],
+        },
+      ],
+    },
+
+    // ── Orders ────────────────────────────────────────────────────────────────
+    {
+      name: 'Orders',
+      item: [
+        {
+          name: 'List Orders',
+          request: {
+            method: 'GET',
+            header: bearer(),
+            url: url('/orders', [
+              { key: 'status', value: null, disabled: true, description: 'pending | paid | failed | cancelled' },
+              { key: 'page', value: '1' },
+              { key: 'limit', value: '20' },
+            ]),
+            description: 'Paginated purchase history for the authenticated user.',
+          },
+          response: [],
+        },
+        {
+          name: 'Validate Order',
+          request: {
+            method: 'POST',
+            header: [...bearer(), { key: 'Content-Type', value: 'application/json' }],
+            body: json({ cartItemIds: ['1', '2', '3'] }),
+            url: url('/orders/validate'),
+            description: 'Pre-checkout validation. Checks beats are published, purchasable, and not already owned. Returns { ok, issues }.',
+          },
+          response: [],
+        },
+        {
+          name: 'Get Order',
+          request: {
+            method: 'GET',
+            header: bearer(),
+            url: url('/orders/1'),
+            description: 'Get a single order (transaction) by its numeric ID.',
+          },
+          response: [],
+        },
+      ],
+    },
   ],
 };
 

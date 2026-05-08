@@ -14,11 +14,11 @@ export async function list(req: Request, res: Response): Promise<Response> {
     requireUserId(req),
     req.query as unknown as ListOrdersQuery,
   );
-  return successResponse(res, { data: items, meta });
+  return successResponse(res, { data: items, meta: meta as unknown as Record<string, unknown> });
 }
 
 export async function get(req: Request, res: Response): Promise<Response> {
-  const data = await ordersService.getOrder(requireUserId(req), req.params.id);
+  const data = await ordersService.getOrder(requireUserId(req), String(req.params['id']));
   return successResponse(res, { data });
 }
 

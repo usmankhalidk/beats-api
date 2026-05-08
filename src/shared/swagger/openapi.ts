@@ -137,6 +137,53 @@ export const openapiSpec = swaggerJsdoc({
             subCategoryId: { type: 'string', pattern: '^\\d+$' },
           },
         },
+        CartItem: {
+          type: 'object',
+          properties: {
+            id: { type: 'string', example: '7' },
+            itemId: { type: 'string', example: '42' },
+            licenseType: { type: 'string', enum: ['regular', 'extended'], example: 'regular' },
+            quantity: { type: 'integer', example: 1 },
+            item: {
+              type: 'object',
+              properties: {
+                id: { type: 'string', example: '42' },
+                name: { type: 'string', example: 'Dark Trap' },
+                slug: { type: 'string', example: 'dark-trap' },
+                thumbnail: { type: 'string', nullable: true },
+                regularPrice: { type: 'number', example: 29.99 },
+                extendedPrice: { type: 'number', example: 99.99 },
+                bpm: { type: 'integer', nullable: true, example: 140 },
+              },
+            },
+          },
+        },
+        OrderItem: {
+          type: 'object',
+          properties: {
+            id: { type: 'string', example: '1' },
+            itemId: { type: 'string', nullable: true, example: '42' },
+            name: { type: 'string', nullable: true, example: 'Dark Trap' },
+            slug: { type: 'string', nullable: true, example: 'dark-trap' },
+            thumbnail: { type: 'string', nullable: true },
+            licenseType: { type: 'string', enum: ['regular', 'extended'] },
+            price: { type: 'number', example: 29.99 },
+            quantity: { type: 'integer', example: 1 },
+            total: { type: 'number', example: 29.99 },
+          },
+        },
+        Order: {
+          type: 'object',
+          properties: {
+            id: { type: 'string', example: '1' },
+            amount: { type: 'number', example: 29.99 },
+            fees: { type: 'number', example: 0 },
+            total: { type: 'number', example: 29.99 },
+            status: { type: 'string', enum: ['pending', 'paid', 'failed', 'cancelled'], example: 'paid' },
+            createdAt: { type: 'string', format: 'date-time' },
+            items: { type: 'array', items: { $ref: '#/components/schemas/OrderItem' } },
+          },
+        },
         Category: {
           type: 'object',
           properties: {
@@ -185,6 +232,8 @@ export const openapiSpec = swaggerJsdoc({
       { name: 'Users', description: 'User profile and avatar' },
       { name: 'Beats', description: 'Beat catalogue and producer writes' },
       { name: 'Categories', description: 'Genre categories' },
+      { name: 'Cart', description: 'Shopping cart management' },
+      { name: 'Orders', description: 'Purchase history, validation, and checkout' },
     ],
     paths: {},
   },

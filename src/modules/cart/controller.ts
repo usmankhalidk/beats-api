@@ -20,6 +20,6 @@ export async function add(req: Request, res: Response): Promise<Response> {
 }
 
 export async function remove(req: Request, res: Response): Promise<Response> {
-  await cartService.removeItem(requireUserId(req), req.params.id);
+  await cartService.removeItem(requireUserId(req), String(req.params['id']));
   return successResponse(res, { data: null, message: 'CART_ITEM_REMOVED' });
 }
