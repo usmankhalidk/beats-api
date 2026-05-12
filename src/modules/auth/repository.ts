@@ -103,3 +103,32 @@ export async function findPasswordResetToken(
 export async function deletePasswordResetTokens(email: string): Promise<void> {
   await prisma.$executeRaw`DELETE FROM password_resets WHERE email = ${email}`;
 }
+
+// ─── Email verification tokens ────────────────────────────────────────────────
+
+export async function upsertVerificationToken(userId: bigint, tokenHash: string): Promise<void> {
+  await prisma.email_verifications.upsert({
+    where: { user_id: userId },
+    create: { user_id: userId, token: tokenHash, created_at: new Date() },
+    update: { token: tokenHash, created_at: new Date() },
+  });
+}
+
+export async function findVerificationByToken(
+  tokenHash: string,
+  ttlMinutes: number,
+): Promise<{ id: bigint; user_id: bigint; user: User } | null> {
+  const cutoff = new Date(Date.now() - ttlMinutes * 60 * 1000);
+  return prisma.email_verifications.findFirst({
+    where: { token: tokenHash, created_at: { gt: cutoff } },
+    select: { id: true, user_id: true, user: true },
+  });
+}
+
+export async function deleteVerificationToken(userId: bigint): Promise<void> {
+  await prisma.email_verifications.deleteMany({ where: { user_id: userId } });
+}
+
+export async function markEmailVerified(userId: bigint): Promise<void> {
+  await prisma.user.update({ where: { id: userId }, data: { email_verified_at: new Date() } });
+}

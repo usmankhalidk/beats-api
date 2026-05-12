@@ -10,6 +10,8 @@ import {
   refreshTokenBodySchema,
   forgotPasswordBodySchema,
   resetPasswordBodySchema,
+  verifyEmailBodySchema,
+  resendVerificationBodySchema,
 } from './validation';
 
 const router = Router();
@@ -60,7 +62,7 @@ router.use(authRateLimiter);
  *                 example: false
  *     responses:
  *       201:
- *         description: User registered successfully
+ *         description: Registration successful — verification email sent
  *         content:
  *           application/json:
  *             schema:
@@ -70,11 +72,17 @@ router.use(authRateLimiter);
  *                   properties:
  *                     data:
  *                       type: object
+ *                       description: Empty in production. In dev/staging the verificationToken is included for testing.
  *                       properties:
- *                         user:
- *                           $ref: '#/components/schemas/UserProfile'
- *                         tokens:
- *                           $ref: '#/components/schemas/TokenPair'
+ *                         verificationToken:
+ *                           type: string
+ *                           description: Only present in non-production environments
+ *       409:
+ *         description: Email already in use
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorEnvelope'
  *       422:
  *         $ref: '#/components/responses/ValidationError'
  */
@@ -259,5 +267,96 @@ router.post('/forgot-password', validate({ body: forgotPasswordBodySchema }), as
  *         $ref: '#/components/responses/ValidationError'
  */
 router.post('/reset-password', validate({ body: resetPasswordBodySchema }), asyncHandler(authController.resetPassword));
+
+/**
+ * @openapi
+ * /auth/verify-email:
+ *   post:
+ *     tags: [Auth]
+ *     summary: Verify email address using the token from the verification email
+ *     description: |
+ *       Validates the one-time token sent to the user's email on registration (or resend).
+ *       On success the email is marked verified and a full token pair is returned so the
+ *       user is immediately logged in. The token expires after 24 hours.
+ *     security: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [token]
+ *             properties:
+ *               token:
+ *                 type: string
+ *                 example: '{{verificationToken}}'
+ *     responses:
+ *       200:
+ *         description: Email verified — user is now logged in
+ *         content:
+ *           application/json:
+ *             schema:
+ *               allOf:
+ *                 - $ref: '#/components/schemas/SuccessEnvelope'
+ *                 - type: object
+ *                   properties:
+ *                     data:
+ *                       type: object
+ *                       properties:
+ *                         user:
+ *                           $ref: '#/components/schemas/UserProfile'
+ *                         tokens:
+ *                           $ref: '#/components/schemas/TokenPair'
+ *       400:
+ *         description: Invalid or expired token
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorEnvelope'
+ *       422:
+ *         $ref: '#/components/responses/ValidationError'
+ */
+router.post('/verify-email', validate({ body: verifyEmailBodySchema }), asyncHandler(authController.verifyEmail));
+
+/**
+ * @openapi
+ * /auth/resend-verification:
+ *   post:
+ *     tags: [Auth]
+ *     summary: Resend the email verification link
+ *     description: |
+ *       Sends a fresh verification email. Safe to call even if the email does not exist
+ *       (returns 200 either way to prevent email enumeration). Returns 409 if the email
+ *       is already verified. In dev/staging the new token is included in the response.
+ *     security: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [email]
+ *             properties:
+ *               email:
+ *                 type: string
+ *                 format: email
+ *                 example: john.doe@example.com
+ *     responses:
+ *       200:
+ *         description: Verification email sent (or silently no-op if email not found)
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/SuccessEnvelope'
+ *       409:
+ *         description: Email is already verified
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorEnvelope'
+ *       422:
+ *         $ref: '#/components/responses/ValidationError'
+ */
+router.post('/resend-verification', validate({ body: resendVerificationBodySchema }), asyncHandler(authController.resendVerification));
 
 export default router;

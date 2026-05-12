@@ -45,6 +45,7 @@ const collection = {
     { key: 'accessToken', value: '', type: 'string' },
     { key: 'refreshToken', value: '', type: 'string' },
     { key: 'resetToken', value: '', type: 'string' },
+    { key: 'verificationToken', value: '', type: 'string' },
   ],
   item: [
     // ── Auth ──────────────────────────────────────────────────────────────────
@@ -56,8 +57,10 @@ const collection = {
           event: script(
             'if (pm.response.code === 201) {',
             '  const body = pm.response.json();',
-            "  pm.collectionVariables.set('accessToken', body.data.tokens.accessToken);",
-            "  pm.collectionVariables.set('refreshToken', body.data.tokens.refreshToken);",
+            '  if (body.data && body.data.verificationToken) {',
+            "    pm.collectionVariables.set('verificationToken', body.data.verificationToken);",
+            "    console.log('Verification token saved (dev only):', body.data.verificationToken);",
+            '  }',
             '}',
           ),
           request: {
@@ -65,7 +68,38 @@ const collection = {
             header: [{ key: 'Content-Type', value: 'application/json' }],
             body: json({ firstname: 'John', lastname: 'Doe', username: 'johndoe', email: 'john.doe@example.com', password: 'Password123!', is_author: false }),
             url: url('/auth/register'),
-            description: 'Register a new user. Auto-saves accessToken and refreshToken on success.',
+            description: 'Register a new user. A verification email is sent — login is blocked until the email is verified. In dev/staging the verificationToken is returned in the response.',
+          },
+          response: [],
+        },
+        {
+          name: 'Verify Email',
+          event: script(
+            'if (pm.response.code === 200) {',
+            '  const body = pm.response.json();',
+            "  pm.collectionVariables.set('accessToken', body.data.tokens.accessToken);",
+            "  pm.collectionVariables.set('refreshToken', body.data.tokens.refreshToken);",
+            "  pm.collectionVariables.set('verificationToken', '');",
+            "  console.log('Email verified — tokens saved.');",
+            '}',
+          ),
+          request: {
+            method: 'POST',
+            header: [{ key: 'Content-Type', value: 'application/json' }],
+            body: json({ token: '{{verificationToken}}' }),
+            url: url('/auth/verify-email'),
+            description: 'Verify the email address using the one-time token from the verification email. On success the user is immediately logged in and tokens are saved.',
+          },
+          response: [],
+        },
+        {
+          name: 'Resend Verification',
+          request: {
+            method: 'POST',
+            header: [{ key: 'Content-Type', value: 'application/json' }],
+            body: json({ email: 'john.doe@example.com' }),
+            url: url('/auth/resend-verification'),
+            description: 'Re-send the verification email. Returns 200 even if the email is not found (prevent enumeration). Returns 409 if already verified.',
           },
           response: [],
         },
