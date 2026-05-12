@@ -4,6 +4,16 @@
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
     "description": "Beats API collection. Start with Auth module."
   },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{accessToken}}",
+        "type": "string"
+      }
+    ]
+  },
   "variable": [
     {
       "key": "baseUrl",
@@ -48,6 +58,9 @@
             }
           ],
           "request": {
+            "auth": {
+              "type": "noauth"
+            },
             "method": "POST",
             "header": [
               {
@@ -96,6 +109,9 @@
             }
           ],
           "request": {
+            "auth": {
+              "type": "noauth"
+            },
             "method": "POST",
             "header": [
               {
@@ -143,6 +159,9 @@
             }
           ],
           "request": {
+            "auth": {
+              "type": "noauth"
+            },
             "method": "POST",
             "header": [
               {
@@ -191,6 +210,9 @@
             }
           ],
           "request": {
+            "auth": {
+              "type": "noauth"
+            },
             "method": "POST",
             "header": [
               {
@@ -241,6 +263,9 @@
             }
           ],
           "request": {
+            "auth": {
+              "type": "noauth"
+            },
             "method": "POST",
             "header": [
               {
@@ -289,6 +314,9 @@
             }
           ],
           "request": {
+            "auth": {
+              "type": "noauth"
+            },
             "method": "POST",
             "header": [
               {
@@ -328,13 +356,7 @@
           "name": "Get Profile",
           "request": {
             "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{accessToken}}",
-                "type": "text"
-              }
-            ],
+            "header": [],
             "url": {
               "raw": "{{baseUrl}}/user/profile",
               "host": [
@@ -354,11 +376,6 @@
           "request": {
             "method": "PUT",
             "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{accessToken}}",
-                "type": "text"
-              },
               {
                 "key": "Content-Type",
                 "value": "application/json"
@@ -391,13 +408,7 @@
           "name": "Upload Avatar",
           "request": {
             "method": "PUT",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{accessToken}}",
-                "type": "text"
-              }
-            ],
+            "header": [],
             "body": {
               "mode": "formdata",
               "formdata": [
@@ -656,13 +667,7 @@
           "name": "Create Beat",
           "request": {
             "method": "POST",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{accessToken}}",
-                "type": "text"
-              }
-            ],
+            "header": [],
             "body": {
               "mode": "formdata",
               "formdata": [
@@ -741,13 +746,7 @@
           "name": "Update Beat",
           "request": {
             "method": "PUT",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{accessToken}}",
-                "type": "text"
-              }
-            ],
+            "header": [],
             "body": {
               "mode": "formdata",
               "formdata": [
@@ -821,13 +820,7 @@
           "name": "Delete Beat",
           "request": {
             "method": "DELETE",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{accessToken}}",
-                "type": "text"
-              }
-            ],
+            "header": [],
             "url": {
               "raw": "{{baseUrl}}/beats/1",
               "host": [
@@ -908,13 +901,7 @@
           "name": "Get Cart",
           "request": {
             "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{accessToken}}",
-                "type": "text"
-              }
-            ],
+            "header": [],
             "url": {
               "raw": "{{baseUrl}}/cart",
               "host": [
@@ -933,11 +920,6 @@
           "request": {
             "method": "POST",
             "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{accessToken}}",
-                "type": "text"
-              },
               {
                 "key": "Content-Type",
                 "value": "application/json"
@@ -970,13 +952,7 @@
           "name": "Remove from Cart",
           "request": {
             "method": "DELETE",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{accessToken}}",
-                "type": "text"
-              }
-            ],
+            "header": [],
             "url": {
               "raw": "{{baseUrl}}/cart/remove/7",
               "host": [
@@ -1002,11 +978,6 @@
           "request": {
             "method": "POST",
             "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{accessToken}}",
-                "type": "text"
-              },
               {
                 "key": "Content-Type",
                 "value": "application/json"
@@ -1043,13 +1014,7 @@
           "name": "Get Earnings",
           "request": {
             "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{accessToken}}",
-                "type": "text"
-              }
-            ],
+            "header": [],
             "url": {
               "raw": "{{baseUrl}}/dashboard/earnings?page=1&limit=20",
               "host": [
@@ -1090,13 +1055,7 @@
           "name": "Get Sales",
           "request": {
             "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{accessToken}}",
-                "type": "text"
-              }
-            ],
+            "header": [],
             "url": {
               "raw": "{{baseUrl}}/dashboard/sales?page=1&limit=20",
               "host": [
@@ -1142,13 +1101,7 @@
           "name": "Get Download URL",
           "request": {
             "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{accessToken}}",
-                "type": "text"
-              }
-            ],
+            "header": [],
             "url": {
               "raw": "{{baseUrl}}/downloads/5",
               "host": [
@@ -1172,13 +1125,7 @@
           "name": "List Playlists",
           "request": {
             "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{accessToken}}",
-                "type": "text"
-              }
-            ],
+            "header": [],
             "url": {
               "raw": "{{baseUrl}}/playlists",
               "host": [
@@ -1197,11 +1144,6 @@
           "request": {
             "method": "POST",
             "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{accessToken}}",
-                "type": "text"
-              },
               {
                 "key": "Content-Type",
                 "value": "application/json"
@@ -1235,11 +1177,6 @@
             "method": "POST",
             "header": [
               {
-                "key": "Authorization",
-                "value": "Bearer {{accessToken}}",
-                "type": "text"
-              },
-              {
                 "key": "Content-Type",
                 "value": "application/json"
               }
@@ -1272,13 +1209,7 @@
           "name": "Remove Beat from Playlist",
           "request": {
             "method": "DELETE",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{accessToken}}",
-                "type": "text"
-              }
-            ],
+            "header": [],
             "url": {
               "raw": "{{baseUrl}}/playlists/1/remove/42",
               "host": [
@@ -1304,13 +1235,7 @@
           "name": "List Orders",
           "request": {
             "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{accessToken}}",
-                "type": "text"
-              }
-            ],
+            "header": [],
             "url": {
               "raw": "{{baseUrl}}/orders?page=1&limit=20",
               "host": [
@@ -1346,11 +1271,6 @@
             "method": "POST",
             "header": [
               {
-                "key": "Authorization",
-                "value": "Bearer {{accessToken}}",
-                "type": "text"
-              },
-              {
                 "key": "Content-Type",
                 "value": "application/json"
               }
@@ -1382,13 +1302,7 @@
           "name": "Get Order",
           "request": {
             "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{accessToken}}",
-                "type": "text"
-              }
-            ],
+            "header": [],
             "url": {
               "raw": "{{baseUrl}}/orders/1",
               "host": [

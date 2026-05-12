@@ -16,10 +16,6 @@ function formdata(fields: Array<{ key: string; type: 'text' | 'file'; value?: st
   return { mode: 'formdata' as const, formdata: fields };
 }
 
-function bearer() {
-  return [{ key: 'Authorization', value: 'Bearer {{accessToken}}', type: 'text' }];
-}
-
 function url(path: string, query?: Array<{ key: string; value: string | null; description?: string; disabled?: boolean }>) {
   const segments = path.replace(/^\//, '').split('/');
   const raw = query?.length
@@ -39,6 +35,10 @@ const collection = {
     name: 'Beats API',
     schema: 'https://schema.getpostman.com/json/collection/v2.1.0/collection.json',
     description: 'Beats API collection. Start with Auth module.',
+  },
+  auth: {
+    type: 'bearer',
+    bearer: [{ key: 'token', value: '{{accessToken}}', type: 'string' }],
   },
   variable: [
     { key: 'baseUrl', value: 'http://localhost:4000/api/v1', type: 'string' },
@@ -61,6 +61,7 @@ const collection = {
             '}',
           ),
           request: {
+            auth: { type: 'noauth' },
             method: 'POST',
             header: [{ key: 'Content-Type', value: 'application/json' }],
             body: json({ firstname: 'John', lastname: 'Doe', username: 'johndoe', email: 'john.doe@example.com', password: 'Password123!', is_author: false }),
@@ -79,6 +80,7 @@ const collection = {
             '}',
           ),
           request: {
+            auth: { type: 'noauth' },
             method: 'POST',
             header: [{ key: 'Content-Type', value: 'application/json' }],
             body: json({ email: 'john.doe@example.com', password: 'Password123!' }),
@@ -96,6 +98,7 @@ const collection = {
             '}',
           ),
           request: {
+            auth: { type: 'noauth' },
             method: 'POST',
             header: [{ key: 'Content-Type', value: 'application/json' }],
             body: json({ refreshToken: '{{refreshToken}}' }),
@@ -114,6 +117,7 @@ const collection = {
             '}',
           ),
           request: {
+            auth: { type: 'noauth' },
             method: 'POST',
             header: [{ key: 'Content-Type', value: 'application/json' }],
             body: json({ refreshToken: '{{refreshToken}}' }),
@@ -134,6 +138,7 @@ const collection = {
             '}',
           ),
           request: {
+            auth: { type: 'noauth' },
             method: 'POST',
             header: [{ key: 'Content-Type', value: 'application/json' }],
             body: json({ email: 'john.doe@example.com' }),
@@ -152,6 +157,7 @@ const collection = {
             '}',
           ),
           request: {
+            auth: { type: 'noauth' },
             method: 'POST',
             header: [{ key: 'Content-Type', value: 'application/json' }],
             body: json({ email: 'john.doe@example.com', token: '{{resetToken}}', password: 'NewPassword123!' }),
@@ -171,7 +177,7 @@ const collection = {
           name: 'Get Profile',
           request: {
             method: 'GET',
-            header: bearer(),
+            header: [],
             url: url('/user/profile'),
             description: 'Get the authenticated user\'s profile.',
           },
@@ -181,7 +187,7 @@ const collection = {
           name: 'Update Profile',
           request: {
             method: 'PUT',
-            header: [...bearer(), { key: 'Content-Type', value: 'application/json' }],
+            header: [{ key: 'Content-Type', value: 'application/json' }],
             body: json({ name: 'John Doe', bio: 'Producer from NYC' }),
             url: url('/user/profile'),
             description: 'Update name and/or bio. At least one field is required.',
@@ -192,7 +198,7 @@ const collection = {
           name: 'Upload Avatar',
           request: {
             method: 'PUT',
-            header: bearer(),
+            header: [],
             body: formdata([
               { key: 'avatar', type: 'file', description: 'JPEG, PNG, WebP, or GIF — max 5 MB' },
             ]),
@@ -298,7 +304,7 @@ const collection = {
           name: 'Create Beat',
           request: {
             method: 'POST',
-            header: bearer(),
+            header: [],
             body: formdata([
               { key: 'beatFile', type: 'file', description: 'Audio file (MP3, WAV, FLAC) — max 100 MB. Required.' },
               { key: 'coverImage', type: 'file', description: 'Cover image (JPEG, PNG, WebP, GIF). Optional.' },
@@ -321,7 +327,7 @@ const collection = {
           name: 'Update Beat',
           request: {
             method: 'PUT',
-            header: bearer(),
+            header: [],
             body: formdata([
               { key: 'beatFile', type: 'file', description: 'New audio file — omit to keep existing.' },
               { key: 'coverImage', type: 'file', description: 'New cover image — omit to keep existing.' },
@@ -343,7 +349,7 @@ const collection = {
           name: 'Delete Beat',
           request: {
             method: 'DELETE',
-            header: bearer(),
+            header: [],
             url: url('/beats/1'),
             description: 'Delete a beat by ID. Requires PRODUCER or ADMIN role.',
           },
@@ -391,7 +397,7 @@ const collection = {
           name: 'Get Cart',
           request: {
             method: 'GET',
-            header: bearer(),
+            header: [],
             url: url('/cart'),
             description: 'Get the authenticated user\'s cart with beat details.',
           },
@@ -401,7 +407,7 @@ const collection = {
           name: 'Add to Cart',
           request: {
             method: 'POST',
-            header: [...bearer(), { key: 'Content-Type', value: 'application/json' }],
+            header: [{ key: 'Content-Type', value: 'application/json' }],
             body: json({ beatId: '42', licenseType: 'regular' }),
             url: url('/cart/add'),
             description: 'Add a beat to the cart. licenseType: regular | extended.',
@@ -412,7 +418,7 @@ const collection = {
           name: 'Remove from Cart',
           request: {
             method: 'DELETE',
-            header: bearer(),
+            header: [],
             url: url('/cart/remove/7'),
             description: 'Remove a cart item by its numeric ID.',
           },
@@ -429,7 +435,7 @@ const collection = {
           name: 'Checkout',
           request: {
             method: 'POST',
-            header: [...bearer(), { key: 'Content-Type', value: 'application/json' }],
+            header: [{ key: 'Content-Type', value: 'application/json' }],
             body: json({ cartItemIds: ['1', '2'] }),
             url: url('/checkout'),
             description: 'Initiate checkout. Run POST /orders/validate first. Returns 501 until a payment provider is integrated.',
@@ -447,7 +453,7 @@ const collection = {
           name: 'Get Earnings',
           request: {
             method: 'GET',
-            header: bearer(),
+            header: [],
             url: url('/dashboard/earnings', [
               { key: 'from', value: null, disabled: true, description: 'ISO 8601 date-time, e.g. 2025-01-01T00:00:00Z' },
               { key: 'to', value: null, disabled: true, description: 'ISO 8601 date-time' },
@@ -462,7 +468,7 @@ const collection = {
           name: 'Get Sales',
           request: {
             method: 'GET',
-            header: bearer(),
+            header: [],
             url: url('/dashboard/sales', [
               { key: 'from', value: null, disabled: true, description: 'ISO 8601 date-time' },
               { key: 'to', value: null, disabled: true, description: 'ISO 8601 date-time' },
@@ -484,7 +490,7 @@ const collection = {
           name: 'Get Download URL',
           request: {
             method: 'GET',
-            header: bearer(),
+            header: [],
             url: url('/downloads/5'),
             description: 'Get a pre-signed S3 download URL for a purchased beat. The `id` is the purchase ID (purchases.id), not the beat ID. URL is valid for 1 hour.',
           },
@@ -501,7 +507,7 @@ const collection = {
           name: 'List Playlists',
           request: {
             method: 'GET',
-            header: bearer(),
+            header: [],
             url: url('/playlists'),
             description: "List the authenticated user's playlists with full item details ordered by position.",
           },
@@ -511,7 +517,7 @@ const collection = {
           name: 'Create Playlist',
           request: {
             method: 'POST',
-            header: [...bearer(), { key: 'Content-Type', value: 'application/json' }],
+            header: [{ key: 'Content-Type', value: 'application/json' }],
             body: json({ name: 'My Trap Beats', description: 'Best trap beats of 2025', isPublic: false }),
             url: url('/playlists'),
             description: 'Create a new playlist.',
@@ -522,7 +528,7 @@ const collection = {
           name: 'Add Beat to Playlist',
           request: {
             method: 'POST',
-            header: [...bearer(), { key: 'Content-Type', value: 'application/json' }],
+            header: [{ key: 'Content-Type', value: 'application/json' }],
             body: json({ beatId: '42' }),
             url: url('/playlists/1/add'),
             description: 'Add a published beat to a playlist. Returns 409 if beat is already in the playlist.',
@@ -533,7 +539,7 @@ const collection = {
           name: 'Remove Beat from Playlist',
           request: {
             method: 'DELETE',
-            header: bearer(),
+            header: [],
             url: url('/playlists/1/remove/42'),
             description: 'Remove a beat from a playlist by playlist ID and beat ID.',
           },
@@ -550,7 +556,7 @@ const collection = {
           name: 'List Orders',
           request: {
             method: 'GET',
-            header: bearer(),
+            header: [],
             url: url('/orders', [
               { key: 'status', value: null, disabled: true, description: 'pending | paid | failed | cancelled' },
               { key: 'page', value: '1' },
@@ -564,7 +570,7 @@ const collection = {
           name: 'Validate Order',
           request: {
             method: 'POST',
-            header: [...bearer(), { key: 'Content-Type', value: 'application/json' }],
+            header: [{ key: 'Content-Type', value: 'application/json' }],
             body: json({ cartItemIds: ['1', '2', '3'] }),
             url: url('/orders/validate'),
             description: 'Pre-checkout validation. Checks beats are published, purchasable, and not already owned. Returns { ok, issues }.',
@@ -575,7 +581,7 @@ const collection = {
           name: 'Get Order',
           request: {
             method: 'GET',
-            header: bearer(),
+            header: [],
             url: url('/orders/1'),
             description: 'Get a single order (transaction) by its numeric ID.',
           },

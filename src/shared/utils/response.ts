@@ -6,7 +6,7 @@ export interface SuccessEnvelope<T> {
   code: number;
   message: string;
   data: T;
-  meta?: Record<string, unknown>;
+  meta?: object;
 }
 
 export interface ErrorEnvelope {
@@ -22,7 +22,7 @@ export function successResponse<T>(
     data: T;
     message?: string;
     code?: number;
-    meta?: Record<string, unknown>;
+    meta?: object;
   },
 ): Response {
   const code = payload.code ?? HTTP_STATUS.OK;

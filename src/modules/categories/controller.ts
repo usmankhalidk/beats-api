@@ -13,5 +13,5 @@ export async function listBeats(req: Request, res: Response): Promise<Response> 
     req.params.slug as string,
     req.query as unknown as CategoryBeatsQuery,
   );
-  return successResponse(res, { data: items, meta: { ...meta } });
+  return successResponse(res, { data: items, meta });
 }

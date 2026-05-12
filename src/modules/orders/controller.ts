@@ -14,7 +14,7 @@ export async function list(req: Request, res: Response): Promise<Response> {
     requireUserId(req),
     req.query as unknown as ListOrdersQuery,
   );
-  return successResponse(res, { data: items, meta: meta as unknown as Record<string, unknown> });
+  return successResponse(res, { data: items, meta });
 }
 
 export async function get(req: Request, res: Response): Promise<Response> {

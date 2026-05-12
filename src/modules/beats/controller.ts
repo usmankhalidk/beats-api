@@ -19,29 +19,29 @@ function requireUserId(req: Request): string {
 
 export async function list(req: Request, res: Response): Promise<Response> {
   const { items, meta } = await beatsService.listBeats(req.query as unknown as ListBeatsQuery);
-  return successResponse(res, { data: items, meta: { ...meta } });
+  return successResponse(res, { data: items, meta });
 }
 
 export async function search(req: Request, res: Response): Promise<Response> {
   const { items, meta } = await beatsService.searchBeats(req.query as unknown as SearchBeatsQuery);
-  return successResponse(res, { data: items, meta: { ...meta } });
+  return successResponse(res, { data: items, meta });
 }
 
 export async function filter(req: Request, res: Response): Promise<Response> {
   const { items, meta } = await beatsService.filterBeats(req.query as unknown as FilterBeatsQuery);
-  return successResponse(res, { data: items, meta: { ...meta } });
+  return successResponse(res, { data: items, meta });
 }
 
 export async function featured(req: Request, res: Response): Promise<Response> {
   const { items, meta } = await beatsService.featuredBeats(
     req.query as unknown as FeaturedBeatsQuery,
   );
-  return successResponse(res, { data: items, meta: { ...meta } });
+  return successResponse(res, { data: items, meta });
 }
 
 export async function free(req: Request, res: Response): Promise<Response> {
   const { items, meta } = await beatsService.freeBeats(req.query as unknown as FreeBeatsQuery);
-  return successResponse(res, { data: items, meta: { ...meta } });
+  return successResponse(res, { data: items, meta });
 }
 
 export async function get(req: Request, res: Response): Promise<Response> {
