@@ -306,8 +306,8 @@ const collection = {
             method: 'POST',
             header: [],
             body: formdata([
-              { key: 'beatFile', type: 'file', description: 'Audio file (MP3, WAV, FLAC) — max 100 MB. Required.' },
-              { key: 'coverImage', type: 'file', description: 'Cover image (JPEG, PNG, WebP, GIF). Optional.' },
+              { key: 'beatFile', type: 'file', description: 'Audio file (MP3, WAV, FLAC, AAC) — max 100 MB. Required.' },
+              { key: 'coverImage', type: 'file', description: 'Cover image (JPEG, PNG, WebP, GIF) — max 5 MB. Optional.' },
               { key: 'title', type: 'text', value: 'Dark Trap' },
               { key: 'description', type: 'text', value: 'Hard-hitting 808s' },
               { key: 'bpm', type: 'text', value: '140' },
@@ -329,8 +329,8 @@ const collection = {
             method: 'PUT',
             header: [],
             body: formdata([
-              { key: 'beatFile', type: 'file', description: 'New audio file — omit to keep existing.' },
-              { key: 'coverImage', type: 'file', description: 'New cover image — omit to keep existing.' },
+              { key: 'beatFile', type: 'file', description: 'Audio file (MP3, WAV, FLAC, AAC) — max 100 MB. Omit to keep existing.' },
+              { key: 'coverImage', type: 'file', description: 'Cover image (JPEG, PNG, WebP, GIF) — max 5 MB. Omit to keep existing.' },
               { key: 'title', type: 'text', value: 'Dark Trap v2' },
               { key: 'description', type: 'text', value: 'Updated version' },
               { key: 'bpm', type: 'text', value: '140' },

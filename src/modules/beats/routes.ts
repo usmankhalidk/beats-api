@@ -21,15 +21,23 @@ import {
 
 const router = Router();
 
+const AUDIO_TYPES = ['audio/mpeg', 'audio/wav', 'audio/flac', 'audio/aac', 'audio/mp4', 'audio/x-wav'];
+const IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+const COVER_IMAGE_MAX_BYTES = 5 * 1024 * 1024; // 5 MB
+
 const beatUpload = multer({
   storage: multer.memoryStorage(),
   limits: { fileSize: 100 * 1024 * 1024 },
   fileFilter: (_req, file, cb) => {
-    const audioTypes = ['audio/mpeg', 'audio/wav', 'audio/flac', 'audio/aac', 'audio/mp4', 'audio/x-wav'];
-    const imageTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
-    if (file.fieldname === 'beatFile' && audioTypes.includes(file.mimetype)) return cb(null, true);
-    if (file.fieldname === 'coverImage' && imageTypes.includes(file.mimetype)) return cb(null, true);
-    cb(new Error(`Unsupported file type for field: ${file.fieldname}`));
+    if (file.fieldname === 'beatFile') {
+      if (AUDIO_TYPES.includes(file.mimetype)) return cb(null, true);
+      return cb(new Error('beatFile must be MP3, WAV, FLAC, or AAC'));
+    }
+    if (file.fieldname === 'coverImage') {
+      if (IMAGE_TYPES.includes(file.mimetype)) return cb(null, true);
+      return cb(new Error('coverImage must be JPEG, PNG, WebP, or GIF'));
+    }
+    cb(new Error(`Unexpected field: ${file.fieldname}`));
   },
 }).fields([
   { name: 'beatFile', maxCount: 1 },
@@ -39,10 +47,18 @@ const beatUpload = multer({
 function handleBeatUpload(req: Request, res: Response, next: NextFunction): void {
   beatUpload(req, res, (err: unknown) => {
     if (err instanceof multer.MulterError) {
-      next(err.code === 'LIMIT_FILE_SIZE' ? Errors.badRequest({ reason: 'file_too_large', maxSize: '100MB' }) : Errors.badRequest({ reason: err.code }));
+      next(err.code === 'LIMIT_FILE_SIZE' ? Errors.badRequest({ reason: 'file_too_large', field: 'beatFile', maxSize: '100MB' }) : Errors.badRequest({ reason: err.code }));
       return;
     }
     if (err instanceof Error) { next(Errors.badRequest({ reason: err.message })); return; }
+
+    const files = req.files as Record<string, Express.Multer.File[]> | undefined;
+    const coverImage = files?.['coverImage']?.[0];
+    if (coverImage && coverImage.size > COVER_IMAGE_MAX_BYTES) {
+      next(Errors.badRequest({ reason: 'file_too_large', field: 'coverImage', maxSize: '5MB' }));
+      return;
+    }
+
     next();
   });
 }
@@ -347,7 +363,11 @@ router.get(
  *                     data:
  *                       $ref: '#/components/schemas/Beat'
  *       400:
- *         $ref: '#/components/responses/BadRequest'
+ *         description: Invalid file type or file too large
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorEnvelope'
  *       401:
  *         $ref: '#/components/responses/Unauthorized'
  *       403:
@@ -398,6 +418,12 @@ router.post(
  *                   properties:
  *                     data:
  *                       $ref: '#/components/schemas/Beat'
+ *       400:
+ *         description: Invalid file type or file too large
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorEnvelope'
  *       401:
  *         $ref: '#/components/responses/Unauthorized'
  *       403:

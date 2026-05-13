@@ -125,7 +125,7 @@ export const openapiSpec = swaggerJsdoc({
           required: ['title', 'regularPrice', 'extendedPrice', 'categoryId'],
           properties: {
             beatFile: { type: 'string', format: 'binary', description: 'Audio file (MP3, WAV, FLAC, AAC) — max 100 MB. Required on create.' },
-            coverImage: { type: 'string', format: 'binary', description: 'Cover image (JPEG, PNG, WebP, GIF)' },
+            coverImage: { type: 'string', format: 'binary', description: 'Cover image (JPEG, PNG, WebP, GIF) — max 5 MB.' },
             title: { type: 'string', minLength: 1, maxLength: 100, example: 'Dark Trap' },
             description: { type: 'string', maxLength: 5000 },
             bpm: { type: 'integer', minimum: 1, maximum: 400, example: 140 },
