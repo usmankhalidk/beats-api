@@ -28,9 +28,9 @@ export interface AuthTokens {
 export interface AuthUser {
   id: string;
   email: string | null;
-  firstname: string | null;
-  lastname: string | null;
-  username: string | null;
+  firstName: string | null;
+  lastName: string | null;
+  userName: string | null;
   role: Role;
 }
 
@@ -47,9 +47,9 @@ function toAuthUser(user: User): AuthUser {
   return {
     id: user.id.toString(),
     email: user.email,
-    firstname: user.firstname,
-    lastname: user.lastname,
-    username: user.username,
+    firstName: user.firstname,
+    lastName: user.lastname,
+    userName: user.username,
     role: userRole(user),
   };
 }
@@ -72,18 +72,18 @@ async function issueTokens(user: User): Promise<AuthTokens> {
 
 export async function register(input: RegisterInput): Promise<AuthSessionResult> {
   if (await authRepo.findUserByEmail(input.email)) throw Errors.emailInUse();
-  if (input.username && (await authRepo.findUserByUsername(input.username))) {
-    throw Errors.conflict({ field: 'username' });
+  if (input.userName && (await authRepo.findUserByUsername(input.userName))) {
+    throw Errors.conflict({ field: 'userName' });
   }
 
   const passwordHash = await hashPassword(input.password);
   const user = await authRepo.createUser({
-    firstname: input.firstname,
-    lastname: input.lastname,
-    username: input.username,
+    firstname: input.firstName,
+    lastname: input.lastName,
+    username: input.userName,
     email: input.email,
     password: passwordHash,
-    is_author: input.is_author ?? false,
+    is_author: input.isAuthor ?? false,
   });
 
   const tokens = await issueTokens(user);

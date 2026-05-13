@@ -28,19 +28,19 @@ router.use(authRateLimiter);
  *         application/json:
  *           schema:
  *             type: object
- *             required: [firstname, lastname, email, password]
+ *             required: [firstName, lastName, email, password]
  *             properties:
- *               firstname:
+ *               firstName:
  *                 type: string
  *                 minLength: 1
  *                 maxLength: 50
  *                 example: John
- *               lastname:
+ *               lastName:
  *                 type: string
  *                 minLength: 1
  *                 maxLength: 50
  *                 example: Doe
- *               username:
+ *               userName:
  *                 type: string
  *                 minLength: 3
  *                 maxLength: 50
@@ -55,7 +55,7 @@ router.use(authRateLimiter);
  *                 minLength: 8
  *                 maxLength: 128
  *                 example: Password123!
- *               is_author:
+ *               isAuthor:
  *                 type: boolean
  *                 example: false
  *     responses:

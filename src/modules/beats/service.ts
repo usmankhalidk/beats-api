@@ -21,37 +21,37 @@ export interface BeatDTO {
   slug: string;
   description: string;
   thumbnail: string | null;
-  preview_type: string;
-  preview_image: string | null;
-  preview_video: string | null;
-  preview_audio: string | null;
-  regular_price: number;
-  extended_price: number;
+  previewType: string;
+  previewImage: string | null;
+  previewVideo: string | null;
+  previewAudio: string | null;
+  regularPrice: number;
+  extendedPrice: number;
   bpm: number | null;
-  music_key: string | null;
+  musicKey: string | null;
   tags: string[];
-  is_free: boolean;
-  is_featured: boolean;
-  is_trending: boolean;
-  is_best_selling: boolean;
-  is_premium: boolean;
-  is_on_discount: boolean;
-  purchasing_status: boolean;
-  total_sales: number;
-  total_reviews: number;
-  avg_reviews: number;
-  total_views: number;
+  isFree: boolean;
+  isFeatured: boolean;
+  isTrending: boolean;
+  isBestSelling: boolean;
+  isPremium: boolean;
+  isOnDiscount: boolean;
+  purchasingStatus: boolean;
+  totalSales: number;
+  totalReviews: number;
+  avgReviews: number;
+  totalViews: number;
   author: {
     id: string;
-    firstname: string | null;
-    lastname: string | null;
-    username: string | null;
+    firstName: string | null;
+    lastName: string | null;
+    userName: string | null;
     avatar: string | null;
   };
   category: { id: string; name: string; slug: string };
-  sub_category: { id: string; name: string; slug: string } | null;
-  created_at: Date | null;
-  updated_at: Date | null;
+  subCategory: { id: string; name: string; slug: string } | null;
+  createdAt: Date | null;
+  updatedAt: Date | null;
 }
 
 export type BeatListResult = { items: BeatDTO[]; meta: PaginationMeta };
@@ -72,31 +72,31 @@ export function toDTO(item: ItemWithRelations): BeatDTO {
     slug: item.slug,
     description: item.description,
     thumbnail: item.thumbnail,
-    preview_type: item.preview_type,
-    preview_image: item.preview_image,
-    preview_video: item.preview_video,
-    preview_audio: item.preview_audio,
-    regular_price: item.regular_price,
-    extended_price: item.extended_price,
+    previewType: item.preview_type,
+    previewImage: item.preview_image,
+    previewVideo: item.preview_video,
+    previewAudio: item.preview_audio,
+    regularPrice: item.regular_price,
+    extendedPrice: item.extended_price,
     bpm: item.bpm ?? null,
-    music_key: item.music_key,
+    musicKey: item.music_key,
     tags: parseTags(item.tags),
-    is_free: item.is_free ?? false,
-    is_featured: item.is_featured,
-    is_trending: item.is_trending,
-    is_best_selling: item.is_best_selling,
-    is_premium: item.is_premium,
-    is_on_discount: item.is_on_discount,
-    purchasing_status: item.purchasing_status,
-    total_sales: Number(item.total_sales),
-    total_reviews: Number(item.total_reviews),
-    avg_reviews: Number(item.avg_reviews),
-    total_views: Number(item.total_views),
+    isFree: item.is_free ?? false,
+    isFeatured: item.is_featured,
+    isTrending: item.is_trending,
+    isBestSelling: item.is_best_selling,
+    isPremium: item.is_premium,
+    isOnDiscount: item.is_on_discount,
+    purchasingStatus: item.purchasing_status,
+    totalSales: Number(item.total_sales),
+    totalReviews: Number(item.total_reviews),
+    avgReviews: Number(item.avg_reviews),
+    totalViews: Number(item.total_views),
     author: {
       id: item.users.id.toString(),
-      firstname: item.users.firstname,
-      lastname: item.users.lastname,
-      username: item.users.username,
+      firstName: item.users.firstname,
+      lastName: item.users.lastname,
+      userName: item.users.username,
       avatar: item.users.avatar,
     },
     category: {
@@ -104,15 +104,15 @@ export function toDTO(item: ItemWithRelations): BeatDTO {
       name: item.categories.name,
       slug: item.categories.slug,
     },
-    sub_category: item.sub_categories
+    subCategory: item.sub_categories
       ? {
           id: item.sub_categories.id.toString(),
           name: item.sub_categories.name,
           slug: item.sub_categories.slug,
         }
       : null,
-    created_at: item.created_at,
-    updated_at: item.updated_at,
+    createdAt: item.created_at,
+    updatedAt: item.updated_at,
   };
 }
 
@@ -125,8 +125,7 @@ function buildWhere(filters: {
   priceMin?: number;
   priceMax?: number;
   isFree?: boolean;
-  is_featured?: boolean;
-  is_free?: boolean;
+  isFeatured?: boolean;
 }): Prisma.itemsWhereInput {
   const AND: Prisma.itemsWhereInput[] = [];
 
@@ -146,8 +145,7 @@ function buildWhere(filters: {
   if (filters.priceMin !== undefined) AND.push({ regular_price: { gte: filters.priceMin } });
   if (filters.priceMax !== undefined) AND.push({ regular_price: { lte: filters.priceMax } });
   if (filters.isFree !== undefined) AND.push({ is_free: filters.isFree });
-  if (filters.is_featured !== undefined) AND.push({ is_featured: filters.is_featured });
-  if (filters.is_free !== undefined) AND.push({ is_free: filters.is_free });
+  if (filters.isFeatured !== undefined) AND.push({ is_featured: filters.isFeatured });
 
   return AND.length > 0 ? { AND } : {};
 }

@@ -1,12 +1,12 @@
 import { z } from 'zod';
 
 export const registerBodySchema = z.object({
-  firstname: z.string().trim().min(1).max(50),
-  lastname: z.string().trim().min(1).max(50),
-  username: z.string().trim().min(3).max(50).regex(/^[a-zA-Z0-9_.-]+$/).optional(),
+  firstName: z.string().trim().min(1).max(50),
+  lastName: z.string().trim().min(1).max(50),
+  userName: z.string().trim().min(3).max(50).regex(/^[a-zA-Z0-9_.-]+$/).optional(),
   email: z.string().trim().toLowerCase().email().max(100),
   password: z.string().min(8).max(128),
-  is_author: z.boolean().optional(),
+  isAuthor: z.boolean().optional(),
 });
 export type RegisterInput = z.infer<typeof registerBodySchema>;
 

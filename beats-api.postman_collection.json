@@ -70,7 +70,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"firstname\": \"John\",\n  \"lastname\": \"Doe\",\n  \"username\": \"johndoe\",\n  \"email\": \"john.doe@example.com\",\n  \"password\": \"Password123!\",\n  \"is_author\": false\n}",
+              "raw": "{\n  \"firstName\": \"John\",\n  \"lastName\": \"Doe\",\n  \"userName\": \"johndoe\",\n  \"email\": \"john.doe@example.com\",\n  \"password\": \"Password123!\",\n  \"isAuthor\": false\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -383,7 +383,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"name\": \"John Doe\",\n  \"bio\": \"Producer from NYC\"\n}",
+              "raw": "{\n  \"firstName\": \"John\",\n  \"lastName\": \"Doe\",\n  \"userName\": \"johndoe\",\n  \"profileHeading\": \"Producer & Beatmaker\",\n  \"profileDescription\": \"NYC-based producer.\",\n  \"profileContactEmail\": \"contact@johndoe.com\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -400,7 +400,7 @@
                 "profile"
               ]
             },
-            "description": "Update name and/or bio. At least one field is required."
+            "description": "Update profile fields. At least one field is required."
           },
           "response": []
         },
@@ -573,13 +573,13 @@
                   "key": "priceMin",
                   "value": null,
                   "disabled": true,
-                  "description": "Min regular_price"
+                  "description": "Min regularPrice"
                 },
                 {
                   "key": "priceMax",
                   "value": null,
                   "disabled": true,
-                  "description": "Max regular_price"
+                  "description": "Max regularPrice"
                 },
                 {
                   "key": "isFree",

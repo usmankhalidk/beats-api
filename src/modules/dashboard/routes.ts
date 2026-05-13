@@ -18,7 +18,7 @@ router.use(requireRoles(ROLES.PRODUCER, ROLES.ADMIN));
  *   get:
  *     tags: [Dashboard]
  *     summary: Get producer earnings history
- *     description: Returns individual sale records with author_earning per sale and a running total. Requires PRODUCER or ADMIN role.
+ *     description: Returns individual sale records with authorEarning per sale and a running total. Requires PRODUCER or ADMIN role.
  *     security:
  *       - bearerAuth: []
  *     parameters:

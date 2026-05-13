@@ -7,21 +7,21 @@ import type { UpdateProfileInput } from './validation';
 
 export interface ProfileUser {
   id: string;
-  firstname: string | null;
-  lastname: string | null;
-  username: string | null;
+  firstName: string | null;
+  lastName: string | null;
+  userName: string | null;
   email: string | null;
   role: Role;
   avatar: string | null;
-  profile_heading: string | null;
-  profile_description: string | null;
-  profile_contact_email: string | null;
-  profile_social_links: Record<string, string> | null;
-  is_author: boolean;
-  total_sales: number;
-  total_followers: number;
-  total_following: number;
-  email_verified: boolean;
+  profileHeading: string | null;
+  profileDescription: string | null;
+  profileContactEmail: string | null;
+  profileSocialLinks: Record<string, string> | null;
+  isAuthor: boolean;
+  totalSales: number;
+  totalFollowers: number;
+  totalFollowing: number;
+  emailVerified: boolean;
   createdAt: Date | null;
 }
 
@@ -41,21 +41,21 @@ function parseSocialLinks(raw: string | null): Record<string, string> | null {
 function toProfileUser(user: User): ProfileUser {
   return {
     id: user.id.toString(),
-    firstname: user.firstname,
-    lastname: user.lastname,
-    username: user.username,
+    firstName: user.firstname,
+    lastName: user.lastname,
+    userName: user.username,
     email: user.email,
     role: userRole(user),
     avatar: user.avatar,
-    profile_heading: user.profile_heading,
-    profile_description: user.profile_description,
-    profile_contact_email: user.profile_contact_email,
-    profile_social_links: parseSocialLinks(user.profile_social_links),
-    is_author: user.is_author,
-    total_sales: Number(user.total_sales),
-    total_followers: Number(user.total_followers),
-    total_following: Number(user.total_following),
-    email_verified: user.email_verified_at !== null,
+    profileHeading: user.profile_heading,
+    profileDescription: user.profile_description,
+    profileContactEmail: user.profile_contact_email,
+    profileSocialLinks: parseSocialLinks(user.profile_social_links),
+    isAuthor: user.is_author,
+    totalSales: Number(user.total_sales),
+    totalFollowers: Number(user.total_followers),
+    totalFollowing: Number(user.total_following),
+    emailVerified: user.email_verified_at !== null,
     createdAt: user.createdAt,
   };
 }
@@ -67,23 +67,23 @@ export async function getProfile(userId: string): Promise<ProfileUser> {
 }
 
 export async function updateProfile(userId: string, input: UpdateProfileInput): Promise<ProfileUser> {
-  if (input.username != null) {
-    const existing = await userRepo.findByUsername(input.username);
+  if (input.userName != null) {
+    const existing = await userRepo.findByUsername(input.userName);
     if (existing && existing.id.toString() !== userId) {
-      throw Errors.conflict({ field: 'username' });
+      throw Errors.conflict({ field: 'userName' });
     }
   }
 
   const data: Prisma.UserUpdateInput = {};
-  if (input.firstname !== undefined) data.firstname = input.firstname;
-  if (input.lastname !== undefined) data.lastname = input.lastname;
-  if ('username' in input) data.username = input.username;
-  if ('profile_heading' in input) data.profile_heading = input.profile_heading;
-  if ('profile_description' in input) data.profile_description = input.profile_description;
-  if ('profile_contact_email' in input) data.profile_contact_email = input.profile_contact_email;
-  if ('profile_social_links' in input) {
-    data.profile_social_links = input.profile_social_links
-      ? JSON.stringify(input.profile_social_links)
+  if (input.firstName !== undefined) data.firstname = input.firstName;
+  if (input.lastName !== undefined) data.lastname = input.lastName;
+  if ('userName' in input) data.username = input.userName;
+  if ('profileHeading' in input) data.profile_heading = input.profileHeading;
+  if ('profileDescription' in input) data.profile_description = input.profileDescription;
+  if ('profileContactEmail' in input) data.profile_contact_email = input.profileContactEmail;
+  if ('profileSocialLinks' in input) {
+    data.profile_social_links = input.profileSocialLinks
+      ? JSON.stringify(input.profileSocialLinks)
       : null;
   }
 

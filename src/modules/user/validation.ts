@@ -15,9 +15,9 @@ const socialLinksSchema = z
 
 export const updateProfileBodySchema = z
   .object({
-    firstname: z.string().trim().min(1).max(50).optional(),
-    lastname: z.string().trim().min(1).max(50).optional(),
-    username: z
+    firstName: z.string().trim().min(1).max(50).optional(),
+    lastName: z.string().trim().min(1).max(50).optional(),
+    userName: z
       .string()
       .trim()
       .min(3)
@@ -25,10 +25,10 @@ export const updateProfileBodySchema = z
       .regex(/^[a-zA-Z0-9_.-]+$/)
       .nullable()
       .optional(),
-    profile_heading: z.string().trim().max(255).nullable().optional(),
-    profile_description: z.string().trim().max(5000).nullable().optional(),
-    profile_contact_email: z.string().trim().toLowerCase().email().max(255).nullable().optional(),
-    profile_social_links: socialLinksSchema,
+    profileHeading: z.string().trim().max(255).nullable().optional(),
+    profileDescription: z.string().trim().max(5000).nullable().optional(),
+    profileContactEmail: z.string().trim().toLowerCase().email().max(255).nullable().optional(),
+    profileSocialLinks: socialLinksSchema,
   })
   .strict()
   .refine((v) => Object.keys(v).length > 0, { message: 'at least one field is required' });

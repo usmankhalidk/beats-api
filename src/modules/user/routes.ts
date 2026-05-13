@@ -83,38 +83,38 @@ router.get('/profile', asyncHandler(userController.getProfile));
  *             type: object
  *             minProperties: 1
  *             properties:
- *               firstname:
+ *               firstName:
  *                 type: string
  *                 minLength: 1
  *                 maxLength: 50
  *                 example: John
- *               lastname:
+ *               lastName:
  *                 type: string
  *                 minLength: 1
  *                 maxLength: 50
  *                 example: Doe
- *               username:
+ *               userName:
  *                 type: string
  *                 minLength: 3
  *                 maxLength: 50
  *                 nullable: true
  *                 example: johndoe
- *               profile_heading:
+ *               profileHeading:
  *                 type: string
  *                 maxLength: 255
  *                 nullable: true
  *                 example: Producer & Beatmaker
- *               profile_description:
+ *               profileDescription:
  *                 type: string
  *                 maxLength: 5000
  *                 nullable: true
  *                 example: NYC-based producer specialising in trap and drill.
- *               profile_contact_email:
+ *               profileContactEmail:
  *                 type: string
  *                 format: email
  *                 nullable: true
  *                 example: contact@johndoe.com
- *               profile_social_links:
+ *               profileSocialLinks:
  *                 type: object
  *                 nullable: true
  *                 properties:
