@@ -31,6 +31,14 @@ const envSchema = z.object({
   CONTABO_AVATAR_BUCKET_NAME: z.string().min(1).default('profile.avatars'),
   CONTABO_AVATAR_BASE_URL: z.string().url(),
   BEAT_BUCKET_NAME: z.string().min(1).default('beats'),
+
+  MAIL_HOST: z.string().min(1),
+  MAIL_PORT: z.coerce.number().int().positive().default(465),
+  MAIL_USER: z.string().min(1),
+  MAIL_PASS: z.string().min(1),
+  MAIL_FROM: z.string().min(1).default('Beatpillz <mail@beatpillz.com>'),
+  FRONTEND_URL: z.string().url().default('http://localhost:3000'),
+  EMAIL_VERIFICATION_TTL_MINUTES: z.coerce.number().int().positive().default(1440),
 });
 
 const parsed = envSchema.safeParse(process.env);
@@ -89,6 +97,22 @@ export const config = {
     avatarBucket: env.CONTABO_AVATAR_BUCKET_NAME,
     avatarBaseUrl: env.CONTABO_AVATAR_BASE_URL,
     beatBucket: env.BEAT_BUCKET_NAME,
+  },
+
+  mail: {
+    host: env.MAIL_HOST,
+    port: env.MAIL_PORT,
+    user: env.MAIL_USER,
+    pass: env.MAIL_PASS,
+    from: env.MAIL_FROM,
+  },
+
+  emailVerification: {
+    ttlMinutes: env.EMAIL_VERIFICATION_TTL_MINUTES,
+  },
+
+  frontend: {
+    url: env.FRONTEND_URL,
   },
 } as const;
 
