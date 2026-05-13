@@ -1,7 +1,7 @@
 import jwt from 'jsonwebtoken';
 import type { User } from '@prisma/client';
 import { config } from '@config/index';
-import { ROLES, type Role } from '@constants/roles';
+import { type Role } from '@constants/roles';
 import { Errors } from '@utils/api-error';
 import { signAccessToken, signRefreshToken, verifyRefreshToken } from '@utils/jwt';
 import {
@@ -39,10 +39,6 @@ export interface AuthSessionResult {
   tokens: AuthTokens;
 }
 
-function userRole(user: User): Role {
-  return user.is_author ? ROLES.PRODUCER : ROLES.USER;
-}
-
 function toAuthUser(user: User): AuthUser {
   return {
     id: user.id.toString(),
@@ -50,7 +46,7 @@ function toAuthUser(user: User): AuthUser {
     firstName: user.firstname,
     lastName: user.lastname,
     userName: user.username,
-    role: userRole(user),
+    role: user.role as Role,
   };
 }
 
@@ -66,7 +62,7 @@ async function issueTokens(user: User): Promise<AuthTokens> {
     expires_at: new Date(decoded.exp * 1000),
   });
 
-  const accessToken = signAccessToken({ userId: userIdStr, role: userRole(user) });
+  const accessToken = signAccessToken({ userId: userIdStr, role: user.role });
   return { accessToken, refreshToken };
 }
 
@@ -83,7 +79,7 @@ export async function register(input: RegisterInput): Promise<AuthSessionResult>
     username: input.userName,
     email: input.email,
     password: passwordHash,
-    is_author: input.isAuthor ?? false,
+    role: input.role,
   });
 
   const tokens = await issueTokens(user);

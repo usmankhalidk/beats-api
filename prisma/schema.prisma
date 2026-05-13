@@ -16,7 +16,7 @@ model User {
   address                                      String?                @db.Text
   password                                     String?                @db.VarChar(255)
   api_key                                      String?                @db.VarChar(255)
-  is_author                                    Boolean                @default(false)
+  role                                         String                 @default("user") @db.VarChar(20)
   is_featured_author                           Boolean                @default(false)
   balance                                      Float                  @default(0)
   level_id                                     BigInt?                @db.UnsignedBigInt

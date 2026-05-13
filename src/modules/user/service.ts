@@ -1,5 +1,5 @@
 import type { Prisma, User } from '@prisma/client';
-import { ROLES, type Role } from '@constants/roles';
+import { type Role } from '@constants/roles';
 import { Errors } from '@utils/api-error';
 import { uploadAvatar, deleteAvatar } from '@utils/storage';
 import * as userRepo from './repository';
@@ -17,16 +17,11 @@ export interface ProfileUser {
   profileDescription: string | null;
   profileContactEmail: string | null;
   profileSocialLinks: Record<string, string> | null;
-  isAuthor: boolean;
   totalSales: number;
   totalFollowers: number;
   totalFollowing: number;
   emailVerified: boolean;
   createdAt: Date | null;
-}
-
-function userRole(user: User): Role {
-  return user.is_author ? ROLES.PRODUCER : ROLES.USER;
 }
 
 function parseSocialLinks(raw: string | null): Record<string, string> | null {
@@ -45,13 +40,12 @@ function toProfileUser(user: User): ProfileUser {
     lastName: user.lastname,
     userName: user.username,
     email: user.email,
-    role: userRole(user),
+    role: user.role as Role,
     avatar: user.avatar,
     profileHeading: user.profile_heading,
     profileDescription: user.profile_description,
     profileContactEmail: user.profile_contact_email,
     profileSocialLinks: parseSocialLinks(user.profile_social_links),
-    isAuthor: user.is_author,
     totalSales: Number(user.total_sales),
     totalFollowers: Number(user.total_followers),
     totalFollowing: Number(user.total_following),

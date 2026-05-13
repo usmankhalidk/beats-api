@@ -55,9 +55,11 @@ router.use(authRateLimiter);
  *                 minLength: 8
  *                 maxLength: 128
  *                 example: Password123!
- *               isAuthor:
- *                 type: boolean
- *                 example: false
+ *               role:
+ *                 type: string
+ *                 enum: [user, producer]
+ *                 default: user
+ *                 example: producer
  *     responses:
  *       201:
  *         description: User registered successfully

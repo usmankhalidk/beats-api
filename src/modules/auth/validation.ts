@@ -6,7 +6,7 @@ export const registerBodySchema = z.object({
   userName: z.string().trim().min(3).max(50).regex(/^[a-zA-Z0-9_.-]+$/).optional(),
   email: z.string().trim().toLowerCase().email().max(100),
   password: z.string().min(8).max(128),
-  isAuthor: z.boolean().optional(),
+  role: z.enum(['user', 'producer']).optional().default('user'),
 });
 export type RegisterInput = z.infer<typeof registerBodySchema>;
 

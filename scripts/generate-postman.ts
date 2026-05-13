@@ -64,7 +64,7 @@ const collection = {
             auth: { type: 'noauth' },
             method: 'POST',
             header: [{ key: 'Content-Type', value: 'application/json' }],
-            body: json({ firstName: 'John', lastName: 'Doe', userName: 'johndoe', email: 'john.doe@example.com', password: 'Password123!', isAuthor: false }),
+            body: json({ firstName: 'John', lastName: 'Doe', userName: 'johndoe', email: 'john.doe@example.com', password: 'Password123!', role: 'user' }),
             url: url('/auth/register'),
             description: 'Register a new user. Auto-saves accessToken and refreshToken on success.',
           },

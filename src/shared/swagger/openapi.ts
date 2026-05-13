@@ -81,7 +81,7 @@ export const openapiSpec = swaggerJsdoc({
             userName: { type: 'string', nullable: true, example: 'johndoe' },
             email: { type: 'string', format: 'email', example: 'john.doe@example.com' },
             avatar: { type: 'string', format: 'uri', nullable: true, example: 'https://eu2.contabostorage.com/...' },
-            isAuthor: { type: 'boolean', example: false },
+            role: { type: 'string', enum: ['user', 'producer', 'admin'], example: 'user' },
             profileHeading: { type: 'string', nullable: true, example: 'Producer & Beatmaker' },
             profileDescription: { type: 'string', nullable: true },
             profileContactEmail: { type: 'string', format: 'email', nullable: true },
