@@ -286,6 +286,22 @@ export const openapiSpec = swaggerJsdoc({
             createdAt: { type: 'string', format: 'date-time', nullable: true },
           },
         },
+        Favorite: {
+          allOf: [
+            { $ref: '#/components/schemas/Beat' },
+            {
+              type: 'object',
+              properties: {
+                favoritedAt: {
+                  type: 'string',
+                  format: 'date-time',
+                  nullable: true,
+                  description: 'When the user added this beat to their favorites',
+                },
+              },
+            },
+          ],
+        },
       },
       responses: {
         BadRequest: {
@@ -347,6 +363,7 @@ export const openapiSpec = swaggerJsdoc({
       { name: 'Dashboard', description: 'Producer earnings and sales analytics (PRODUCER/ADMIN only)' },
       { name: 'Downloads', description: 'Signed download URLs for purchased beats' },
       { name: 'Playlists', description: 'User playlist management' },
+      { name: 'Favorites', description: 'Save beats to a personal favorites list' },
     ],
     paths: {},
   },

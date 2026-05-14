@@ -37,3 +37,14 @@ export const resetPasswordBodySchema = z.object({
   password: z.string().min(8).max(128),
 });
 export type ResetPasswordInput = z.infer<typeof resetPasswordBodySchema>;
+
+export const changePasswordBodySchema = z
+  .object({
+    currentPassword: z.string().min(1),
+    newPassword: z.string().min(8).max(128),
+  })
+  .refine((v) => v.currentPassword !== v.newPassword, {
+    path: ['newPassword'],
+    message: 'newPassword must be different from currentPassword',
+  });
+export type ChangePasswordInput = z.infer<typeof changePasswordBodySchema>;

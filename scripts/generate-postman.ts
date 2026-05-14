@@ -171,6 +171,27 @@ const collection = {
           },
           response: [],
         },
+        {
+          name: 'Change Password',
+          event: script(
+            'if (pm.response.code === 200) {',
+            '  const body = pm.response.json();',
+            '  if (body.data && body.data.tokens) {',
+            "    pm.collectionVariables.set('accessToken', body.data.tokens.accessToken);",
+            "    pm.collectionVariables.set('refreshToken', body.data.tokens.refreshToken);",
+            '  }',
+            '}',
+          ),
+          request: {
+            method: 'POST',
+            header: [{ key: 'Content-Type', value: 'application/json' }],
+            body: json({ currentPassword: 'Password123!', newPassword: 'NewPassword456!' }),
+            url: url('/auth/change-password'),
+            description:
+              'Change password for the authenticated user. Revokes every other session and issues a fresh token pair (auto-saved) so this device stays signed in.',
+          },
+          response: [],
+        },
       ],
     },
 
@@ -547,6 +568,44 @@ const collection = {
             header: [],
             url: url('/playlists/{{playlistId}}/remove/{{beatId}}'),
             description: 'Remove a beat from a playlist by playlist ID and beat ID.',
+          },
+          response: [],
+        },
+      ],
+    },
+
+    // ── Favorites ─────────────────────────────────────────────────────────────
+    {
+      name: 'Favorites',
+      item: [
+        {
+          name: 'List Favorites',
+          request: {
+            method: 'GET',
+            header: [],
+            url: url('/favorites'),
+            description: "List the authenticated user's favorited beats. Each item is a full beat with a `favoritedAt` timestamp. Newest first.",
+          },
+          response: [],
+        },
+        {
+          name: 'Add to Favorites',
+          request: {
+            method: 'POST',
+            header: [{ key: 'Content-Type', value: 'application/json' }],
+            body: json({ beatId: '{{beatId}}' }),
+            url: url('/favorites/add'),
+            description: 'Add a published beat to favorites. Returns 409 if the beat is already favorited.',
+          },
+          response: [],
+        },
+        {
+          name: 'Remove from Favorites',
+          request: {
+            method: 'DELETE',
+            header: [],
+            url: url('/favorites/remove/{{beatId}}'),
+            description: 'Remove a beat from favorites by beat ID. Returns 404 if not in favorites.',
           },
           response: [],
         },

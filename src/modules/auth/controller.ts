@@ -1,5 +1,6 @@
 import type { Request, Response } from 'express';
 import { successResponse } from '@utils/response';
+import { Errors } from '@utils/api-error';
 import { HTTP_STATUS } from '@constants/http-status';
 import * as authService from './service';
 
@@ -31,4 +32,10 @@ export async function forgotPassword(req: Request, res: Response): Promise<Respo
 export async function resetPassword(req: Request, res: Response): Promise<Response> {
   await authService.resetPassword(req.body);
   return successResponse(res, { data: null, message: 'PASSWORD_RESET' });
+}
+
+export async function changePassword(req: Request, res: Response): Promise<Response> {
+  if (!req.user) throw Errors.unauthorized();
+  const tokens = await authService.changePassword(req.user.id, req.body);
+  return successResponse(res, { data: { tokens }, message: 'PASSWORD_CHANGED' });
 }

@@ -18,6 +18,7 @@ import type {
   RefreshTokenInput,
   ForgotPasswordInput,
   ResetPasswordInput,
+  ChangePasswordInput,
 } from './validation';
 
 export interface AuthTokens {
@@ -170,4 +171,22 @@ export async function resetPassword(input: ResetPasswordInput): Promise<void> {
 
   // Force re-login on every existing session.
   await authRepo.revokeAllRefreshTokensForUser(user.id);
+}
+
+export async function changePassword(
+  userId: string,
+  input: ChangePasswordInput,
+): Promise<AuthTokens> {
+  const user = await authRepo.findUserById(userId);
+  if (!user || !user.password) throw Errors.invalidCredentials();
+
+  const ok = await verifyPassword(user.password, input.currentPassword);
+  if (!ok) throw Errors.invalidCredentials();
+
+  const passwordHash = await hashPassword(input.newPassword);
+  await authRepo.updateUserPassword(user.id, passwordHash);
+
+  // Revoke every existing session, then issue a fresh pair so the caller stays signed in.
+  await authRepo.revokeAllRefreshTokensForUser(user.id);
+  return issueTokens(user);
 }

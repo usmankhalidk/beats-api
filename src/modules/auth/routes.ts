@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import { asyncHandler } from '@utils/async-handler';
+import { authenticate } from '@middleware/auth';
 import { validate } from '@middleware/validate';
 import { authRateLimiter } from '@middleware/rate-limit';
 import * as authController from './controller';
@@ -10,6 +11,7 @@ import {
   refreshTokenBodySchema,
   forgotPasswordBodySchema,
   resetPasswordBodySchema,
+  changePasswordBodySchema,
 } from './validation';
 
 const router = Router();
@@ -261,5 +263,64 @@ router.post('/forgot-password', validate({ body: forgotPasswordBodySchema }), as
  *         $ref: '#/components/responses/ValidationError'
  */
 router.post('/reset-password', validate({ body: resetPasswordBodySchema }), asyncHandler(authController.resetPassword));
+
+/**
+ * @openapi
+ * /auth/change-password:
+ *   post:
+ *     tags: [Auth]
+ *     summary: Change the authenticated user's password
+ *     description: |
+ *       Verifies the current password, updates to the new one, then revokes every
+ *       existing refresh token for this user. A fresh access/refresh token pair is
+ *       returned so the calling device stays signed in — every other device must log in again.
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [currentPassword, newPassword]
+ *             properties:
+ *               currentPassword:
+ *                 type: string
+ *                 example: Password123!
+ *               newPassword:
+ *                 type: string
+ *                 minLength: 8
+ *                 maxLength: 128
+ *                 example: NewPassword456!
+ *     responses:
+ *       200:
+ *         description: Password changed successfully; new token pair issued
+ *         content:
+ *           application/json:
+ *             schema:
+ *               allOf:
+ *                 - $ref: '#/components/schemas/SuccessEnvelope'
+ *                 - type: object
+ *                   properties:
+ *                     data:
+ *                       type: object
+ *                       properties:
+ *                         tokens:
+ *                           $ref: '#/components/schemas/TokenPair'
+ *       401:
+ *         description: Missing/invalid bearer token, or currentPassword is wrong
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorEnvelope'
+ *       422:
+ *         $ref: '#/components/responses/ValidationError'
+ */
+router.post(
+  '/change-password',
+  authenticate,
+  validate({ body: changePasswordBodySchema }),
+  asyncHandler(authController.changePassword),
+);
 
 export default router;

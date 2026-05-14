@@ -9,6 +9,7 @@ import checkoutRoutes from './orders/checkout-routes';
 import downloadsRoutes from './downloads/routes';
 import dashboardRoutes from './dashboard/routes';
 import playlistsRoutes from './playlists/routes';
+import favoritesRoutes from './favorites/routes';
 
 const router = Router();
 
@@ -22,5 +23,6 @@ router.use('/orders', ordersRoutes);
 router.use('/downloads', downloadsRoutes);
 router.use('/dashboard', dashboardRoutes);
 router.use('/playlists', playlistsRoutes);
+router.use('/favorites', favoritesRoutes);
 
 export default router;
