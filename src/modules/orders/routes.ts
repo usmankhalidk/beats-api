@@ -121,8 +121,9 @@ router.post(
  *         name: id
  *         required: true
  *         schema:
- *           type: integer
- *         example: 1
+ *           type: string
+ *           format: uuid
+ *         example: '01935678-1234-7890-abcd-1234567890ab'
  *     responses:
  *       200:
  *         description: Order detail

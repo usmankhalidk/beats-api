@@ -28,9 +28,10 @@ router.use(authenticate);
  *         name: id
  *         required: true
  *         schema:
- *           type: integer
+ *           type: string
+ *           format: uuid
  *         description: Purchase ID (from purchases table)
- *         example: 5
+ *         example: '01935678-1234-7890-abcd-1234567890ab'
  *     responses:
  *       200:
  *         description: Signed download URL

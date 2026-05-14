@@ -5,9 +5,8 @@ const SORT = z
   .enum(['newest', 'oldest', 'priceAsc', 'priceDesc', 'bpmAsc', 'bpmDesc'])
   .default('newest');
 
-// Items use BigInt auto-increment ids, not UUIDs
 export const idParamSchema = z.object({
-  id: z.string().regex(/^\d+$/, 'id must be a positive integer'),
+  id: z.string().uuid('id must be a valid UUID'),
 });
 export type IdParam = z.infer<typeof idParamSchema>;
 
@@ -72,8 +71,8 @@ export const createBeatBodySchema = z.object({
   extendedPrice: decimalString,
   isFree: z.enum(['true', 'false']).transform((v) => v === 'true').default('false'),
   tags: tagsField,
-  categoryId: z.string().regex(/^\d+$/),
-  subCategoryId: z.string().regex(/^\d+$/).optional(),
+  categoryId: z.string().uuid(),
+  subCategoryId: z.string().uuid().optional(),
 });
 export type CreateBeatInput = z.infer<typeof createBeatBodySchema>;
 

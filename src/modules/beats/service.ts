@@ -67,7 +67,7 @@ function parseTags(raw: string): string[] {
 
 export function toDTO(item: ItemWithRelations): BeatDTO {
   return {
-    id: item.id.toString(),
+    id: item.id,
     name: item.name,
     slug: item.slug,
     description: item.description,
@@ -93,20 +93,20 @@ export function toDTO(item: ItemWithRelations): BeatDTO {
     avgReviews: Number(item.avg_reviews),
     totalViews: Number(item.total_views),
     author: {
-      id: item.users.id.toString(),
+      id: item.users.id,
       firstName: item.users.firstname,
       lastName: item.users.lastname,
       userName: item.users.username,
       avatar: item.users.avatar,
     },
     category: {
-      id: item.categories.id.toString(),
+      id: item.categories.id,
       name: item.categories.name,
       slug: item.categories.slug,
     },
     subCategory: item.sub_categories
       ? {
-          id: item.sub_categories.id.toString(),
+          id: item.sub_categories.id,
           name: item.sub_categories.name,
           slug: item.sub_categories.slug,
         }
@@ -194,13 +194,13 @@ export async function freeBeats(query: FreeBeatsQuery): Promise<BeatListResult> 
 }
 
 export async function getBeat(id: string): Promise<BeatDTO> {
-  const item = await beatsRepo.findById(BigInt(id));
+  const item = await beatsRepo.findById(id);
   if (!item) throw Errors.notFound({ resource: 'beat' });
   return toDTO(item);
 }
 
 export async function listBeatsByCategoryId(
-  categoryId: bigint,
+  categoryId: string,
   query: { page: number; limit: number; sort: string },
 ): Promise<BeatListResult> {
   return paginate({ category_id: categoryId }, query.sort, query);
@@ -222,12 +222,12 @@ export async function createBeat(
 ): Promise<BeatDTO> {
   const slug = await beatsRepo.generateUniqueSlug(input.title);
   const item = await beatsRepo.create({
-    author_id: BigInt(producerId),
+    author_id: producerId,
     name: input.title,
     slug,
     description: input.description ?? '',
-    category_id: BigInt(input.categoryId),
-    sub_category_id: input.subCategoryId ? BigInt(input.subCategoryId) : undefined,
+    category_id: input.categoryId,
+    sub_category_id: input.subCategoryId ? input.subCategoryId : undefined,
     regular_price: parseFloat(input.regularPrice),
     extended_price: parseFloat(input.extendedPrice),
     bpm: input.bpm,
@@ -237,7 +237,7 @@ export async function createBeat(
     main_file: 'pending',
   });
 
-  const itemId = item.id.toString();
+  const itemId = item.id;
   try {
     const beatKey = await storage.uploadBeatFile(beatFile.buffer, beatFile.originalname, beatFile.mimetype, itemId);
     let thumbnail: string | undefined;
@@ -259,7 +259,7 @@ export async function replaceBeat(
   beatFile?: BeatFileInput,
   coverFile?: BeatFileInput,
 ): Promise<BeatDTO> {
-  const existing = await beatsRepo.findByIdForAuthor(BigInt(id), BigInt(producerId));
+  const existing = await beatsRepo.findByIdForAuthor(id, producerId);
   if (!existing) throw Errors.notFound({ resource: 'beat' });
 
   const slug = await beatsRepo.generateUniqueSlug(input.title);
@@ -267,8 +267,8 @@ export async function replaceBeat(
     name: input.title,
     slug,
     description: input.description ?? '',
-    category_id: BigInt(input.categoryId),
-    sub_category_id: input.subCategoryId ? BigInt(input.subCategoryId) : null,
+    category_id: input.categoryId,
+    sub_category_id: input.subCategoryId ? input.subCategoryId : null,
     regular_price: parseFloat(input.regularPrice),
     extended_price: parseFloat(input.extendedPrice),
     bpm: input.bpm ?? null,
@@ -285,16 +285,16 @@ export async function replaceBeat(
     updateData.thumbnail = await storage.uploadCoverImage(coverFile.buffer, coverFile.originalname, coverFile.mimetype, id);
   }
 
-  const updated = await beatsRepo.update(BigInt(id), updateData);
+  const updated = await beatsRepo.update(id, updateData);
   return toDTO(updated);
 }
 
 export async function deleteBeat(producerId: string, id: string): Promise<void> {
-  const existing = await beatsRepo.findByIdForAuthor(BigInt(id), BigInt(producerId));
+  const existing = await beatsRepo.findByIdForAuthor(id, producerId);
   if (!existing) throw Errors.notFound({ resource: 'beat' });
   await Promise.all([
     storage.deleteBeatFile(existing.main_file).catch(() => {}),
     existing.thumbnail ? storage.deleteCoverImage(existing.thumbnail).catch(() => {}) : Promise.resolve(),
   ]);
-  await beatsRepo.deleteById(BigInt(id));
+  await beatsRepo.deleteById(id);
 }

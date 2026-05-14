@@ -1,9 +1,9 @@
 import { z } from 'zod';
 import { paginationQuerySchema } from '@utils/pagination';
 
-const bigIntId = z.string().regex(/^\d+$/, 'must be a numeric ID');
+const uuidId = z.string().uuid('must be a valid UUID');
 
-export const orderIdParamSchema = z.object({ id: bigIntId });
+export const orderIdParamSchema = z.object({ id: uuidId });
 export type OrderIdParam = z.infer<typeof orderIdParamSchema>;
 
 export const listOrdersQuerySchema = paginationQuerySchema.extend({
@@ -13,14 +13,14 @@ export type ListOrdersQuery = z.infer<typeof listOrdersQuerySchema>;
 
 export const validateOrderBodySchema = z
   .object({
-    cartItemIds: z.array(bigIntId).min(1),
+    cartItemIds: z.array(uuidId).min(1),
   })
   .strict();
 export type ValidateOrderInput = z.infer<typeof validateOrderBodySchema>;
 
 export const checkoutBodySchema = z
   .object({
-    cartItemIds: z.array(bigIntId).min(1).optional(),
+    cartItemIds: z.array(uuidId).min(1).optional(),
   })
   .strict();
 export type CheckoutInput = z.infer<typeof checkoutBodySchema>;

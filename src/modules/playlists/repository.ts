@@ -17,7 +17,7 @@ const PLAYLIST_INCLUDE = {
 export type PlaylistRow = Awaited<ReturnType<typeof findByIdForUser>>;
 export type PlaylistListRow = Awaited<ReturnType<typeof listForUser>>[number];
 
-export async function listForUser(userId: bigint) {
+export async function listForUser(userId: string) {
   return prisma.playlists.findMany({
     where: { user_id: userId },
     orderBy: { name: 'asc' },
@@ -25,7 +25,7 @@ export async function listForUser(userId: bigint) {
   });
 }
 
-export async function findByIdForUser(id: bigint, userId: bigint) {
+export async function findByIdForUser(id: string, userId: string) {
   return prisma.playlists.findFirst({
     where: { id, user_id: userId },
     include: PLAYLIST_INCLUDE,
@@ -33,7 +33,7 @@ export async function findByIdForUser(id: bigint, userId: bigint) {
 }
 
 export async function create(data: {
-  user_id: bigint;
+  user_id: string;
   name: string;
   description?: string;
   is_public: boolean;
@@ -41,7 +41,7 @@ export async function create(data: {
   return prisma.playlists.create({ data, include: PLAYLIST_INCLUDE });
 }
 
-export async function addItem(playlistId: bigint, itemId: bigint): Promise<void> {
+export async function addItem(playlistId: string, itemId: string): Promise<void> {
   const maxPos = await prisma.playlist_items.aggregate({
     where: { playlist_id: playlistId },
     _max: { position: true },
@@ -52,14 +52,14 @@ export async function addItem(playlistId: bigint, itemId: bigint): Promise<void>
   });
 }
 
-export async function removeItem(playlistId: bigint, itemId: bigint): Promise<boolean> {
+export async function removeItem(playlistId: string, itemId: string): Promise<boolean> {
   const deleted = await prisma.playlist_items.deleteMany({
     where: { playlist_id: playlistId, item_id: itemId },
   });
   return deleted.count > 0;
 }
 
-export async function beatExistsInPlaylist(playlistId: bigint, itemId: bigint): Promise<boolean> {
+export async function beatExistsInPlaylist(playlistId: string, itemId: string): Promise<boolean> {
   const row = await prisma.playlist_items.findFirst({
     where: { playlist_id: playlistId, item_id: itemId },
     select: { id: true },

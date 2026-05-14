@@ -41,7 +41,7 @@ export interface AuthSessionResult {
 
 function toAuthUser(user: User): AuthUser {
   return {
-    id: user.id.toString(),
+    id: user.id,
     email: user.email,
     firstName: user.firstname,
     lastName: user.lastname,
@@ -51,7 +51,7 @@ function toAuthUser(user: User): AuthUser {
 }
 
 async function issueTokens(user: User): Promise<AuthTokens> {
-  const userIdStr = user.id.toString();
+  const userIdStr = user.id;
   const refreshToken = signRefreshToken({ userId: userIdStr });
   const decoded = jwt.decode(refreshToken) as { exp?: number } | null;
   if (!decoded?.exp) throw Errors.internal({ reason: 'refresh_token_missing_exp' });
@@ -118,7 +118,7 @@ export async function refreshTokens(input: RefreshTokenInput): Promise<AuthToken
     // Token verifies cryptographically but isn't in the DB — likely already
     // rotated/revoked. Treat as compromise: nuke every session for this user.
     try {
-      await authRepo.revokeAllRefreshTokensForUser(BigInt(payload.sub));
+      await authRepo.revokeAllRefreshTokensForUser(payload.sub);
     } catch {
       // best-effort
     }

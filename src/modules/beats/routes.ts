@@ -311,8 +311,9 @@ router.get(
  *         name: id
  *         required: true
  *         schema:
- *           type: integer
- *         example: 1
+ *           type: string
+ *           format: uuid
+ *         example: '01935678-1234-7890-abcd-1234567890ab'
  *     responses:
  *       200:
  *         description: Beat detail
@@ -398,8 +399,9 @@ router.post(
  *         name: id
  *         required: true
  *         schema:
- *           type: integer
- *         example: 1
+ *           type: string
+ *           format: uuid
+ *         example: '01935678-1234-7890-abcd-1234567890ab'
  *     requestBody:
  *       required: true
  *       content:
@@ -456,8 +458,9 @@ router.put(
  *         name: id
  *         required: true
  *         schema:
- *           type: integer
- *         example: 1
+ *           type: string
+ *           format: uuid
+ *         example: '01935678-1234-7890-abcd-1234567890ab'
  *     responses:
  *       200:
  *         description: Beat deleted

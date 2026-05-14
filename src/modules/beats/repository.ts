@@ -35,7 +35,7 @@ function sortOrder(sort: string): Prisma.itemsOrderByWithRelationInput {
   }
 }
 
-export async function findById(id: bigint): Promise<ItemWithRelations | null> {
+export async function findById(id: string): Promise<ItemWithRelations | null> {
   return prisma.items.findFirst({
     where: { id, ...PUBLISHED },
     include: INCLUDE,
@@ -58,9 +58,9 @@ export async function list(args: {
 }
 
 export async function findByIdForAuthor(
-  id: bigint,
-  authorId: bigint,
-): Promise<{ id: bigint; main_file: string; thumbnail: string | null } | null> {
+  id: string,
+  authorId: string,
+): Promise<{ id: string; main_file: string; thumbnail: string | null } | null> {
   return prisma.items.findFirst({
     where: { id, author_id: authorId },
     select: { id: true, main_file: true, thumbnail: true },
@@ -78,12 +78,12 @@ export async function generateUniqueSlug(name: string): Promise<string> {
 }
 
 export async function create(data: {
-  author_id: bigint;
+  author_id: string;
   name: string;
   slug: string;
   description: string;
-  category_id: bigint;
-  sub_category_id?: bigint;
+  category_id: string;
+  sub_category_id?: string;
   regular_price: number;
   extended_price: number;
   bpm?: number;
@@ -100,13 +100,13 @@ export async function create(data: {
 }
 
 export async function update(
-  id: bigint,
+  id: string,
   data: Partial<{
     name: string;
     slug: string;
     description: string;
-    category_id: bigint;
-    sub_category_id: bigint | null;
+    category_id: string;
+    sub_category_id: string | null;
     regular_price: number;
     extended_price: number;
     bpm: number | null;
@@ -120,6 +120,6 @@ export async function update(
   return prisma.items.update({ where: { id }, data, include: INCLUDE });
 }
 
-export async function deleteById(id: bigint): Promise<void> {
+export async function deleteById(id: string): Promise<void> {
   await prisma.items.delete({ where: { id } });
 }

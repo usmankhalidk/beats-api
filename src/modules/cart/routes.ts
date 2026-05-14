@@ -55,7 +55,7 @@ router.get('/', asyncHandler(cartController.list));
  *               beatId:
  *                 type: string
  *                 pattern: '^\d+$'
- *                 example: '42'
+ *                 example: '01935678-1234-7890-abcd-1234567890ab'
  *               licenseType:
  *                 type: string
  *                 enum: [regular, extended]
@@ -100,9 +100,10 @@ router.post('/add', validate({ body: addCartItemBodySchema }), asyncHandler(cart
  *         name: id
  *         required: true
  *         schema:
- *           type: integer
+ *           type: string
+ *           format: uuid
  *         description: Cart item ID
- *         example: 7
+ *         example: '01935678-1234-7890-abcd-1234567890ab'
  *     responses:
  *       200:
  *         description: Item removed

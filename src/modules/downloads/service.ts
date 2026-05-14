@@ -17,7 +17,7 @@ export async function getDownloadGrant(
   userId: string,
   purchaseId: string,
 ): Promise<DownloadGrantDTO> {
-  const purchase = await downloadsRepo.findPurchase(BigInt(purchaseId), BigInt(userId));
+  const purchase = await downloadsRepo.findPurchase(purchaseId, userId);
   if (!purchase) throw Errors.notFound({ resource: 'purchase' });
 
   const { main_file, name } = purchase.items;
@@ -29,8 +29,8 @@ export async function getDownloadGrant(
   const expiresAt = new Date(Date.now() + SIGNED_URL_TTL * 1000).toISOString();
 
   return {
-    purchaseId: purchase.id.toString(),
-    beatId: purchase.item_id.toString(),
+    purchaseId: purchase.id,
+    beatId: purchase.item_id,
     beatName: name,
     licenseType: purchase.license_type ? 'extended' : 'regular',
     url,

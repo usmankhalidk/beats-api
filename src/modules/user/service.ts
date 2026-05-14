@@ -35,7 +35,7 @@ function parseSocialLinks(raw: string | null): Record<string, string> | null {
 
 function toProfileUser(user: User): ProfileUser {
   return {
-    id: user.id.toString(),
+    id: user.id,
     firstName: user.firstname,
     lastName: user.lastname,
     userName: user.username,
@@ -63,7 +63,7 @@ export async function getProfile(userId: string): Promise<ProfileUser> {
 export async function updateProfile(userId: string, input: UpdateProfileInput): Promise<ProfileUser> {
   if (input.userName != null) {
     const existing = await userRepo.findByUsername(input.userName);
-    if (existing && existing.id.toString() !== userId) {
+    if (existing && existing.id !== userId) {
       throw Errors.conflict({ field: 'userName' });
     }
   }

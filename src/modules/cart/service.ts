@@ -5,18 +5,14 @@ import * as cartRepo from './repository';
 
 const LICENSE_LABEL: Record<number, 'regular' | 'extended'> = { 1: 'regular', 2: 'extended' };
 
-function toId(s: string): bigint {
-  return BigInt(s);
-}
-
 function mapCartItem(row: Awaited<ReturnType<typeof cartRepo.listForUser>>[number]) {
   return {
-    id: row.id.toString(),
-    itemId: row.item_id.toString(),
+    id: row.id,
+    itemId: row.item_id,
     licenseType: LICENSE_LABEL[row.licenseType] ?? 'regular',
     quantity: row.quantity,
     item: {
-      id: row.items.id.toString(),
+      id: row.items.id,
       name: row.items.name,
       slug: row.items.slug,
       thumbnail: row.items.thumbnail ?? null,
@@ -28,13 +24,13 @@ function mapCartItem(row: Awaited<ReturnType<typeof cartRepo.listForUser>>[numbe
 }
 
 export async function listCart(userId: string) {
-  const rows = await cartRepo.listForUser(toId(userId));
+  const rows = await cartRepo.listForUser(userId);
   return rows.map(mapCartItem);
 }
 
 export async function addItem(userId: string, input: AddCartItemInput) {
-  const itemId = toId(input.beatId);
-  const userIdBig = toId(userId);
+  const itemId = input.beatId;
+  const userIdBig = userId;
 
   const beat = await prisma.items.findFirst({
     where: { id: itemId, status: 1, purchasing_status: true },
@@ -50,5 +46,5 @@ export async function addItem(userId: string, input: AddCartItemInput) {
 }
 
 export async function removeItem(userId: string, cartItemId: string): Promise<void> {
-  await cartRepo.removeById(toId(cartItemId), toId(userId));
+  await cartRepo.removeById(cartItemId, userId);
 }

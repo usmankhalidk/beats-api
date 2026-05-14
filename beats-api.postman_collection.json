@@ -34,6 +34,31 @@
       "key": "resetToken",
       "value": "",
       "type": "string"
+    },
+    {
+      "key": "beatId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "cartItemId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "orderId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "playlistId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "purchaseId",
+      "value": "",
+      "type": "string"
     }
   ],
   "item": [
@@ -478,13 +503,13 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/beats/1",
+              "raw": "{{baseUrl}}/beats/{{beatId}}",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "beats",
-                "1"
+                "{{beatId}}"
               ]
             },
             "description": "Single beat detail by numeric ID."
@@ -803,13 +828,13 @@
               ]
             },
             "url": {
-              "raw": "{{baseUrl}}/beats/1",
+              "raw": "{{baseUrl}}/beats/{{beatId}}",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "beats",
-                "1"
+                "{{beatId}}"
               ]
             },
             "description": "Update a beat by ID as multipart/form-data. Files are optional — omit to keep existing. Requires PRODUCER or ADMIN role."
@@ -822,13 +847,13 @@
             "method": "DELETE",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/beats/1",
+              "raw": "{{baseUrl}}/beats/{{beatId}}",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "beats",
-                "1"
+                "{{beatId}}"
               ]
             },
             "description": "Delete a beat by ID. Requires PRODUCER or ADMIN role."
@@ -927,7 +952,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"beatId\": \"42\",\n  \"licenseType\": \"regular\"\n}",
+              "raw": "{\n  \"beatId\": \"{{beatId}}\",\n  \"licenseType\": \"regular\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -954,14 +979,14 @@
             "method": "DELETE",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/cart/remove/7",
+              "raw": "{{baseUrl}}/cart/remove/{{cartItemId}}",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "cart",
                 "remove",
-                "7"
+                "{{cartItemId}}"
               ]
             },
             "description": "Remove a cart item by its numeric ID."
@@ -985,7 +1010,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"cartItemIds\": [\n    \"1\",\n    \"2\"\n  ]\n}",
+              "raw": "{\n  \"cartItemIds\": [\n    \"{{cartItemId}}\"\n  ]\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -1103,13 +1128,13 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/downloads/5",
+              "raw": "{{baseUrl}}/downloads/{{purchaseId}}",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "downloads",
-                "5"
+                "{{purchaseId}}"
               ]
             },
             "description": "Get a pre-signed S3 download URL for a purchased beat. The `id` is the purchase ID (purchases.id), not the beat ID. URL is valid for 1 hour."
@@ -1183,7 +1208,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"beatId\": \"42\"\n}",
+              "raw": "{\n  \"beatId\": \"{{beatId}}\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -1191,13 +1216,13 @@
               }
             },
             "url": {
-              "raw": "{{baseUrl}}/playlists/1/add",
+              "raw": "{{baseUrl}}/playlists/{{playlistId}}/add",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "playlists",
-                "1",
+                "{{playlistId}}",
                 "add"
               ]
             },
@@ -1211,15 +1236,15 @@
             "method": "DELETE",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/playlists/1/remove/42",
+              "raw": "{{baseUrl}}/playlists/{{playlistId}}/remove/{{beatId}}",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "playlists",
-                "1",
+                "{{playlistId}}",
                 "remove",
-                "42"
+                "{{beatId}}"
               ]
             },
             "description": "Remove a beat from a playlist by playlist ID and beat ID."
@@ -1277,7 +1302,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"cartItemIds\": [\n    \"1\",\n    \"2\",\n    \"3\"\n  ]\n}",
+              "raw": "{\n  \"cartItemIds\": [\n    \"{{cartItemId}}\"\n  ]\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -1304,13 +1329,13 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/orders/1",
+              "raw": "{{baseUrl}}/orders/{{orderId}}",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "orders",
-                "1"
+                "{{orderId}}"
               ]
             },
             "description": "Get a single order (transaction) by its numeric ID."

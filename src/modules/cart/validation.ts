@@ -1,13 +1,13 @@
 import { z } from 'zod';
 
-const bigIntId = z.string().regex(/^\d+$/, 'must be a numeric ID');
+const uuidId = z.string().uuid('must be a valid UUID');
 
-export const cartItemIdParamSchema = z.object({ id: bigIntId });
+export const cartItemIdParamSchema = z.object({ id: uuidId });
 export type CartItemIdParam = z.infer<typeof cartItemIdParamSchema>;
 
 export const addCartItemBodySchema = z
   .object({
-    beatId: bigIntId,
+    beatId: uuidId,
     licenseType: z.enum(['regular', 'extended']),
   })
   .strict();

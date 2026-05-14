@@ -45,6 +45,11 @@ const collection = {
     { key: 'accessToken', value: '', type: 'string' },
     { key: 'refreshToken', value: '', type: 'string' },
     { key: 'resetToken', value: '', type: 'string' },
+    { key: 'beatId', value: '', type: 'string' },
+    { key: 'cartItemId', value: '', type: 'string' },
+    { key: 'orderId', value: '', type: 'string' },
+    { key: 'playlistId', value: '', type: 'string' },
+    { key: 'purchaseId', value: '', type: 'string' },
   ],
   item: [
     // ── Auth ──────────────────────────────────────────────────────────────────
@@ -233,7 +238,7 @@ const collection = {
           request: {
             method: 'GET',
             header: [],
-            url: url('/beats/1'),
+            url: url('/beats/{{beatId}}'),
             description: 'Single beat detail by numeric ID.',
           },
           response: [],
@@ -340,7 +345,7 @@ const collection = {
               { key: 'tags', type: 'text', value: 'trap,dark' },
               { key: 'categoryId', type: 'text', value: '1' },
             ]),
-            url: url('/beats/1'),
+            url: url('/beats/{{beatId}}'),
             description: 'Update a beat by ID as multipart/form-data. Files are optional — omit to keep existing. Requires PRODUCER or ADMIN role.',
           },
           response: [],
@@ -350,7 +355,7 @@ const collection = {
           request: {
             method: 'DELETE',
             header: [],
-            url: url('/beats/1'),
+            url: url('/beats/{{beatId}}'),
             description: 'Delete a beat by ID. Requires PRODUCER or ADMIN role.',
           },
           response: [],
@@ -408,7 +413,7 @@ const collection = {
           request: {
             method: 'POST',
             header: [{ key: 'Content-Type', value: 'application/json' }],
-            body: json({ beatId: '42', licenseType: 'regular' }),
+            body: json({ beatId: '{{beatId}}', licenseType: 'regular' }),
             url: url('/cart/add'),
             description: 'Add a beat to the cart. licenseType: regular | extended.',
           },
@@ -419,7 +424,7 @@ const collection = {
           request: {
             method: 'DELETE',
             header: [],
-            url: url('/cart/remove/7'),
+            url: url('/cart/remove/{{cartItemId}}'),
             description: 'Remove a cart item by its numeric ID.',
           },
           response: [],
@@ -436,7 +441,7 @@ const collection = {
           request: {
             method: 'POST',
             header: [{ key: 'Content-Type', value: 'application/json' }],
-            body: json({ cartItemIds: ['1', '2'] }),
+            body: json({ cartItemIds: ['{{cartItemId}}'] }),
             url: url('/checkout'),
             description: 'Initiate checkout. Run POST /orders/validate first. Returns 501 until a payment provider is integrated.',
           },
@@ -491,7 +496,7 @@ const collection = {
           request: {
             method: 'GET',
             header: [],
-            url: url('/downloads/5'),
+            url: url('/downloads/{{purchaseId}}'),
             description: 'Get a pre-signed S3 download URL for a purchased beat. The `id` is the purchase ID (purchases.id), not the beat ID. URL is valid for 1 hour.',
           },
           response: [],
@@ -529,8 +534,8 @@ const collection = {
           request: {
             method: 'POST',
             header: [{ key: 'Content-Type', value: 'application/json' }],
-            body: json({ beatId: '42' }),
-            url: url('/playlists/1/add'),
+            body: json({ beatId: '{{beatId}}' }),
+            url: url('/playlists/{{playlistId}}/add'),
             description: 'Add a published beat to a playlist. Returns 409 if beat is already in the playlist.',
           },
           response: [],
@@ -540,7 +545,7 @@ const collection = {
           request: {
             method: 'DELETE',
             header: [],
-            url: url('/playlists/1/remove/42'),
+            url: url('/playlists/{{playlistId}}/remove/{{beatId}}'),
             description: 'Remove a beat from a playlist by playlist ID and beat ID.',
           },
           response: [],
@@ -571,7 +576,7 @@ const collection = {
           request: {
             method: 'POST',
             header: [{ key: 'Content-Type', value: 'application/json' }],
-            body: json({ cartItemIds: ['1', '2', '3'] }),
+            body: json({ cartItemIds: ['{{cartItemId}}'] }),
             url: url('/orders/validate'),
             description: 'Pre-checkout validation. Checks beats are published, purchasable, and not already owned. Returns { ok, issues }.',
           },
@@ -582,7 +587,7 @@ const collection = {
           request: {
             method: 'GET',
             header: [],
-            url: url('/orders/1'),
+            url: url('/orders/{{orderId}}'),
             description: 'Get a single order (transaction) by its numeric ID.',
           },
           response: [],

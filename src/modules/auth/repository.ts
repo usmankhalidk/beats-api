@@ -9,7 +9,7 @@ export async function findUserByUsername(username: string): Promise<User | null>
   return prisma.user.findUnique({ where: { username } });
 }
 
-export async function findUserById(id: bigint): Promise<User | null> {
+export async function findUserById(id: string): Promise<User | null> {
   return prisma.user.findUnique({ where: { id } });
 }
 
@@ -17,7 +17,7 @@ export async function createUser(data: Prisma.UserCreateInput): Promise<User> {
   return prisma.user.create({ data });
 }
 
-export async function updateUserPassword(id: bigint, passwordHash: string): Promise<void> {
+export async function updateUserPassword(id: string, passwordHash: string): Promise<void> {
   await prisma.user.update({ where: { id }, data: { password: passwordHash } });
 }
 
@@ -27,7 +27,7 @@ export async function createRefreshToken(
   return prisma.refresh_tokens.create({ data });
 }
 
-export async function findActiveRefreshTokenById(id: bigint): Promise<refresh_tokens | null> {
+export async function findActiveRefreshTokenById(id: string): Promise<refresh_tokens | null> {
   return prisma.refresh_tokens.findFirst({
     where: { id, revoked_at: null, expires_at: { gt: new Date() } },
   });
@@ -52,7 +52,7 @@ export async function revokeRefreshTokenByHash(tokenHash: string): Promise<void>
   });
 }
 
-export async function revokeRefreshToken(id: bigint, replacedBy?: bigint): Promise<void> {
+export async function revokeRefreshToken(id: string, replacedBy?: string): Promise<void> {
   await prisma.refresh_tokens
     .update({
       where: { id },
@@ -61,7 +61,7 @@ export async function revokeRefreshToken(id: bigint, replacedBy?: bigint): Promi
     .catch(() => undefined);
 }
 
-export async function revokeAllRefreshTokensForUser(userId: bigint): Promise<void> {
+export async function revokeAllRefreshTokensForUser(userId: string): Promise<void> {
   await prisma.refresh_tokens.updateMany({
     where: { user_id: userId, revoked_at: null },
     data: { revoked_at: new Date() },

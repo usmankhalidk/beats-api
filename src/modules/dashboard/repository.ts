@@ -2,10 +2,10 @@ import type { Prisma } from '@prisma/client';
 import { prisma } from '@utils/prisma-client';
 
 export type SaleRow = {
-  id: bigint;
-  author_id: bigint;
-  user_id: bigint;
-  item_id: bigint;
+  id: string;
+  author_id: string;
+  user_id: string;
+  item_id: string;
   license_type: boolean;
   price: number;
   author_earning: number | null;
@@ -13,7 +13,7 @@ export type SaleRow = {
 };
 
 export async function listSalesForProducer(args: {
-  producerId: bigint;
+  producerId: string;
   from?: Date;
   to?: Date;
   skip: number;

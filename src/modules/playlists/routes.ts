@@ -102,9 +102,10 @@ router.post('/', validate({ body: createPlaylistBodySchema }), asyncHandler(play
  *         name: id
  *         required: true
  *         schema:
- *           type: integer
+ *           type: string
+ *           format: uuid
  *         description: Playlist ID
- *         example: 1
+ *         example: '01935678-1234-7890-abcd-1234567890ab'
  *     requestBody:
  *       required: true
  *       content:
@@ -115,8 +116,8 @@ router.post('/', validate({ body: createPlaylistBodySchema }), asyncHandler(play
  *             properties:
  *               beatId:
  *                 type: string
- *                 pattern: '^\d+$'
- *                 example: '42'
+ *                 format: uuid
+ *                 example: '01935678-1234-7890-abcd-1234567890ab'
  *     responses:
  *       201:
  *         description: Beat added to playlist
@@ -156,16 +157,18 @@ router.post(
  *         name: id
  *         required: true
  *         schema:
- *           type: integer
+ *           type: string
+ *           format: uuid
  *         description: Playlist ID
- *         example: 1
+ *         example: '01935678-1234-7890-abcd-1234567890ab'
  *       - in: path
  *         name: beatId
  *         required: true
  *         schema:
- *           type: integer
+ *           type: string
+ *           format: uuid
  *         description: Beat (item) ID
- *         example: 42
+ *         example: '01935678-1234-7890-abcd-1234567890ab'
  *     responses:
  *       200:
  *         description: Beat removed from playlist

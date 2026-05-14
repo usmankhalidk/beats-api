@@ -18,9 +18,9 @@ export type SaleDTO = EarningDTO;
 
 function mapRow(row: SaleRow): EarningDTO {
   return {
-    id: row.id.toString(),
-    itemId: row.item_id.toString(),
-    buyerId: row.user_id.toString(),
+    id: row.id,
+    itemId: row.item_id,
+    buyerId: row.user_id,
     licenseType: row.license_type ? 'extended' : 'regular',
     salePrice: row.price.toString(),
     authorEarning: (row.author_earning ?? 0).toString(),
@@ -34,7 +34,7 @@ export async function getEarnings(
 ): Promise<{ items: EarningDTO[]; meta: PaginationMeta; totalAmount: string }> {
   const { skip, take } = toPrismaSkipTake(query);
   const { rows, total, totalEarning } = await dashboardRepo.listSalesForProducer({
-    producerId: BigInt(producerId),
+    producerId: producerId,
     from: query.from,
     to: query.to,
     skip,
@@ -53,7 +53,7 @@ export async function getSales(
 ): Promise<{ items: SaleDTO[]; meta: PaginationMeta }> {
   const { skip, take } = toPrismaSkipTake(query);
   const { rows, total } = await dashboardRepo.listSalesForProducer({
-    producerId: BigInt(producerId),
+    producerId: producerId,
     from: query.from,
     to: query.to,
     skip,

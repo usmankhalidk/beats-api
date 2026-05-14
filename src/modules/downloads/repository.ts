@@ -2,7 +2,7 @@ import { prisma } from '@utils/prisma-client';
 
 export type PurchaseRow = NonNullable<Awaited<ReturnType<typeof findPurchase>>>;
 
-export async function findPurchase(id: bigint, userId: bigint) {
+export async function findPurchase(id: string, userId: string) {
   return prisma.purchases.findFirst({
     where: { id, user_id: userId, status: true },
     select: {

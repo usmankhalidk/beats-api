@@ -15,7 +15,7 @@ export interface CategoryDTO {
 export async function listCategories(): Promise<CategoryDTO[]> {
   const cats = await categoriesRepo.listAll();
   return cats.map((c) => ({
-    id: c.id.toString(),
+    id: c.id,
     name: c.name,
     slug: c.slug,
     title: c.title,

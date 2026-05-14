@@ -2,7 +2,7 @@ import { prisma } from '@utils/prisma-client';
 
 const LICENSE_TYPE_MAP = { regular: 1, extended: 2 } as const;
 
-export async function listForUser(userId: bigint) {
+export async function listForUser(userId: string) {
   return prisma.cartItem.findMany({
     where: { userId },
     include: {
@@ -22,13 +22,13 @@ export async function listForUser(userId: bigint) {
   });
 }
 
-export async function findExisting(userId: bigint, itemId: bigint, licenseType: 'regular' | 'extended') {
+export async function findExisting(userId: string, itemId: string, licenseType: 'regular' | 'extended') {
   return prisma.cartItem.findFirst({
     where: { userId, item_id: itemId, licenseType: LICENSE_TYPE_MAP[licenseType] },
   });
 }
 
-export async function add(userId: bigint, itemId: bigint, licenseType: 'regular' | 'extended') {
+export async function add(userId: string, itemId: string, licenseType: 'regular' | 'extended') {
   return prisma.cartItem.create({
     data: {
       userId,
@@ -51,10 +51,10 @@ export async function add(userId: bigint, itemId: bigint, licenseType: 'regular'
   });
 }
 
-export async function removeById(id: bigint, userId: bigint) {
+export async function removeById(id: string, userId: string) {
   await prisma.cartItem.deleteMany({ where: { id, userId } });
 }
 
-export async function clearForUser(userId: bigint) {
+export async function clearForUser(userId: string) {
   await prisma.cartItem.deleteMany({ where: { userId } });
 }

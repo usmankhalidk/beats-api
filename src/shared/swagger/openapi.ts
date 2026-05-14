@@ -75,7 +75,7 @@ export const openapiSpec = swaggerJsdoc({
         UserProfile: {
           type: 'object',
           properties: {
-            id: { type: 'string', example: 'clxyz123' },
+            id: { type: 'string', format: 'uuid', example: '01935aaa-bbbb-7ccc-dddd-eeeeffff0000' },
             firstName: { type: 'string', example: 'John' },
             lastName: { type: 'string', example: 'Doe' },
             userName: { type: 'string', nullable: true, example: 'johndoe' },
@@ -104,7 +104,7 @@ export const openapiSpec = swaggerJsdoc({
         Beat: {
           type: 'object',
           properties: {
-            id: { type: 'string', example: '1' },
+            id: { type: 'string', format: 'uuid', example: '01935678-1234-7890-abcd-1234567890ab' },
             name: { type: 'string', example: 'Dark Trap' },
             slug: { type: 'string', example: 'dark-trap' },
             description: { type: 'string', example: 'Hard-hitting 808s' },
@@ -132,7 +132,7 @@ export const openapiSpec = swaggerJsdoc({
             author: {
               type: 'object',
               properties: {
-                id: { type: 'string', example: '7' },
+                id: { type: 'string', format: 'uuid', example: '0193abcd-5678-7def-9012-3456789abcde' },
                 firstName: { type: 'string', nullable: true, example: 'John' },
                 lastName: { type: 'string', nullable: true, example: 'Doe' },
                 userName: { type: 'string', nullable: true, example: 'johndoe' },
@@ -142,7 +142,7 @@ export const openapiSpec = swaggerJsdoc({
             category: {
               type: 'object',
               properties: {
-                id: { type: 'string', example: '1' },
+                id: { type: 'string', format: 'uuid', example: '01935678-1234-7890-abcd-1234567890ab' },
                 name: { type: 'string', example: 'Hip-Hop' },
                 slug: { type: 'string', example: 'hip-hop' },
               },
@@ -151,7 +151,7 @@ export const openapiSpec = swaggerJsdoc({
               type: 'object',
               nullable: true,
               properties: {
-                id: { type: 'string', example: '3' },
+                id: { type: 'string', format: 'uuid', example: '01934567-89ab-7cde-f012-3456789abcde' },
                 name: { type: 'string', example: 'Trap' },
                 slug: { type: 'string', example: 'trap' },
               },
@@ -174,16 +174,16 @@ export const openapiSpec = swaggerJsdoc({
             extendedPrice: { type: 'string', example: '99.99' },
             isFree: { type: 'string', enum: ['true', 'false'], default: 'false' },
             tags: { type: 'string', example: 'trap,dark,808', description: 'Comma-separated or JSON array string' },
-            categoryId: { type: 'string', pattern: '^\\d+$', example: '1' },
-            subCategoryId: { type: 'string', pattern: '^\\d+$' },
+            categoryId: { type: 'string', format: 'uuid', example: '01935aaa-bbbb-7ccc-dddd-eeeeffff0000' },
+            subCategoryId: { type: 'string', format: 'uuid' },
           },
         },
         EarningRecord: {
           type: 'object',
           properties: {
-            id: { type: 'string', example: '101' },
-            itemId: { type: 'string', example: '42', description: 'Beat (item) ID' },
-            buyerId: { type: 'string', example: '7', description: 'User who purchased' },
+            id: { type: 'string', format: 'uuid', example: '01935678-1234-7890-abcd-1234567890ab' },
+            itemId: { type: 'string', format: 'uuid', example: '0193abcd-5678-7def-9012-3456789abcde', description: 'Beat (item) ID' },
+            buyerId: { type: 'string', format: 'uuid', example: '01935aaa-bbbb-7ccc-dddd-eeeeffff0000', description: 'User who purchased' },
             licenseType: { type: 'string', enum: ['regular', 'extended'], example: 'regular' },
             salePrice: { type: 'string', example: '29.99', description: 'Total sale amount' },
             authorEarning: { type: 'string', example: '20.99', description: 'Producer earnings after fees' },
@@ -193,14 +193,14 @@ export const openapiSpec = swaggerJsdoc({
         CartItem: {
           type: 'object',
           properties: {
-            id: { type: 'string', example: '7' },
-            itemId: { type: 'string', example: '42' },
+            id: { type: 'string', format: 'uuid', example: '01935678-1234-7890-abcd-1234567890ab' },
+            itemId: { type: 'string', format: 'uuid', example: '0193abcd-5678-7def-9012-3456789abcde' },
             licenseType: { type: 'string', enum: ['regular', 'extended'], example: 'regular' },
             quantity: { type: 'integer', example: 1 },
             item: {
               type: 'object',
               properties: {
-                id: { type: 'string', example: '42' },
+                id: { type: 'string', format: 'uuid', example: '0193abcd-5678-7def-9012-3456789abcde' },
                 name: { type: 'string', example: 'Dark Trap' },
                 slug: { type: 'string', example: 'dark-trap' },
                 thumbnail: { type: 'string', nullable: true },
@@ -214,8 +214,8 @@ export const openapiSpec = swaggerJsdoc({
         OrderItem: {
           type: 'object',
           properties: {
-            id: { type: 'string', example: '1' },
-            itemId: { type: 'string', nullable: true, example: '42' },
+            id: { type: 'string', format: 'uuid', example: '01935678-1234-7890-abcd-1234567890ab' },
+            itemId: { type: 'string', format: 'uuid', nullable: true, example: '0193abcd-5678-7def-9012-3456789abcde' },
             name: { type: 'string', nullable: true, example: 'Dark Trap' },
             slug: { type: 'string', nullable: true, example: 'dark-trap' },
             thumbnail: { type: 'string', nullable: true },
@@ -228,7 +228,7 @@ export const openapiSpec = swaggerJsdoc({
         Order: {
           type: 'object',
           properties: {
-            id: { type: 'string', example: '1' },
+            id: { type: 'string', format: 'uuid', example: '01935678-1234-7890-abcd-1234567890ab' },
             amount: { type: 'number', example: 29.99 },
             fees: { type: 'number', example: 0 },
             total: { type: 'number', example: 29.99 },
@@ -240,7 +240,7 @@ export const openapiSpec = swaggerJsdoc({
         Category: {
           type: 'object',
           properties: {
-            id: { type: 'integer', example: 1 },
+            id: { type: 'string', format: 'uuid', example: '01935aaa-bbbb-7ccc-dddd-eeeeffff0000' },
             name: { type: 'string', example: 'Hip-Hop' },
             slug: { type: 'string', example: 'hip-hop' },
           },
@@ -248,8 +248,8 @@ export const openapiSpec = swaggerJsdoc({
         DownloadGrant: {
           type: 'object',
           properties: {
-            purchaseId: { type: 'string', example: '5', description: 'purchases.id' },
-            beatId: { type: 'string', example: '42' },
+            purchaseId: { type: 'string', format: 'uuid', example: '01935678-1234-7890-abcd-1234567890ab', description: 'purchases.id' },
+            beatId: { type: 'string', format: 'uuid', example: '0193abcd-5678-7def-9012-3456789abcde' },
             beatName: { type: 'string', example: 'Dark Trap' },
             licenseType: { type: 'string', enum: ['regular', 'extended'], example: 'regular' },
             url: { type: 'string', format: 'uri', example: 'https://eu2.contabostorage.com/...?X-Amz-Signature=...', description: 'Pre-signed S3 URL, valid for 1 hour' },
@@ -259,8 +259,8 @@ export const openapiSpec = swaggerJsdoc({
         PlaylistItem: {
           type: 'object',
           properties: {
-            id: { type: 'string', example: '5', description: 'playlist_item record ID' },
-            beatId: { type: 'string', example: '42' },
+            id: { type: 'string', format: 'uuid', example: '01935678-1234-7890-abcd-1234567890ab', description: 'playlist_item record ID' },
+            beatId: { type: 'string', format: 'uuid', example: '0193abcd-5678-7def-9012-3456789abcde' },
             beatName: { type: 'string', example: 'Dark Trap' },
             beatSlug: { type: 'string', example: 'dark-trap' },
             thumbnail: { type: 'string', nullable: true, example: 'https://eu2.contabostorage.com/...' },
@@ -271,7 +271,7 @@ export const openapiSpec = swaggerJsdoc({
         Playlist: {
           type: 'object',
           properties: {
-            id: { type: 'string', example: '1' },
+            id: { type: 'string', format: 'uuid', example: '01935678-1234-7890-abcd-1234567890ab' },
             name: { type: 'string', example: 'My Trap Beats' },
             description: { type: 'string', nullable: true },
             isPublic: { type: 'boolean', example: false },

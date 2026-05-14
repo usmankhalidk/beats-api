@@ -8,7 +8,7 @@ const STATUS_MAP: Record<string, number> = {
 };
 
 export async function listForUser(args: {
-  userId: bigint;
+  userId: string;
   status?: string;
   skip: number;
   take: number;
@@ -37,7 +37,7 @@ export async function listForUser(args: {
   return { rows, total };
 }
 
-export async function findByIdForUser(id: bigint, userId: bigint) {
+export async function findByIdForUser(id: string, userId: string) {
   return prisma.transactions.findFirst({
     where: { id, user_id: userId, type: 'purchase' },
     include: {
@@ -50,7 +50,7 @@ export async function findByIdForUser(id: bigint, userId: bigint) {
   });
 }
 
-export async function findPurchasedItemIds(userId: bigint, itemIds: bigint[]): Promise<bigint[]> {
+export async function findPurchasedItemIds(userId: string, itemIds: string[]): Promise<string[]> {
   const rows = await prisma.purchases.findMany({
     where: { user_id: userId, item_id: { in: itemIds }, status: true },
     select: { item_id: true },
