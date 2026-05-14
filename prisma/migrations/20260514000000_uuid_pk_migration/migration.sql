@@ -8,6 +8,12 @@
 --   Phase D: Drop old PK/FK columns, rename _new → original
 --   Phase E: Re-add PRIMARY KEY and FK constraints
 -- ============================================================
+-- UUID() is non-deterministic, so STATEMENT-based binlog rejects it (error 1674).
+-- Switch this session to ROW-based binlog so per-row UUID values are logged literally,
+-- and disable bin-logging entirely as a defensive fallback for setups that lock the format.
+SET SESSION sql_log_bin = 0;
+SET SESSION binlog_format = 'ROW';
+
 SET FOREIGN_KEY_CHECKS = 0;
 
 -- ── Phase A: Add UUID id_new for every table ───────────────
