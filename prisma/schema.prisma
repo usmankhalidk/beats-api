@@ -109,9 +109,9 @@ model Category {
   file_type             Boolean?
   thumbnail_width       BigInt              @default(120) @db.UnsignedBigInt
   thumbnail_height      BigInt              @default(120) @db.UnsignedBigInt
-  preview_image_width   String?                @db.Char(36)
-  preview_image_height  String?                @db.Char(36)
-  maximum_screenshots   String?                @db.Char(36)
+  preview_image_width   BigInt?             @db.UnsignedBigInt
+  preview_image_height  BigInt?             @db.UnsignedBigInt
+  maximum_screenshots   BigInt?             @db.UnsignedBigInt
   main_file_types       String              @default("zip,rar,pdf") @db.VarChar(255)
   max_preview_file_size BigInt              @default(10485760) @db.UnsignedBigInt
   views                 BigInt              @default(0)
