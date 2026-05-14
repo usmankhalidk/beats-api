@@ -4,6 +4,7 @@ export interface ApiErrorShape {
   code: number;
   message: string;
   details?: Record<string, unknown>;
+  errors?: Record<string, string>;
   isOperational: true;
 }
 
@@ -19,7 +20,7 @@ export interface ApiError extends Error, ApiErrorShape {
 
 export function createApiError(
   descriptor: ErrorDescriptor,
-  options?: { details?: Record<string, unknown>; cause?: unknown },
+  options?: { details?: Record<string, unknown>; errors?: Record<string, string>; cause?: unknown },
 ): ApiError {
   const err = new Error(descriptor.message) as ApiError;
   err.name = 'ApiError';
@@ -28,6 +29,7 @@ export function createApiError(
   err.isOperational = true;
   err[API_ERROR_SYMBOL] = true;
   if (options?.details) err.details = options.details;
+  if (options?.errors) err.errors = options.errors;
   if (options?.cause !== undefined) (err as Error & { cause?: unknown }).cause = options.cause;
   return err;
 }
@@ -42,7 +44,8 @@ export function isApiError(value: unknown): value is ApiError {
 
 export const Errors = {
   notFound: (details?: Record<string, unknown>) => createApiError(ERRORS.NOT_FOUND, { details }),
-  validation: (details?: Record<string, unknown>) => createApiError(ERRORS.VALIDATION_ERROR, { details }),
+  validation: (details?: Record<string, unknown>, errors?: Record<string, string>) =>
+    createApiError(ERRORS.VALIDATION_ERROR, { details, errors }),
   unauthorized: (details?: Record<string, unknown>) => createApiError(ERRORS.UNAUTHORIZED, { details }),
   forbidden: (details?: Record<string, unknown>) => createApiError(ERRORS.FORBIDDEN, { details }),
   conflict: (details?: Record<string, unknown>) => createApiError(ERRORS.CONFLICT, { details }),

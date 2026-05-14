@@ -14,6 +14,7 @@ export interface ErrorEnvelope {
   code: number;
   message: string;
   details?: Record<string, unknown>;
+  errors?: Record<string, string>;
 }
 
 export function successResponse<T>(
@@ -38,13 +39,14 @@ export function successResponse<T>(
 
 export function errorResponse(
   res: Response,
-  payload: { code: number; message: string; details?: Record<string, unknown> },
+  payload: { code: number; message: string; details?: Record<string, unknown>; errors?: Record<string, string> },
 ): Response {
   const body: ErrorEnvelope = {
     success: false,
     code: payload.code,
     message: payload.message,
     ...(payload.details ? { details: payload.details } : {}),
+    ...(payload.errors  ? { errors: payload.errors }   : {}),
   };
   return res.status(payload.code).json(body);
 }

@@ -10,14 +10,13 @@ export interface ValidationSchemas {
   params?: ZodTypeAny;
 }
 
-function formatZodError(err: ZodError): Record<string, unknown> {
-  return {
-    issues: err.issues.map((i) => ({
-      path: i.path.join('.'),
-      code: i.code,
-      message: i.message,
-    })),
-  };
+function toFieldErrors(err: ZodError): Record<string, string> {
+  const errors: Record<string, string> = {};
+  for (const issue of err.issues) {
+    const key = issue.path.join('.') || '_root';
+    if (!errors[key]) errors[key] = issue.message;
+  }
+  return errors;
 }
 
 export function validate(schemas: ValidationSchemas): RequestHandler {
@@ -37,7 +36,7 @@ export function validate(schemas: ValidationSchemas): RequestHandler {
       next();
     } catch (err) {
       if (err instanceof ZodError) {
-        next(Errors.validation(formatZodError(err)));
+        next(Errors.validation(undefined, toFieldErrors(err)));
         return;
       }
       next(err);

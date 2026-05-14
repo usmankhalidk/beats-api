@@ -27,15 +27,20 @@ function mapPrismaError(err: Prisma.PrismaClientKnownRequestError): {
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export function errorHandler(err: unknown, req: Request, res: Response, _next: NextFunction): void {
   if (isApiError(err)) {
-    errorResponse(res, { code: err.code, message: err.message, details: err.details });
+    errorResponse(res, { code: err.code, message: err.message, details: err.details, errors: err.errors });
     return;
   }
 
   if (err instanceof ZodError) {
+    const errors: Record<string, string> = {};
+    for (const issue of err.issues) {
+      const key = issue.path.join('.') || '_root';
+      if (!errors[key]) errors[key] = issue.message;
+    }
     errorResponse(res, {
       code: ERRORS.VALIDATION_ERROR.code,
       message: ERRORS.VALIDATION_ERROR.message,
-      details: { issues: err.issues },
+      errors,
     });
     return;
   }

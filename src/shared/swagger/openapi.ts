@@ -52,6 +52,12 @@ export const openapiSpec = swaggerJsdoc({
             code: { type: 'integer', example: 422 },
             message: { type: 'string', example: 'VALIDATION_ERROR' },
             details: { type: 'object', additionalProperties: true },
+            errors: {
+              type: 'object',
+              description: 'Field-level validation errors keyed by field name. Present only on 422 responses.',
+              additionalProperties: { type: 'string' },
+              example: { email: 'Invalid email', firstName: 'Required' },
+            },
           },
         },
         PaginationMeta: {
@@ -307,9 +313,25 @@ export const openapiSpec = swaggerJsdoc({
           },
         },
         ValidationError: {
-          description: 'Request validation failed',
+          description: 'Request validation failed — errors object contains one message per field',
           content: {
-            'application/json': { schema: { $ref: '#/components/schemas/ErrorEnvelope' } },
+            'application/json': {
+              schema: {
+                allOf: [
+                  { $ref: '#/components/schemas/ErrorEnvelope' },
+                  {
+                    type: 'object',
+                    properties: {
+                      errors: {
+                        type: 'object',
+                        additionalProperties: { type: 'string' },
+                        example: { email: 'Invalid email', firstName: 'Required' },
+                      },
+                    },
+                  },
+                ],
+              },
+            },
           },
         },
       },
