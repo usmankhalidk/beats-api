@@ -18,7 +18,10 @@ export function createApp(): Express {
   app.disable('x-powered-by');
   app.set('trust proxy', 1);
 
-  app.use(helmet());
+  app.use(helmet({
+    contentSecurityPolicy: false,
+    crossOriginEmbedderPolicy: false,
+  }));
   app.use(
     cors({
       origin: config.cors.origins.length === 1 && config.cors.origins[0] === '*' ? true : config.cors.origins,
