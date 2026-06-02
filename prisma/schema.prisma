@@ -89,6 +89,7 @@ model User {
   user_login_logs                              user_login_logs[]
   playlists                                    playlists[]
   refresh_tokens                               refresh_tokens[]
+  email_verifications                          email_verifications?
   levels                                       levels?                @relation(fields: [level_id], references: [id], onUpdate: Restrict, map: "users_level_id_foreign")
   withdrawal_methods                           withdrawal_methods?    @relation(fields: [withdrawal_method_id], references: [id], onUpdate: Restrict, map: "users_withdrawal_method_id_foreign")
   withdrawals                                  withdrawals[]
@@ -1452,4 +1453,14 @@ model refresh_tokens {
 
   @@index([user_id])
   @@index([expires_at])
+}
+
+model email_verifications {
+  id         String    @id @default(uuid(7)) @db.Char(36)
+  user_id    String    @unique @db.Char(36)
+  token      String    @db.VarChar(255)
+  created_at DateTime? @db.Timestamp(0)
+  user       User      @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "email_verifications_user_id_foreign")
+
+  @@index([token], map: "email_verifications_token_index")
 }

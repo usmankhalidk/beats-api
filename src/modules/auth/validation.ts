@@ -48,3 +48,13 @@ export const changePasswordBodySchema = z
     message: 'newPassword must be different from currentPassword',
   });
 export type ChangePasswordInput = z.infer<typeof changePasswordBodySchema>;
+
+export const verifyEmailBodySchema = z.object({
+  token: z.string().min(1),
+});
+export type VerifyEmailInput = z.infer<typeof verifyEmailBodySchema>;
+
+export const resendVerificationBodySchema = z.object({
+  email: z.string().trim().toLowerCase().email(),
+});
+export type ResendVerificationInput = z.infer<typeof resendVerificationBodySchema>;

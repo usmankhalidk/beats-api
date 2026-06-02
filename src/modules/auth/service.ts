@@ -10,6 +10,7 @@ import {
   hashToken,
   generateRandomToken,
 } from '@utils/password';
+import { sendVerificationEmail, sendPasswordResetEmail } from '@utils/mailer';
 import * as authRepo from './repository';
 import type {
   RegisterInput,
@@ -67,7 +68,9 @@ async function issueTokens(user: User): Promise<AuthTokens> {
   return { accessToken, refreshToken };
 }
 
-export async function register(input: RegisterInput): Promise<AuthSessionResult> {
+export async function register(
+  input: RegisterInput,
+): Promise<{ verificationToken?: string }> {
   if (await authRepo.findUserByEmail(input.email)) throw Errors.emailInUse();
   if (input.userName && (await authRepo.findUserByUsername(input.userName))) {
     throw Errors.conflict({ field: 'userName' });
@@ -83,8 +86,11 @@ export async function register(input: RegisterInput): Promise<AuthSessionResult>
     role: input.role,
   });
 
-  const tokens = await issueTokens(user);
-  return { user: toAuthUser(user), tokens };
+  const rawToken = generateRandomToken();
+  await authRepo.upsertVerificationToken(user.id, hashToken(rawToken));
+  await sendVerificationEmail(input.email, rawToken);
+
+  return config.isProduction ? {} : { verificationToken: rawToken };
 }
 
 export async function login(input: LoginInput): Promise<AuthSessionResult> {
@@ -95,8 +101,37 @@ export async function login(input: LoginInput): Promise<AuthSessionResult> {
   const ok = await verifyPassword(user.password, input.password);
   if (!ok) throw Errors.invalidCredentials();
 
+  if (!user.email_verified_at) throw Errors.forbidden({ reason: 'email_not_verified' });
+
   const tokens = await issueTokens(user);
   return { user: toAuthUser(user), tokens };
+}
+
+export async function verifyEmail(token: string): Promise<AuthSessionResult> {
+  const tokenHash = hashToken(token);
+  const row = await authRepo.findVerificationByToken(tokenHash, config.emailVerification.ttlMinutes);
+  if (!row) throw Errors.invalidToken();
+
+  await authRepo.markEmailVerified(row.user_id);
+  await authRepo.deleteVerificationToken(row.user_id);
+
+  const tokens = await issueTokens(row.user);
+  return { user: toAuthUser(row.user), tokens };
+}
+
+export async function resendVerification(
+  email: string,
+): Promise<{ verificationToken?: string }> {
+  const user = await authRepo.findUserByEmail(email);
+  if (!user) return {}; // silent — prevent email enumeration
+
+  if (user.email_verified_at) throw Errors.conflict({ reason: 'already_verified' });
+
+  const rawToken = generateRandomToken();
+  await authRepo.upsertVerificationToken(user.id, hashToken(rawToken));
+  await sendVerificationEmail(email, rawToken);
+
+  return config.isProduction ? {} : { verificationToken: rawToken };
 }
 
 export async function logout(input: LogoutInput): Promise<void> {
@@ -147,8 +182,9 @@ export async function forgotPassword(
   const rawToken = generateRandomToken();
   const tokenHash = hashToken(rawToken);
   await authRepo.upsertPasswordResetToken(input.email, tokenHash);
+  await sendPasswordResetEmail(input.email, rawToken);
 
-  // Production: token is delivered via email and never returned in the API response.
+  // Production: token is delivered via email only.
   // Dev/test: we surface it so the flow can be exercised end-to-end.
   return config.isProduction ? {} : { resetToken: rawToken };
 }
