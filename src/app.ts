@@ -42,7 +42,7 @@ export function createApp(): Express {
   app.use(globalRateLimiter);
 
   app.get('/health', (_req: Request, res: Response) => {
-    res.json({ success: true, code: 200, message: 'OK', data: { status: 'healthy', env: config.env, version:'v1' } });
+    res.json({ success: true, code: 200, message: 'OK', data: { status: 'healthy', env: config.env, version:'v2' } });
   });
 
   mountSwagger(app);
