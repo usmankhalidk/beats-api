@@ -6,7 +6,7 @@ import * as authService from './service';
 
 export async function register(req: Request, res: Response): Promise<Response> {
   const result = await authService.register(req.body);
-  return successResponse(res, { data: result, message: 'REGISTERED', code: HTTP_STATUS.CREATED });
+  return successResponse(res, { data: result, message: 'VERIFICATION_EMAIL_SENT', code: HTTP_STATUS.CREATED });
 }
 
 export async function login(req: Request, res: Response): Promise<Response> {
@@ -38,4 +38,14 @@ export async function changePassword(req: Request, res: Response): Promise<Respo
   if (!req.user) throw Errors.unauthorized();
   const tokens = await authService.changePassword(req.user.id, req.body);
   return successResponse(res, { data: { tokens }, message: 'PASSWORD_CHANGED' });
+}
+
+export async function verifyEmail(req: Request, res: Response): Promise<Response> {
+  const result = await authService.verifyEmail(req.body.token);
+  return successResponse(res, { data: result, message: 'EMAIL_VERIFIED' });
+}
+
+export async function resendVerification(req: Request, res: Response): Promise<Response> {
+  const result = await authService.resendVerification(req.body.email);
+  return successResponse(res, { data: result, message: 'VERIFICATION_EMAIL_SENT' });
 }

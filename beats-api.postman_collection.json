@@ -36,6 +36,11 @@
       "type": "string"
     },
     {
+      "key": "verificationToken",
+      "value": "",
+      "type": "string"
+    },
+    {
       "key": "beatId",
       "value": "",
       "type": "string"
@@ -74,8 +79,10 @@
                 "exec": [
                   "if (pm.response.code === 201) {",
                   "  const body = pm.response.json();",
-                  "  pm.collectionVariables.set('accessToken', body.data.tokens.accessToken);",
-                  "  pm.collectionVariables.set('refreshToken', body.data.tokens.refreshToken);",
+                  "  if (body.data && body.data.verificationToken) {",
+                  "    pm.collectionVariables.set('verificationToken', body.data.verificationToken);",
+                  "    console.log('Verification token saved (dev only):', body.data.verificationToken);",
+                  "  }",
                   "}"
                 ],
                 "type": "text/javascript"
@@ -112,7 +119,113 @@
                 "register"
               ]
             },
-            "description": "Register a new user. Auto-saves accessToken and refreshToken on success."
+            "description": "Register a new user. A verification email is sent — login is blocked until the email is verified. In dev/staging the verificationToken is returned in the response (and auto-saved)."
+          },
+          "response": []
+        },
+        {
+          "name": "Verify Email",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "  const body = pm.response.json();",
+                  "  pm.collectionVariables.set('accessToken', body.data.tokens.accessToken);",
+                  "  pm.collectionVariables.set('refreshToken', body.data.tokens.refreshToken);",
+                  "  pm.collectionVariables.set('verificationToken', '');",
+                  "  console.log('Email verified — tokens saved.');",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"{{verificationToken}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/verify-email",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "verify-email"
+              ]
+            },
+            "description": "Verify the email address using the one-time token from the verification email. On success the user is immediately logged in and tokens are auto-saved."
+          },
+          "response": []
+        },
+        {
+          "name": "Resend Verification",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "  const body = pm.response.json();",
+                  "  if (body.data && body.data.verificationToken) {",
+                  "    pm.collectionVariables.set('verificationToken', body.data.verificationToken);",
+                  "    console.log('Verification token saved (dev only):', body.data.verificationToken);",
+                  "  }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"john.doe@example.com\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/resend-verification",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "resend-verification"
+              ]
+            },
+            "description": "Re-send the verification email. Returns 200 even if the email is not found (prevent enumeration). Returns 409 if already verified. In dev/staging the token is returned and auto-saved."
           },
           "response": []
         },
