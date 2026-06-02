@@ -119,7 +119,7 @@
                 "register"
               ]
             },
-            "description": "Register a new user. A verification email is sent — login is blocked until the email is verified. In dev/staging the verificationToken is returned in the response (and auto-saved)."
+            "description": "Register a new user. A verification email is sent via Resend — login is blocked until the email is verified. In dev/staging the verificationToken is returned in the response and auto-saved here for convenience."
           },
           "response": []
         },
@@ -225,7 +225,7 @@
                 "resend-verification"
               ]
             },
-            "description": "Re-send the verification email. Returns 200 even if the email is not found (prevent enumeration). Returns 409 if already verified. In dev/staging the token is returned and auto-saved."
+            "description": "Re-send the verification email via Resend. Returns 200 even if the email is not found (prevents enumeration). Returns 409 if already verified. In dev/staging the new token is returned and auto-saved."
           },
           "response": []
         },
@@ -430,7 +430,7 @@
                 "forgot-password"
               ]
             },
-            "description": "Request a password reset. In dev/test mode the token is returned in the response."
+            "description": "Request a password reset. In production a reset email is sent via Resend. In dev/test the token is returned in the response and auto-saved."
           },
           "response": []
         },

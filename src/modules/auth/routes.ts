@@ -26,6 +26,7 @@ router.use(authRateLimiter);
  *   post:
  *     tags: [Auth]
  *     summary: Register a new user
+ *     description: Creates the account and immediately sends a verification email via Resend. Login is blocked until the email is verified. In dev/staging the verificationToken is returned in the response body for easy testing.
  *     requestBody:
  *       required: true
  *       content:
@@ -214,7 +215,7 @@ router.post('/refresh-token', validate({ body: refreshTokenBodySchema }), asyncH
  *   post:
  *     tags: [Auth]
  *     summary: Request a password reset token
- *     description: In dev/test mode the reset token is returned in the response. In production it is sent via email only.
+ *     description: Sends a password reset link to the provided email via Resend. Always returns 200 to prevent email enumeration. In dev/staging the resetToken is included in the response for testing.
  *     requestBody:
  *       required: true
  *       content:
@@ -344,7 +345,7 @@ router.post(
  *     tags: [Auth]
  *     summary: Verify email address using the token from the verification email
  *     description: |
- *       Validates the one-time token sent to the user's email on registration (or resend).
+ *       Validates the one-time token delivered to the user's email via Resend on registration or resend.
  *       On success the email is marked verified and a full token pair is returned so the
  *       user is immediately logged in. The token expires after 24 hours by default
  *       (configurable via `EMAIL_VERIFICATION_TTL_MINUTES`).
@@ -394,7 +395,7 @@ router.post('/verify-email', validate({ body: verifyEmailBodySchema }), asyncHan
  *     tags: [Auth]
  *     summary: Resend the email verification link
  *     description: |
- *       Sends a fresh verification email. Safe to call even if the email does not exist
+ *       Sends a fresh verification email via Resend. Safe to call even if the email does not exist
  *       (returns 200 either way to prevent email enumeration). Returns 409 if the email
  *       is already verified. In dev/staging the new token is included in the response.
  *     requestBody:
