@@ -1,8 +1,8 @@
 import type { Request, Response } from 'express';
 import { successResponse } from '@utils/response';
 import { Errors } from '@utils/api-error';
-import * as ordersService from './service';
-import type { ListOrdersQuery } from './validation';
+import * as purchasesService from './service';
+import type { ListPurchasesQuery } from './validation';
 
 function requireUserId(req: Request): string {
   if (!req.user) throw Errors.unauthorized();
@@ -10,19 +10,14 @@ function requireUserId(req: Request): string {
 }
 
 export async function list(req: Request, res: Response): Promise<Response> {
-  const { items, meta } = await ordersService.listOrders(
+  const { items, meta } = await purchasesService.listPurchases(
     requireUserId(req),
-    req.query as unknown as ListOrdersQuery,
+    req.query as unknown as ListPurchasesQuery,
   );
   return successResponse(res, { data: items, meta });
 }
 
 export async function get(req: Request, res: Response): Promise<Response> {
-  const data = await ordersService.getOrder(requireUserId(req), String(req.params['id']));
+  const data = await purchasesService.getPurchase(requireUserId(req), String(req.params['id']));
   return successResponse(res, { data });
-}
-
-export async function validate(req: Request, res: Response): Promise<Response> {
-  const data = await ordersService.validateOrder(requireUserId(req), req.body);
-  return successResponse(res, { data, message: 'ORDER_VALIDATED' });
 }

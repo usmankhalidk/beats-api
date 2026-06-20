@@ -14,6 +14,11 @@ export async function login(req: Request, res: Response): Promise<Response> {
   return successResponse(res, { data: result, message: 'LOGGED_IN' });
 }
 
+export async function googleSignIn(req: Request, res: Response): Promise<Response> {
+  const result = await authService.googleSignIn(req.body);
+  return successResponse(res, { data: result, message: 'LOGGED_IN' });
+}
+
 export async function logout(req: Request, res: Response): Promise<Response> {
   await authService.logout(req.body);
   return successResponse(res, { data: null, message: 'LOGGED_OUT' });

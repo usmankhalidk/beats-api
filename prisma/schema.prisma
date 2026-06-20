@@ -1280,6 +1280,14 @@ model transactions {
   plan_id             String?                @db.Char(36)
   status              Int                 @default(0) @db.TinyInt
   cancellation_reason String?             @db.VarChar(255)
+  gateway             String?             @db.VarChar(20)
+  gateway_reference   String?             @db.VarChar(255)
+  charge_currency     String?             @db.VarChar(10)
+  display_currency    String?             @db.VarChar(10)
+  display_amount      Float?
+  display_fees        Float?              @default(0)
+  display_total       Float?
+  billing             String?             @db.Text
   created_at          DateTime?           @db.Timestamp(0)
   updated_at          DateTime?           @db.Timestamp(0)
   transaction_items   transaction_items[]
@@ -1292,6 +1300,7 @@ model transactions {
   @@index([plan_id], map: "transactions_plan_id_foreign")
   @@index([purchase_id], map: "transactions_purchase_id_foreign")
   @@index([user_id], map: "transactions_user_id_foreign")
+  @@index([gateway_reference])
 }
 
 model translates {

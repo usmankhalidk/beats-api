@@ -39,6 +39,37 @@ const envSchema = z.object({
   MAIL_FROM: z.string().min(1).default('Beatpillz <mail@beatpillz.com>'),
   FRONTEND_URL: z.string().url().default('http://localhost:3000'),
   EMAIL_VERIFICATION_TTL_MINUTES: z.coerce.number().int().positive().default(1440),
+
+  // OAuth — Google Sign-In. Comma-separated list of allowed audiences (OAuth 2.0
+  // client IDs): the web client ID plus any native iOS/Android client IDs.
+  GOOGLE_CLIENT_ID: z.string().default(''),
+
+  // Payments — common.
+  // Return URL the gateway redirects the buyer to after the hosted payment page.
+  // It is NOT a processed endpoint: payment confirmation is webhook-only, and the
+  // app simply intercepts this URL to know to start polling /checkout/{id}/status.
+  PAYMENT_CALLBACK_URL: z.string().url().default('http://localhost:3000/payment/return'),
+  PAYMENT_BASE_CURRENCY: z.string().default('USD'),
+
+  // Paystack
+  PAYSTACK_SECRET_KEY: z.string().default(''),
+  PAYSTACK_PUBLIC_KEY: z.string().default(''),
+
+  // Flutterwave
+  FLW_SECRET_KEY: z.string().default(''),
+  FLW_PUBLIC_KEY: z.string().default(''),
+  FLW_WEBHOOK_HASH: z.string().default(''),
+  // z.coerce.boolean() treats any non-empty string (incl. "false") as true, so parse explicitly.
+  FLW_GOOGLE_PAY_ENABLED: z
+    .string()
+    .default('false')
+    .transform((v) => v.toLowerCase() === 'true'),
+
+  // OPay
+  OPAY_MERCHANT_ID: z.string().default(''),
+  OPAY_PUBLIC_KEY: z.string().default(''),
+  OPAY_SECRET_KEY: z.string().default(''),
+  OPAY_BASE_URL: z.string().url().default('https://sandboxapi.opaycheckout.com'),
 });
 
 const parsed = envSchema.safeParse(process.env);
@@ -113,6 +144,34 @@ export const config = {
 
   frontend: {
     url: env.FRONTEND_URL,
+  },
+
+  oauth: {
+    google: {
+      // Allowed token audiences. Empty array → Google Sign-In is disabled.
+      clientIds: env.GOOGLE_CLIENT_ID.split(',').map((id) => id.trim()).filter(Boolean),
+    },
+  },
+
+  payments: {
+    callbackUrl: env.PAYMENT_CALLBACK_URL,
+    baseCurrency: env.PAYMENT_BASE_CURRENCY,
+    paystack: {
+      secretKey: env.PAYSTACK_SECRET_KEY,
+      publicKey: env.PAYSTACK_PUBLIC_KEY,
+    },
+    flutterwave: {
+      secretKey: env.FLW_SECRET_KEY,
+      publicKey: env.FLW_PUBLIC_KEY,
+      webhookHash: env.FLW_WEBHOOK_HASH,
+      googlePayEnabled: env.FLW_GOOGLE_PAY_ENABLED,
+    },
+    opay: {
+      merchantId: env.OPAY_MERCHANT_ID,
+      publicKey: env.OPAY_PUBLIC_KEY,
+      secretKey: env.OPAY_SECRET_KEY,
+      baseUrl: env.OPAY_BASE_URL,
+    },
   },
 } as const;
 

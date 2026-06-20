@@ -16,6 +16,16 @@ export const loginBodySchema = z.object({
 });
 export type LoginInput = z.infer<typeof loginBodySchema>;
 
+export const googleSignInBodySchema = z.object({
+  // The Google-issued ID token (JWT) obtained client-side via Google Identity
+  // Services (web) or the native Google Sign-In SDK (mobile).
+  idToken: z.string().min(1),
+  // Only applied when this token provisions a brand-new account; ignored for
+  // existing users (who keep their current role).
+  role: z.enum(['user', 'producer']).optional().default('user'),
+});
+export type GoogleSignInInput = z.infer<typeof googleSignInBodySchema>;
+
 export const logoutBodySchema = z.object({
   refreshToken: z.string().min(1),
 });

@@ -17,10 +17,3 @@ export const validateOrderBodySchema = z
   })
   .strict();
 export type ValidateOrderInput = z.infer<typeof validateOrderBodySchema>;
-
-export const checkoutBodySchema = z
-  .object({
-    cartItemIds: z.array(uuidId).min(1).optional(),
-  })
-  .strict();
-export type CheckoutInput = z.infer<typeof checkoutBodySchema>;

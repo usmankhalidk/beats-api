@@ -5,11 +5,12 @@ import beatsRoutes from './beats/routes';
 import categoriesRoutes from './categories/routes';
 import cartRoutes from './cart/routes';
 import ordersRoutes from './orders/routes';
-import checkoutRoutes from './orders/checkout-routes';
+import checkoutRoutes from './payments/routes';
 import downloadsRoutes from './downloads/routes';
 import dashboardRoutes from './dashboard/routes';
 import playlistsRoutes from './playlists/routes';
 import favoritesRoutes from './favorites/routes';
+import purchasesRoutes from './purchases/routes';
 
 const router = Router();
 
@@ -24,5 +25,6 @@ router.use('/downloads', downloadsRoutes);
 router.use('/dashboard', dashboardRoutes);
 router.use('/playlists', playlistsRoutes);
 router.use('/favorites', favoritesRoutes);
+router.use('/purchases', purchasesRoutes);
 
 export default router;

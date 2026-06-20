@@ -1,7 +1,7 @@
 import { Errors } from '@utils/api-error';
 import { buildPaginationMeta, toPrismaSkipTake } from '@utils/pagination';
 import { prisma } from '@utils/prisma-client';
-import type { CheckoutInput, ListOrdersQuery, ValidateOrderInput } from './validation';
+import type { ListOrdersQuery, ValidateOrderInput } from './validation';
 import * as ordersRepo from './repository';
 
 const STATUS_LABEL: Record<number, 'pending' | 'paid' | 'failed' | 'cancelled'> = {
@@ -18,6 +18,9 @@ function mapTransaction(tx: Awaited<ReturnType<typeof ordersRepo.findByIdForUser
     amount: tx.amount,
     fees: tx.fees ?? 0,
     total: tx.total,
+    currency: tx.charge_currency ?? 'NGN',
+    displayCurrency: tx.display_currency ?? tx.charge_currency ?? 'NGN',
+    displayTotal: tx.display_total ?? tx.total,
     status: STATUS_LABEL[tx.status] ?? 'pending',
     createdAt: tx.created_at,
     items: tx.transaction_items.map((ti) => ({
@@ -97,8 +100,4 @@ export async function validateOrder(userId: string, input: ValidateOrderInput) {
   }
 
   return { ok: issues.length === 0, issues };
-}
-
-export async function checkout(_userId: string, _input: CheckoutInput): Promise<never> {
-  throw Errors.notImplemented({ feature: 'checkout — payment provider not integrated' });
 }

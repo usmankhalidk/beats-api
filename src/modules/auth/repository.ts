@@ -13,6 +13,30 @@ export async function findUserById(id: string): Promise<User | null> {
   return prisma.user.findUnique({ where: { id } });
 }
 
+export async function findUserByGoogleId(googleId: string): Promise<User | null> {
+  return prisma.user.findUnique({ where: { google_id: googleId } });
+}
+
+/**
+ * Link a Google account to an existing user. When {@link markEmailVerified} is
+ * set the email is stamped verified now — callers pass this only when Google
+ * vouched for the address and it wasn't already verified (never clobbers an
+ * existing timestamp).
+ */
+export async function linkGoogleAccount(
+  userId: string,
+  googleId: string,
+  markEmailVerified: boolean,
+): Promise<User> {
+  return prisma.user.update({
+    where: { id: userId },
+    data: {
+      google_id: googleId,
+      ...(markEmailVerified ? { email_verified_at: new Date() } : {}),
+    },
+  });
+}
+
 export async function createUser(data: Prisma.UserCreateInput): Promise<User> {
   return prisma.user.create({ data });
 }

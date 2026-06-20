@@ -11,6 +11,7 @@ import { errorHandler } from '@middleware/error-handler';
 import { notFoundHandler } from '@middleware/not-found';
 import { mountSwagger } from '@shared/swagger';
 import apiRouter from '@modules/index';
+import webhookRouter from '@modules/payments/webhook-routes';
 
 export function createApp(): Express {
   const app = express();
@@ -30,6 +31,11 @@ export function createApp(): Express {
     }),
   );
   app.use(compression());
+
+  // Webhooks must see the raw bytes the gateway signed, so they are mounted with
+  // express.raw() BEFORE the global express.json() parser below.
+  app.use('/api/v1/webhooks', express.raw({ type: '*/*', limit: '1mb' }), webhookRouter);
+
   app.use(express.json({ limit: '1mb' }));
   app.use(express.urlencoded({ extended: true, limit: '1mb' }));
   app.use(hpp());

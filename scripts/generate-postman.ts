@@ -44,13 +44,19 @@ const collection = {
     { key: 'baseUrl', value: 'http://localhost:4000/api/v1', type: 'string' },
     { key: 'accessToken', value: '', type: 'string' },
     { key: 'refreshToken', value: '', type: 'string' },
+    { key: 'googleIdToken', value: '', type: 'string' }, // paste a real Google ID token to test /auth/google
     { key: 'resetToken', value: '', type: 'string' },
     { key: 'verificationToken', value: '', type: 'string' },
     { key: 'beatId', value: '', type: 'string' },
+    { key: 'categoryId', value: '', type: 'string' },
     { key: 'cartItemId', value: '', type: 'string' },
     { key: 'orderId', value: '', type: 'string' },
     { key: 'playlistId', value: '', type: 'string' },
     { key: 'purchaseId', value: '', type: 'string' },
+    { key: 'checkoutId', value: '', type: 'string' },
+    { key: 'currency', value: 'USD', type: 'string' }, // display currency: USD|EUR|GBP|JPY|CNY|NGN (charge always settles in NGN)
+    { key: 'gateway', value: 'paystack', type: 'string' },
+    { key: 'paymentReference', value: '', type: 'string' },
   ],
   item: [
     // ── Auth ──────────────────────────────────────────────────────────────────
@@ -136,6 +142,27 @@ const collection = {
             body: json({ email: 'john.doe@example.com', password: 'Password123!' }),
             url: url('/auth/login'),
             description: 'Login with email and password. Auto-saves tokens on success.',
+          },
+          response: [],
+        },
+        {
+          name: 'Google Sign-In',
+          event: script(
+            'if (pm.response.code === 200) {',
+            '  const body = pm.response.json();',
+            "  pm.collectionVariables.set('accessToken', body.data.tokens.accessToken);",
+            "  pm.collectionVariables.set('refreshToken', body.data.tokens.refreshToken);",
+            '}',
+          ),
+          request: {
+            auth: { type: 'noauth' },
+            method: 'POST',
+            header: [{ key: 'Content-Type', value: 'application/json' }],
+            body: json({ idToken: '{{googleIdToken}}', role: 'user' }),
+            url: url('/auth/google'),
+            description:
+              'Sign in or sign up with a Google ID token (obtained client-side via Google Identity Services / the mobile Google Sign-In SDK). ' +
+              'Set the googleIdToken variable to a real token to test. Auto-saves tokens on success.',
           },
           response: [],
         },
@@ -457,6 +484,69 @@ const collection = {
           },
           response: [],
         },
+        {
+          name: 'Create Category (admin)',
+          event: script(
+            'if (pm.response.code === 201) {',
+            '  const body = pm.response.json();',
+            "  pm.collectionVariables.set('categoryId', body.data.id);",
+            "  console.log('Category created:', body.data.id);",
+            '}',
+          ),
+          request: {
+            method: 'POST',
+            header: [{ key: 'Content-Type', value: 'application/json' }],
+            body: json({
+              name: 'Hip Hop',
+              title: 'Buy Hip Hop Beats & Tracks | Premium Rap Instrumentals',
+              description: 'Exclusive Hip Hop beats, trap instrumentals, and rap tracks.',
+              regularBuyerFee: 29,
+              extendedBuyerFee: 100,
+              fileType: true,
+              thumbnailWidth: 512,
+              thumbnailHeight: 512,
+              previewImageWidth: 1080,
+              previewImageHeight: 1080,
+              mainFileTypes: 'zip,rar,mp3,wav,mp4',
+              maxPreviewFileSize: 524288000,
+              sortId: 2,
+            }),
+            url: url('/categories'),
+            description: 'ADMIN only. Creates a category. slug is auto-generated from name when omitted. Saves {{categoryId}}.',
+          },
+          response: [],
+        },
+        {
+          name: 'Get Category (admin)',
+          request: {
+            method: 'GET',
+            header: [],
+            url: url('/categories/{{categoryId}}'),
+            description: 'ADMIN only. Full category detail including fees and media dimensions.',
+          },
+          response: [],
+        },
+        {
+          name: 'Update Category (admin)',
+          request: {
+            method: 'PUT',
+            header: [{ key: 'Content-Type', value: 'application/json' }],
+            body: json({ title: 'Buy Hip Hop Beats & Tracks', sortId: 3 }),
+            url: url('/categories/{{categoryId}}'),
+            description: 'ADMIN only. Send only the fields to change (at least one).',
+          },
+          response: [],
+        },
+        {
+          name: 'Delete Category (admin)',
+          request: {
+            method: 'DELETE',
+            header: [],
+            url: url('/categories/{{categoryId}}'),
+            description: 'ADMIN only. Returns 409 if the category still has beats or sub-categories.',
+          },
+          response: [],
+        },
       ],
     },
 
@@ -498,18 +588,96 @@ const collection = {
       ],
     },
 
-    // ── Checkout ──────────────────────────────────────────────────────────────
+    // ── Payments ──────────────────────────────────────────────────────────────
     {
-      name: 'Checkout',
+      name: 'Payments',
       item: [
         {
-          name: 'Checkout',
+          name: 'Create Checkout Session',
+          event: script(
+            'if (pm.response.code === 201) {',
+            '  const body = pm.response.json();',
+            "  pm.collectionVariables.set('checkoutId', body.data.id);",
+            "  console.log('Checkout session:', body.data.id);",
+            '}',
+          ),
           request: {
             method: 'POST',
             header: [{ key: 'Content-Type', value: 'application/json' }],
-            body: json({ cartItemIds: ['{{cartItemId}}'] }),
+            body: json({ cartItemIds: ['{{cartItemId}}'], currency: '{{currency}}' }),
             url: url('/checkout'),
-            description: 'Initiate checkout. Run POST /orders/validate first. Returns 501 until a payment provider is integrated.',
+            description:
+              'STEP 1 — Validate the selected cart items and create a pending transaction priced in the chosen display currency (USD, EUR, GBP, JPY, CNY, or NGN). Payment always settles in NGN. Saves the returned id to {{checkoutId}}.',
+          },
+          response: [],
+        },
+        {
+          name: 'Get Checkout Page',
+          request: {
+            method: 'GET',
+            header: [],
+            url: url('/checkout/{{checkoutId}}'),
+            description:
+              'STEP 2 — Items, subtotal, and totals in the selected display currency. Each gateway shows its fee/total in the display currency plus chargeTotal (the actual NGN amount it will charge). All gateways are available for every currency.',
+          },
+          response: [],
+        },
+        {
+          name: 'Initialize Payment',
+          event: script(
+            'if (pm.response.code === 200) {',
+            '  const body = pm.response.json();',
+            "  pm.collectionVariables.set('paymentReference', body.data.reference);",
+            "  console.log('Pay here:', body.data.paymentUrl);",
+            '}',
+          ),
+          request: {
+            method: 'POST',
+            header: [{ key: 'Content-Type', value: 'application/json' }],
+            body: json({
+              gateway: '{{gateway}}',
+              currency: '{{currency}}',
+              billing: {
+                firstName: 'John',
+                lastName: 'Doe',
+                address1: '123 Allen Ave',
+                address2: 'Suite 5',
+                city: 'Ikeja',
+                state: 'Lagos',
+                postalCode: '100001',
+                country: 'NG',
+              },
+            }),
+            url: url('/checkout/{{checkoutId}}/pay'),
+            description:
+              'STEP 3 — Recomputes amount/fee/total server-side, persists the gateway + billing snapshot, and returns the hosted paymentUrl. Saves {{paymentReference}}. Open paymentUrl in a browser to complete payment on the gateway sandbox.',
+          },
+          response: [],
+        },
+        {
+          name: 'Get Payment Status (poll)',
+          request: {
+            method: 'GET',
+            header: [],
+            url: url('/checkout/{{checkoutId}}/status'),
+            description:
+              'STEP 4 — What the Flutter app polls after sending the buyer to the gateway. Returns the verified payment status (pending | paid | failed | cancelled) confirmed server-side by the webhook. If still pending it re-verifies with the gateway idempotently, so the client never gets stuck. Redirect/callback URLs play no part in confirmation.',
+          },
+          response: [],
+        },
+        {
+          name: 'Webhook (Paystack) — sample',
+          request: {
+            auth: { type: 'noauth' },
+            method: 'POST',
+            header: [
+              { key: 'Content-Type', value: 'application/json' },
+              { key: 'x-paystack-signature', value: '<hmac-sha512 of raw body with PAYSTACK_SECRET_KEY>' },
+            ],
+            body: json({ event: 'charge.success', data: { reference: '{{paymentReference}}' } }),
+            url: url('/webhooks/paystack'),
+            description:
+              'Reference only. The signature header must be a valid HMAC-SHA512 of the exact raw body using your Paystack secret key, so this only succeeds when delivered by Paystack (or a correctly-signed test). Returns 401 on a bad signature.',
           },
           response: [],
         },
@@ -651,6 +819,49 @@ const collection = {
             header: [],
             url: url('/favorites/remove/{{beatId}}'),
             description: 'Remove a beat from favorites by beat ID. Returns 404 if not in favorites.',
+          },
+          response: [],
+        },
+      ],
+    },
+
+    // ── Purchases ─────────────────────────────────────────────────────────────
+    {
+      name: 'Purchases',
+      item: [
+        {
+          name: 'List Purchases',
+          event: script(
+            'if (pm.response.code === 200) {',
+            '  const body = pm.response.json();',
+            '  if (body.data && body.data.length > 0) {',
+            "    pm.collectionVariables.set('purchaseId', body.data[0].id);",
+            "    console.log('First purchase ID saved:', body.data[0].id);",
+            '  }',
+            '}',
+          ),
+          request: {
+            method: 'GET',
+            header: [],
+            url: url('/purchases', [
+              { key: 'page', value: '1' },
+              { key: 'limit', value: '20' },
+            ]),
+            description:
+              'List all completed purchases for the authenticated user, newest first. ' +
+              'Use `data[].id` (purchase ID) with `GET /downloads/{id}` to get a signed download URL. ' +
+              'Auto-saves the first result to {{purchaseId}}.',
+          },
+          response: [],
+        },
+        {
+          name: 'Get Purchase',
+          request: {
+            method: 'GET',
+            header: [],
+            url: url('/purchases/{{purchaseId}}'),
+            description:
+              'Get a single purchase record by ID. Returns 404 if the purchase does not belong to the authenticated user.',
           },
           response: [],
         },

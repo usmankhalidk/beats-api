@@ -11,10 +11,12 @@ import {
   generateRandomToken,
 } from '@utils/password';
 import { sendVerificationEmail, sendPasswordResetEmail } from '@utils/mailer';
+import { verifyGoogleIdToken } from '@shared/oauth/google';
 import * as authRepo from './repository';
 import type {
   RegisterInput,
   LoginInput,
+  GoogleSignInInput,
   LogoutInput,
   RefreshTokenInput,
   ForgotPasswordInput,
@@ -102,6 +104,50 @@ export async function login(input: LoginInput): Promise<AuthSessionResult> {
   if (!ok) throw Errors.invalidCredentials();
 
   if (!user.email_verified_at) throw Errors.forbidden({ reason: 'email_not_verified' });
+
+  const tokens = await issueTokens(user);
+  return { user: toAuthUser(user), tokens };
+}
+
+/**
+ * Sign in (or transparently sign up) with a Google ID token. Resolution order:
+ *   1. A user already linked to this Google account → sign in.
+ *   2. A user with the same email → link the Google account, then sign in
+ *      (so password and Google sign-in share one account).
+ *   3. Otherwise → provision a new account from the verified Google profile.
+ * Email/password auth is untouched; Google users simply have no password set.
+ */
+export async function googleSignIn(input: GoogleSignInInput): Promise<AuthSessionResult> {
+  const profile = await verifyGoogleIdToken(input.idToken);
+  if (!profile.emailVerified) throw Errors.forbidden({ reason: 'google_email_not_verified' });
+
+  let user = await authRepo.findUserByGoogleId(profile.googleId);
+
+  if (!user) {
+    const existing = await authRepo.findUserByEmail(profile.email);
+    if (existing) {
+      // Link Google to the existing account; verify the email if Google did and
+      // it wasn't already (never overwrites an existing verification timestamp).
+      user = await authRepo.linkGoogleAccount(
+        existing.id,
+        profile.googleId,
+        !existing.email_verified_at,
+      );
+    } else {
+      user = await authRepo.createUser({
+        firstname: profile.firstName,
+        lastname: profile.lastName,
+        email: profile.email,
+        google_id: profile.googleId,
+        avatar: profile.picture,
+        role: input.role,
+        // Google has verified ownership, so the account is usable immediately.
+        email_verified_at: new Date(),
+      });
+    }
+  }
+
+  if (!user.status) throw Errors.forbidden({ reason: 'account_disabled' });
 
   const tokens = await issueTokens(user);
   return { user: toAuthUser(user), tokens };

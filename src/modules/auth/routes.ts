@@ -7,6 +7,7 @@ import * as authController from './controller';
 import {
   registerBodySchema,
   loginBodySchema,
+  googleSignInBodySchema,
   logoutBodySchema,
   refreshTokenBodySchema,
   forgotPasswordBodySchema,
@@ -143,6 +144,80 @@ router.post('/register', validate({ body: registerBodySchema }), asyncHandler(au
  *         $ref: '#/components/responses/ValidationError'
  */
 router.post('/login', validate({ body: loginBodySchema }), asyncHandler(authController.login));
+
+/**
+ * @openapi
+ * /auth/google:
+ *   post:
+ *     tags: [Auth]
+ *     summary: Sign in or sign up with a Google account
+ *     description: |
+ *       Exchanges a Google-issued ID token for our own access/refresh token pair.
+ *       The client (web via Google Identity Services, or the mobile Google Sign-In
+ *       SDK) obtains the ID token and sends it here. The API verifies the token's
+ *       signature, expiry and audience against the configured Google client ID(s).
+ *
+ *       Account resolution: an existing Google-linked user is signed in; otherwise a
+ *       user with the same email has Google linked to their account; otherwise a new
+ *       account is provisioned from the verified Google profile (no password, email
+ *       pre-verified). Existing email/password login is unaffected.
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [idToken]
+ *             properties:
+ *               idToken:
+ *                 type: string
+ *                 description: The Google ID token (JWT) obtained client-side.
+ *                 example: eyJhbGciOiJSUzI1NiIsImtpZCI6...
+ *               role:
+ *                 type: string
+ *                 enum: [user, producer]
+ *                 default: user
+ *                 description: Applied only when provisioning a brand-new account; ignored for existing users.
+ *                 example: user
+ *     responses:
+ *       200:
+ *         description: Signed in — user and token pair returned
+ *         content:
+ *           application/json:
+ *             schema:
+ *               allOf:
+ *                 - $ref: '#/components/schemas/SuccessEnvelope'
+ *                 - type: object
+ *                   properties:
+ *                     data:
+ *                       type: object
+ *                       properties:
+ *                         user:
+ *                           $ref: '#/components/schemas/UserProfile'
+ *                         tokens:
+ *                           $ref: '#/components/schemas/TokenPair'
+ *       400:
+ *         description: Google Sign-In is not configured on the server (`details.reason` = `google_signin_not_configured`).
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorEnvelope'
+ *       401:
+ *         description: The Google ID token is invalid or expired (`details.reason` = `invalid_google_token`).
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorEnvelope'
+ *       403:
+ *         description: The Google email is unverified, or the account is disabled. `details.reason` is `google_email_not_verified` or `account_disabled`.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorEnvelope'
+ *       422:
+ *         $ref: '#/components/responses/ValidationError'
+ */
+router.post('/google', validate({ body: googleSignInBodySchema }), asyncHandler(authController.googleSignIn));
 
 /**
  * @openapi
