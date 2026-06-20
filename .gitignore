@@ -3,6 +3,7 @@ dist/
 coverage/
 
 # Local env overrides — never committed
+.env
 .env.*.local
 
 # Logs
