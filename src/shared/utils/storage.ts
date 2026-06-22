@@ -10,7 +10,7 @@ function getS3(): S3Client {
   if (!s3Instance) {
     s3Instance = new S3Client({
       endpoint: config.storage.endpoint,
-      region: 'eu2',
+      region: 'eu',
       credentials: {
         accessKeyId: config.storage.accessId,
         secretAccessKey: config.storage.accessKey,
