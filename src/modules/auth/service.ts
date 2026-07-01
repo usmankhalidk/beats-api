@@ -73,7 +73,7 @@ async function issueTokens(user: User): Promise<AuthTokens> {
 
 export async function register(
   input: RegisterInput,
-): Promise<{ verificationToken?: string }> {
+): Promise<{ verificationCode?: string }> {
   if (await authRepo.findUserByEmail(input.email)) throw Errors.emailInUse();
   if (input.userName && (await authRepo.findUserByUsername(input.userName))) {
     throw Errors.conflict({ field: 'userName' });
@@ -168,7 +168,7 @@ export async function verifyEmail(code: string): Promise<AuthSessionResult> {
 
 export async function resendVerification(
   email: string,
-): Promise<{ verificationToken?: string }> {
+): Promise<{ verificationCode?: string }> {
   const user = await authRepo.findUserByEmail(email);
   if (!user) return {}; // silent — prevent email enumeration
 
