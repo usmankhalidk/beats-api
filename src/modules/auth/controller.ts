@@ -46,7 +46,7 @@ export async function changePassword(req: Request, res: Response): Promise<Respo
 }
 
 export async function verifyEmail(req: Request, res: Response): Promise<Response> {
-  const result = await authService.verifyEmail(req.body.token);
+  const result = await authService.verifyEmail(req.body.code);
   return successResponse(res, { data: result, message: 'EMAIL_VERIFIED' });
 }
 

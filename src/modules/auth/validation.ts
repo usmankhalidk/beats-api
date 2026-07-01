@@ -60,7 +60,7 @@ export const changePasswordBodySchema = z
 export type ChangePasswordInput = z.infer<typeof changePasswordBodySchema>;
 
 export const verifyEmailBodySchema = z.object({
-  token: z.string().min(1),
+  code: z.string().regex(/^\d{6}$/, 'code must be a 6-digit numeric string'),
 });
 export type VerifyEmailInput = z.infer<typeof verifyEmailBodySchema>;
 

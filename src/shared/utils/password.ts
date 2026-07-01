@@ -16,3 +16,9 @@ export function hashToken(token: string): string {
 export function generateRandomToken(bytes = 48): string {
   return crypto.randomBytes(bytes).toString('hex');
 }
+
+export function generateVerificationCode(): string {
+  // cryptographically secure 6-digit numeric code
+  const n = crypto.randomInt(0, 1_000_000);
+  return n.toString().padStart(6, '0');
+}

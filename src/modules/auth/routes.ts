@@ -27,7 +27,7 @@ router.use(authRateLimiter);
  *   post:
  *     tags: [Auth]
  *     summary: Register a new user
- *     description: Creates the account and immediately sends a verification email via Resend. Login is blocked until the email is verified. In dev/staging the verificationToken is returned in the response body for easy testing.
+ *     description: Creates the account and immediately sends a verification email via Resend. Login is blocked until the email is verified. In dev/staging the verificationCode is returned in the response body for easy testing.
  *     requestBody:
  *       required: true
  *       content:
@@ -78,9 +78,9 @@ router.use(authRateLimiter);
  *                   properties:
  *                     data:
  *                       type: object
- *                       description: Empty in production. In dev/staging the verificationToken is included for testing.
+ *                       description: Empty in production. In dev/staging the verificationCode is included for testing.
  *                       properties:
- *                         verificationToken:
+ *                         verificationCode:
  *                           type: string
  *                           description: Only present in non-production environments
  *       409:
@@ -432,9 +432,9 @@ router.post(
  *             type: object
  *             required: [token]
  *             properties:
- *               token:
+ *               code:
  *                 type: string
- *                 example: '{{verificationToken}}'
+ *                 example: '{{verificationCode}}'
  *     responses:
  *       200:
  *         description: Email verified — user is now logged in
@@ -498,7 +498,7 @@ router.post('/verify-email', validate({ body: verifyEmailBodySchema }), asyncHan
  *                     data:
  *                       type: object
  *                       properties:
- *                         verificationToken:
+ *                         verificationCode:
  *                           type: string
  *                           description: Only present in non-production environments
  *       409:

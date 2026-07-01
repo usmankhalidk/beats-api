@@ -9,6 +9,7 @@ import {
   verifyPassword,
   hashToken,
   generateRandomToken,
+  generateVerificationCode,
 } from '@utils/password';
 import { sendVerificationEmail, sendPasswordResetEmail } from '@utils/mailer';
 import { verifyGoogleIdToken } from '@shared/oauth/google';
@@ -88,11 +89,11 @@ export async function register(
     role: input.role,
   });
 
-  const rawToken = generateRandomToken();
-  await authRepo.upsertVerificationToken(user.id, hashToken(rawToken));
-  await sendVerificationEmail(input.email, rawToken);
+  const rawCode = generateVerificationCode();
+  await authRepo.upsertVerificationToken(user.id, hashToken(rawCode));
+  await sendVerificationEmail(input.email, rawCode);
 
-  return config.isProduction ? {} : { verificationToken: rawToken };
+  return config.isProduction ? {} : { verificationCode: rawCode };
 }
 
 export async function login(input: LoginInput): Promise<AuthSessionResult> {
@@ -153,8 +154,8 @@ export async function googleSignIn(input: GoogleSignInInput): Promise<AuthSessio
   return { user: toAuthUser(user), tokens };
 }
 
-export async function verifyEmail(token: string): Promise<AuthSessionResult> {
-  const tokenHash = hashToken(token);
+export async function verifyEmail(code: string): Promise<AuthSessionResult> {
+  const tokenHash = hashToken(code);
   const row = await authRepo.findVerificationByToken(tokenHash, config.emailVerification.ttlMinutes);
   if (!row) throw Errors.invalidToken();
 
@@ -173,11 +174,11 @@ export async function resendVerification(
 
   if (user.email_verified_at) throw Errors.conflict({ reason: 'already_verified' });
 
-  const rawToken = generateRandomToken();
-  await authRepo.upsertVerificationToken(user.id, hashToken(rawToken));
-  await sendVerificationEmail(email, rawToken);
+  const rawCode = generateVerificationCode();
+  await authRepo.upsertVerificationToken(user.id, hashToken(rawCode));
+  await sendVerificationEmail(email, rawCode);
 
-  return config.isProduction ? {} : { verificationToken: rawToken };
+  return config.isProduction ? {} : { verificationCode: rawCode };
 }
 
 export async function logout(input: LogoutInput): Promise<void> {
